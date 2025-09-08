@@ -14,7 +14,7 @@ class ServiceUsuario {
             const usuario = await this.repository.cadastrar(dadosUsuario)
             return usuario;
         } catch (error) {
-            console.error('Erro no service ao cadastrar usuário:', error);
+            console.error('[Service] Erro ao cadastrar usuário:', error);
             throw new Error('Falha ao cadastrar usuário');
         }
     }
@@ -24,7 +24,7 @@ class ServiceUsuario {
             const dados = await this.repository.listar()
             return dados;
         } catch (error) {
-            console.error('Erro no service ao listar usuários:', error);
+            console.error('[Service] Erro no ao listar usuários:', error);
             throw new Error('Falha ao buscar usuários');
         }
     }

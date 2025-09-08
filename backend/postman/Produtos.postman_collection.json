@@ -1,0 +1,59 @@
+{
+	"info": {
+		"_postman_id": "9f84d801-a486-46f8-9458-e7a84c8fb1aa",
+		"name": "Produtos",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43925946"
+	},
+	"item": [
+		{
+			"name": "Listar produtos",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/produtos",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"produtos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cadastrar produto",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"criador\":\"\",\n    \"nome_produto\":\"\",\n    \"descricao\":\"\",\n    \"preco\":1,\n    \"imagem\":\"\",\n    \"ativo\":false,\n    \"mensagem\":\"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/produtos",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"produtos"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
