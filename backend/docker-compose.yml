@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  mongodb:
+    container_name: mongodb-vitrine
+    image: mongo:8
+    volumes:
+      - vol-mongodb:/data/db
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+
+volumes:
+  vol-mongodb:

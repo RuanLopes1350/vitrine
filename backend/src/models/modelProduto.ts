@@ -12,6 +12,7 @@ class Produto {
             preco: {type: Number, required: true},
             imagem: {type: String, required: false},
             ativo: {type: Boolean, default: true},
+            mensagem: {type: String, required: true}
         }, {
             timestamps: {
                 createdAt: "data_cadastro",
