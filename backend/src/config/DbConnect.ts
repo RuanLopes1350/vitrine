@@ -7,6 +7,7 @@ class DbConnect {
     static async conectar() {
         try {
             const mongoUri = process.env.DB_URL;
+            console.log(mongoUri)
             if (!mongoUri) {
                 throw new Error("A variável de ambiente DB_URL não está definida.")
             }

@@ -1,5 +1,6 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
+import DbConnect from './config/DbConnect';
 import routesUsuario from './routes/routesUsuario'
 
 dotenv.config();
@@ -10,15 +11,30 @@ const app = express();
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json({message: 'Hello, World!'});
+  res.json({ message: 'Hello, World!' });
 });
 
-app.use(routesUsuario)
+// Rotas de usuário
+app.use(routesUsuario);
 
+// TODO: Rotas de produtos
+// app.use(routesProduto);
+
+// Rota para tratar requisições para rotas não definidas
 app.use((req, res) => {
-  return res.status(404).json({message: 'Rota não encontrada!'})
+  return res.status(404).json({ message: 'Rota não encontrada!' })
 })
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+async function startServer() {
+  try {
+    await DbConnect.conectar();
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error('Erro ao iniciar servidor:', error);
+    process.exit(1);
+  }
+}
+
+startServer();

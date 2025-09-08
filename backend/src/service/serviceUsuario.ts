@@ -7,15 +7,26 @@ class ServiceUsuario {
         this.repository = new RepositoryUsuario
     }
 
-    async cadastrar(dadosUsuario:typeUsuario) {
-        // TODO: Implementar regras de negócios.
-        const usuario = await this.repository.cadastrar(dadosUsuario)
-        return usuario;
+    async cadastrar(dadosUsuario: typeUsuario) {
+        try {
+            // TODO: Implementar regras de negócios.
+            // Exemplo: validar se email já existe
+            const usuario = await this.repository.cadastrar(dadosUsuario)
+            return usuario;
+        } catch (error) {
+            console.error('Erro no service ao cadastrar usuário:', error);
+            throw new Error('Falha ao cadastrar usuário');
+        }
     }
 
-    async listar(){
-        const dados = await this.repository.listar()
-        return dados
+    async listar() {
+        try {
+            const dados = await this.repository.listar()
+            return dados;
+        } catch (error) {
+            console.error('Erro no service ao listar usuários:', error);
+            throw new Error('Falha ao buscar usuários');
+        }
     }
 }
 
