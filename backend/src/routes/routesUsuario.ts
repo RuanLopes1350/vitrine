@@ -10,9 +10,9 @@ router
         try {
             const usuario = await controller.cadastrar(req.body);
             res.status(201).json(usuario);
-        } catch (error) {
-            console.error('Erro ao cadastrar usuário:', error);
-            res.status(500).json({ error: 'Erro interno do servidor' });
+        } catch (erro) {
+            console.error('Erro ao cadastrar usuário:', erro);
+            res.status(500).json({ error: erro.message });
         }
     })
     // Rota para listar todos os usuários
@@ -20,9 +20,9 @@ router
         try {
             const usuarios = await controller.listar();
             res.status(200).json(usuarios);
-        } catch (error) {
-            console.error('Erro ao listar usuários:', error);
-            res.status(500).json({ error: 'Erro interno do servidor' });
+        } catch (erro) {
+            console.error('Erro ao listar usuários:', erro);
+            res.status(500).json({ error: erro.message });
         }
     })
 

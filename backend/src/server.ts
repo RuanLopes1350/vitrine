@@ -2,6 +2,7 @@ import express from 'express';
 import * as dotenv from 'dotenv';
 import DbConnect from './config/DbConnect';
 import routesUsuario from './routes/routesUsuario'
+import routesProduto from './routes/routesProduto'
 
 dotenv.config();
 
@@ -17,8 +18,8 @@ app.get('/', (req, res) => {
 // Rotas de usuário
 app.use(routesUsuario);
 
-// TODO: Rotas de produtos
-// app.use(routesProduto);
+// Rotas de produtos
+app.use(routesProduto);
 
 // Rota para tratar requisições para rotas não definidas
 app.use((req, res) => {

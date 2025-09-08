@@ -1,0 +1,60 @@
+{
+	"info": {
+		"_postman_id": "69308f1f-8739-4edc-93c9-16913cee470a",
+		"name": "Usuarios",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43925946"
+	},
+	"item": [
+		{
+			"name": "Listar usuarios",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/usuarios",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"usuarios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cadastrar usuario",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nome\": \"\",\n    \"email\": \"\",\n    \"senha\": \"\",\n    \"whatsapp\": \"\",\n    \"ativo\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/usuarios",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"usuarios"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
