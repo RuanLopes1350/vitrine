@@ -7,7 +7,7 @@ services:
     volumes:
       - vol-mongodb:/data/db
     ports:
-      - 27017:27017
+      - 1000:27017
     restart: unless-stopped
 
 volumes:
