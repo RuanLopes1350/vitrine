@@ -18,6 +18,15 @@ class RepositoryUsuario {
         const dados = await this.model.find();
         return dados;
     }
+
+    async buscarPorId(id: string) {
+        const usuario = await this.model.findById(id);
+        return usuario;
+    }
+
+    async deletar (id: string) {
+        return await this.model.findByIdAndDelete(id);
+    }
 }
 
 export default RepositoryUsuario;

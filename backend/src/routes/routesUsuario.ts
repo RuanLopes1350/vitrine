@@ -11,7 +11,7 @@ router
             const usuario = await controller.cadastrar(req.body);
             res.status(201).json(usuario);
         } catch (erro) {
-            console.error('Erro ao cadastrar usuário:', erro);
+            console.error('[Endpoint] Erro ao cadastrar usuário:', erro);
             res.status(500).json({ error: erro.message });
         }
     })
@@ -21,8 +21,26 @@ router
             const usuarios = await controller.listar();
             res.status(200).json(usuarios);
         } catch (erro) {
-            console.error('Erro ao listar usuários:', erro);
+            console.error('[Endpoint] Erro ao listar usuários:', erro);
             res.status(500).json({ error: erro.message });
+        }
+    })
+    .get('/usuarios/:id', async (req, res) => {
+        try {
+            const usuario = await controller.buscarPorId(req.params.id)
+            res.status(200).json(usuario)
+        } catch (erro) {
+            console.error('[Endpoint] Erro ao buscar usuario por id:', erro)
+            res.status(500).json({error: erro.message})
+        }
+    })
+    .delete('/usuarios/:id', async (req, res) => {
+        try {
+            await controller.deletar(req.params.id)
+            res.status(200).json({message: `Usuario ${req.params.id} deletado com sucesso!`})
+        } catch (erro) {
+            console.error('[Endpoint] Erro ao buscar usuario por id:', erro)
+            res.status(500).json({error: erro.message})
         }
     })
 

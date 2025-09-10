@@ -17,6 +17,15 @@ class ControllerUsuario {
         const dados = await this.service.listar()
         return dados
     }
+
+    async buscarPorId(id: string) {
+        const dados = await this.service.buscarPorId(id)
+        return dados;
+    }
+
+    async deletar(id:string) {
+        return await this.service.deletar(id);
+    }
 }
 
 export default ControllerUsuario;
