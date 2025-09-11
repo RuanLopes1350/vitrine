@@ -23,8 +23,16 @@ router
     })
     .get('/produtos/:id', async (req, res) => {
         try {
-            const produtos = await controller.buscarPorId(req.params.id);
-            res.status(200).json(produtos);
+            const produto = await controller.buscarPorId(req.params.id);
+            res.status(200).json(produto);
+        } catch (erro) {
+            res.status(500).json({ error: erro.message });
+        }
+    })
+    .patch('/produtos/:id', async (req, res) => {
+        try {
+            const produto = await controller.editar(req.params.id, req.body);
+            res.status(200).json(produto);
         } catch (erro) {
             res.status(500).json({ error: erro.message });
         }

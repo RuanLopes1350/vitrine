@@ -1,5 +1,5 @@
 export type typeProduto = {
-    ciador: string,
+    criador: string,
     nome_produto: string,
     descricao: string,
     preco: Number,
@@ -7,3 +7,5 @@ export type typeProduto = {
     ativo: boolean,
     mensagem: string
 }
+
+export type typeProdutoEdicao = Partial<typeProduto>;

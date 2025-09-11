@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { typeProduto } from '../types/typeProduto';
+import { typeProduto, typeProdutoEdicao } from '../types/typeProduto';
 import modelProduto from '../models/modelProduto';
 
 class RepositoryProduto {
@@ -19,14 +19,23 @@ class RepositoryProduto {
         return dados;
     }
 
-    async buscarPorId(id:string) {
+    async buscarPorId(id: string) {
         const dados = await this.model.findById(id);
         return dados;
     }
 
-    async deletar(id:string){
+    async editar(id: string, dadosProduto: typeProdutoEdicao) {
+        const dados = await this.model.findByIdAndUpdate(
+            id,
+            dadosProduto,
+            { new: true, runValidators: true }
+        );
+        return dados;
+    }
+
+    async deletar(id: string) {
         return await this.model.findByIdAndDelete(id)
-        
+
     }
 }
 

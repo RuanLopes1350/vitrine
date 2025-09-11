@@ -27,16 +27,42 @@
 			"response": []
 		},
 		{
+			"name": "Buscar produto por ID",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/produtos/{{produto_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"produtos",
+						"{{produto_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Cadastrar produto",
 			"request": {
 				"auth": {
 					"type": "noauth"
 				},
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"criador\":\"\",\n    \"nome_produto\":\"\",\n    \"descricao\":\"\",\n    \"preco\":1,\n    \"imagem\":\"\",\n    \"ativo\":false,\n    \"mensagem\":\"\"\n}",
+					"raw": "{\n    \"criador\": \"João Silva\",\n    \"nome_produto\": \"Produto Exemplo\",\n    \"descricao\": \"Descrição detalhada do produto\",\n    \"preco\": 99.99,\n    \"imagem\": \"https://exemplo.com/imagem.jpg\",\n    \"ativo\": true,\n    \"mensagem\": \"Olá, me interessei pelo produto!\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -50,6 +76,62 @@
 					],
 					"path": [
 						"produtos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Editar produto",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"nome_produto\": \"Produto Atualizado\",\n    \"preco\": 149.99,\n    \"ativo\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/produtos/{{produto_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"produtos",
+						"{{produto_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletar produto",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/produtos/{{produto_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"produtos",
+						"{{produto_id}}"
 					]
 				}
 			},

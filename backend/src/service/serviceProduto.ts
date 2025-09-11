@@ -1,5 +1,5 @@
 import RepositoryProduto from "../repository/repositoryProduto";
-import { typeProduto } from "../types/typeProduto";
+import { typeProduto, typeProdutoEdicao } from "../types/typeProduto";
 
 class ServiceProduto {
     private repository: RepositoryProduto
@@ -29,7 +29,7 @@ class ServiceProduto {
         }
     }
 
-    async buscarPorId(id:string) {
+    async buscarPorId(id: string) {
         try {
             const dados = await this.repository.buscarPorId(id)
             return dados;
@@ -39,11 +39,36 @@ class ServiceProduto {
         }
     }
 
-    async deletar(id:string) {
+    async editar(id: string, dadosProduto: typeProdutoEdicao) {
         try {
-            const produtoExiste:typeProduto = await this.buscarPorId(id)
+            // Verificar se o produto existe antes de editar
+            const produtoExistente = await this.repository.buscarPorId(id);
+            if (!produtoExistente) {
+                throw new Error('Produto não encontrado');
+            }
 
-            if(produtoExiste) {
+            // Validar se pelo menos um campo foi enviado para atualização
+            if (Object.keys(dadosProduto).length === 0) {
+                throw new Error('Nenhum dado fornecido para atualização');
+            }
+
+            const produtoAtualizado = await this.repository.editar(id, dadosProduto);
+            if (!produtoAtualizado) {
+                throw new Error('Falha ao atualizar produto');
+            }
+
+            return produtoAtualizado;
+        } catch (erro) {
+            console.error('[Service] Falha ao editar os dados de produto!', erro);
+            throw erro instanceof Error ? erro : new Error('Falha ao editar dados de produto!');
+        }
+    }
+
+    async deletar(id: string) {
+        try {
+            const produtoExiste: typeProduto = await this.buscarPorId(id)
+
+            if (produtoExiste) {
                 console.log(`Produto ${produtoExiste.nome_produto} encontrado, prosseguindo para deletar!`)
                 return await this.repository.deletar(id)
             }
