@@ -18,6 +18,11 @@ class RepositoryProduto {
         const dados = await this.model.find();
         return dados;
     }
+
+    async buscarPorId(id:string) {
+        const dados = await this.model.findById(id);
+        return dados;
+    }
 }
 
 export default RepositoryProduto;

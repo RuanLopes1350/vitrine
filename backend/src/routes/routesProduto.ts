@@ -20,6 +20,14 @@ router
         } catch (erro) {
             res.status(500).json({ error: erro.message });
         }
-    });
+    })
+    .get('/produtos/:id', async (req, res) => {
+        try {
+            const produtos = await controller.buscarPorId(req.params.id);
+            res.status(200).json(produtos);
+        } catch (erro) {
+            res.status(500).json({ error: erro.message });
+        }
+    })
 
 export default router;

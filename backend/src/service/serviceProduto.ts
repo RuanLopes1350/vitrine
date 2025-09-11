@@ -28,6 +28,16 @@ class ServiceProduto {
             throw new Error('Falha ao buscar produtos');
         }
     }
+
+    async buscarPorId(id:string) {
+        try {
+            const dados = await this.repository.buscarPorId(id)
+            return dados;
+        } catch (erro) {
+            console.error('[Service] Erro ao buscar produto por id:', erro);
+            throw new Error('Falha ao buscar produto por id')
+        }
+    }
 }
 
 export default ServiceProduto;

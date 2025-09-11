@@ -17,6 +17,11 @@ class ControllerProduto {
         const dados = await this.service.listar();
         return dados;
     }
+
+    async buscarPorId(id:string) {
+        const dados = await this.service.buscarPorId(id);
+        return dados;
+    }
 }
 
 export default ControllerProduto;
