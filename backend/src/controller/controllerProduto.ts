@@ -1,5 +1,5 @@
 import ServiceProduto from "../service/serviceProduto";
-import { typeProduto } from "../types/typeProduto";
+import { typeProduto, typeProdutoEdicao } from "../types/typeProduto";
 
 class ControllerProduto {
     private service: ServiceProduto
@@ -15,6 +15,21 @@ class ControllerProduto {
 
     async listar() {
         const dados = await this.service.listar();
+        return dados;
+    }
+
+    async buscarPorId(id: string) {
+        const dados = await this.service.buscarPorId(id);
+        return dados;
+    }
+
+    async editar(id: string, dadosProduto: typeProdutoEdicao) {
+        const dados = await this.service.editar(id, dadosProduto);
+        return dados;
+    }
+
+    async deletar(id: string) {
+        const dados = await this.service.deletar(id);
         return dados;
     }
 }

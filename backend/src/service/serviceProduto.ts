@@ -1,5 +1,5 @@
 import RepositoryProduto from "../repository/repositoryProduto";
-import { typeProduto } from "../types/typeProduto";
+import { typeProduto, typeProdutoEdicao } from "../types/typeProduto";
 
 class ServiceProduto {
     private repository: RepositoryProduto
@@ -26,6 +26,56 @@ class ServiceProduto {
         } catch (erro) {
             console.error('[Service] Erro ao listar produtos:', erro);
             throw new Error('Falha ao buscar produtos');
+        }
+    }
+
+    async buscarPorId(id: string) {
+        try {
+            const dados = await this.repository.buscarPorId(id)
+            return dados;
+        } catch (erro) {
+            console.error('[Service] Erro ao buscar produto por id:', erro);
+            throw new Error('Falha ao buscar produto por id')
+        }
+    }
+
+    async editar(id: string, dadosProduto: typeProdutoEdicao) {
+        try {
+            // Verificar se o produto existe antes de editar
+            const produtoExistente = await this.repository.buscarPorId(id);
+            if (!produtoExistente) {
+                throw new Error('Produto não encontrado');
+            }
+
+            // Validar se pelo menos um campo foi enviado para atualização
+            if (Object.keys(dadosProduto).length === 0) {
+                throw new Error('Nenhum dado fornecido para atualização');
+            }
+
+            const produtoAtualizado = await this.repository.editar(id, dadosProduto);
+            if (!produtoAtualizado) {
+                throw new Error('Falha ao atualizar produto');
+            }
+
+            return produtoAtualizado;
+        } catch (erro) {
+            console.error('[Service] Falha ao editar os dados de produto!', erro);
+            throw erro instanceof Error ? erro : new Error('Falha ao editar dados de produto!');
+        }
+    }
+
+    async deletar(id: string) {
+        try {
+            const produtoExiste: typeProduto = await this.buscarPorId(id)
+
+            if (produtoExiste) {
+                console.log(`Produto ${produtoExiste.nome_produto} encontrado, prosseguindo para deletar!`)
+                return await this.repository.deletar(id)
+            }
+            throw new Error('Produto não encontrado para deletar!');
+        } catch (erro) {
+            console.error('[Service] Erro ao deletar usuário:', erro);
+            throw new Error('Falha ao deletar usuário');
         }
     }
 }
