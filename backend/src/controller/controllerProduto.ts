@@ -1,5 +1,6 @@
 import ServiceProduto from "../service/serviceProduto";
 import { typeProduto, typeProdutoEdicao } from "../types/typeProduto";
+import { CommonResponse } from "../utils/helpers/commonResponse";
 
 class ControllerProduto {
     private service: ServiceProduto
@@ -8,29 +9,24 @@ class ControllerProduto {
         this.service = new ServiceProduto();
     }
 
-    async cadastrar(dadosProduto: typeProduto) {
-        const produto = await this.service.cadastrar(dadosProduto);
-        return produto;
+    async cadastrar(dadosProduto: typeProduto): Promise<CommonResponse> {
+        return await this.service.cadastrar(dadosProduto);
     }
 
-    async listar() {
-        const dados = await this.service.listar();
-        return dados;
+    async listar(): Promise<CommonResponse> {
+        return await this.service.listar();
     }
 
-    async buscarPorId(id: string) {
-        const dados = await this.service.buscarPorId(id);
-        return dados;
+    async buscarPorId(id: string): Promise<CommonResponse> {
+        return await this.service.buscarPorId(id);
     }
 
-    async editar(id: string, dadosProduto: typeProdutoEdicao) {
-        const dados = await this.service.editar(id, dadosProduto);
-        return dados;
+    async editar(id: string, dadosProduto: typeProdutoEdicao): Promise<CommonResponse> {
+        return await this.service.editar(id, dadosProduto);
     }
 
-    async deletar(id: string) {
-        const dados = await this.service.deletar(id);
-        return dados;
+    async deletar(id: string): Promise<CommonResponse> {
+        return await this.service.deletar(id);
     }
 }
 
