@@ -29,5 +29,13 @@ router
             res.status(500).json({ error: erro.message });
         }
     })
+    .delete('/produtos/:id', async (req, res) => {
+        try {
+            const produtos = await controller.deletar(req.params.id);
+            res.status(200).json(produtos);
+        } catch (erro) {
+            res.status(500).json({ error: erro.message })
+        }
+    })
 
 export default router;

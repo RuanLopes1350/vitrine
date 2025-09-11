@@ -22,6 +22,11 @@ class ControllerProduto {
         const dados = await this.service.buscarPorId(id);
         return dados;
     }
+
+    async deletar(id:string){
+        const dados = await this.service.deletar(id);
+        return dados;
+    }
 }
 
 export default ControllerProduto;

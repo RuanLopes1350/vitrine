@@ -23,6 +23,11 @@ class RepositoryProduto {
         const dados = await this.model.findById(id);
         return dados;
     }
+
+    async deletar(id:string){
+        return await this.model.findByIdAndDelete(id)
+        
+    }
 }
 
 export default RepositoryProduto;

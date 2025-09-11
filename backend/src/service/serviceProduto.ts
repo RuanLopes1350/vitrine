@@ -38,6 +38,21 @@ class ServiceProduto {
             throw new Error('Falha ao buscar produto por id')
         }
     }
+
+    async deletar(id:string) {
+        try {
+            const produtoExiste:typeProduto = await this.buscarPorId(id)
+
+            if(produtoExiste) {
+                console.log(`Produto ${produtoExiste.nome_produto} encontrado, prosseguindo para deletar!`)
+                return await this.repository.deletar(id)
+            }
+            throw new Error('Produto não encontrado para deletar!');
+        } catch (erro) {
+            console.error('[Service] Erro ao deletar usuário:', erro);
+            throw new Error('Falha ao deletar usuário');
+        }
+    }
 }
 
 export default ServiceProduto;
