@@ -23,6 +23,10 @@ class ControllerUsuario {
         return dados;
     }
 
+    async atualizar(id:string, dadosUsuario:typeUsuario) {
+        return await this.service.atualizar(id, dadosUsuario);
+    }
+
     async deletar(id:string) {
         return await this.service.deletar(id);
     }

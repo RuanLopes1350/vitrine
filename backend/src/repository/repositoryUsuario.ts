@@ -24,7 +24,11 @@ class RepositoryUsuario {
         return usuario;
     }
 
-    async deletar (id: string) {
+    async atualizar(id: string, dadosUsuario: typeUsuario) {
+        return await this.model.findByIdAndUpdate(id, dadosUsuario, { new: true });
+    }
+
+    async deletar(id: string) {
         return await this.model.findByIdAndDelete(id);
     }
 }
