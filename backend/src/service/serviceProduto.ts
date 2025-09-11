@@ -1,5 +1,7 @@
+import { z } from "zod";
 import RepositoryProduto from "../repository/repositoryProduto";
 import { typeProduto, typeProdutoEdicao } from "../types/typeProduto";
+import { ProdutoSchema } from "../utils/validations/produtoSchema";
 
 class ServiceProduto {
     private repository: RepositoryProduto
@@ -9,11 +11,17 @@ class ServiceProduto {
 
     async cadastrar(dadosProduto: typeProduto) {
         try {
-            // TODO: Implementar regras de negócios.
-            // Exemplo: validar se email já existe
-            const produto = await this.repository.cadastrar(dadosProduto)
+            ProdutoSchema.parse(dadosProduto);
+            const produto = await this.repository.cadastrar(dadosProduto);
             return produto;
         } catch (erro) {
+            if (erro instanceof z.ZodError) {
+                const mensagensErro = erro.issues.map(err =>
+                    `${err.path.join('.')}: ${err.message}`
+                ).join('; ');
+                throw new Error(`Dados inválidos: ${mensagensErro}`);
+            }
+
             console.error('[Service] Erro ao cadastrar produto:', erro);
             throw new Error('Falha ao cadastrar produto');
         }
