@@ -1,4 +1,5 @@
 import RepositoryUsuario from "../repository/repositoryUsuario";
+import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuarioSchema.ts";
 import { typeUsuario } from "../types/typeUsuario";
 
 class ServiceUsuario {
@@ -11,6 +12,8 @@ class ServiceUsuario {
         try {
             // TODO: Implementar regras de negócios.
             // Exemplo: validar se email já existe
+            UsuarioSchema.parse(dadosUsuario);
+
             const usuario = await this.repository.cadastrar(dadosUsuario)
             return usuario;
         } catch (erro) {
@@ -49,6 +52,8 @@ class ServiceUsuario {
     async atualizar(id: string, dadosUsuario: typeUsuario) {
         try {
             const usuarioExiste:typeUsuario = await this.repository.buscarPorId(id);
+
+            UsuarioUpdateSchema.parse(dadosUsuario);
 
             if(usuarioExiste) {
                 console.log(`Usuário ${usuarioExiste.nome} encontrado, prosseguindo para atualizar!`)
