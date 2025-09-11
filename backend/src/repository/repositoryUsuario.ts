@@ -31,6 +31,12 @@ class RepositoryUsuario {
     async deletar(id: string) {
         return await this.model.findByIdAndDelete(id);
     }
+
+    async buscarPorEmail(email:string) {
+        const data = await this.model.findOne({email:email}, '+senha');
+        return data
+    }
+
 }
 
 export default RepositoryUsuario;
