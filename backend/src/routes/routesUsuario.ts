@@ -34,6 +34,15 @@ router
             res.status(500).json({error: erro.message})
         }
     })
+    .patch('/usuarios/:id', async (req, res) => {
+        try {
+            const usuarioAtualziado = await controller.atualizar(req.params.id, req.body)
+            res.status(200).json(usuarioAtualziado);
+        } catch (erro) {
+            console.error('[Endpoint] Erro ao atualizar usuario por id:', erro)
+            res.status(500).json({error: erro.message})
+        }
+    })
     .delete('/usuarios/:id', async (req, res) => {
         try {
             await controller.deletar(req.params.id)

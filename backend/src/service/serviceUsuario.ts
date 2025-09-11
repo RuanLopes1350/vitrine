@@ -15,7 +15,7 @@ class ServiceUsuario {
             return usuario;
         } catch (erro) {
             console.error('[Service] Erro ao cadastrar usuário:', erro);
-            throw new Error('Falha ao cadastrar usuário');
+            throw new Error('Falha ao cadastrar usuário!');
         }
     }
 
@@ -43,6 +43,21 @@ class ServiceUsuario {
             }
             
             throw new Error('Falha ao buscar usuário!')
+        }
+    }
+
+    async atualizar(id: string, dadosUsuario: typeUsuario) {
+        try {
+            const usuarioExiste:typeUsuario = await this.repository.buscarPorId(id);
+
+            if(usuarioExiste) {
+                console.log(`Usuário ${usuarioExiste.nome} encontrado, prosseguindo para atualizar!`)
+                return await this.repository.atualizar(id, dadosUsuario);
+            }
+            throw new Error('Usuário não encontrado para atualizar!');
+        } catch (erro) {
+            console.error('[Service] Erro ao atualizar usuário:', erro);
+            throw new Error('Falha ao atualizar usuário');
         }
     }
 
