@@ -82,6 +82,13 @@ export class CommonResponse {
 
     // Converter para JSON
     toJSON() {
+        if(this.erro === false) {
+            return {
+                code: this.code,
+                mensagem: this.mensagem,
+                data: this.data
+            }
+        }
         return {
             erro: this.erro,
             code: this.code,
