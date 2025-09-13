@@ -11,44 +11,6 @@ class ServiceProduto {
         this.repository = new RepositoryProduto()
     }
 
-    private formatarErrosZod(erros: z.ZodError): any[] {
-        return erros.issues.map(err => {
-            const campo = err.path.length > 0 ? err.path.join('.') : 'campo';
-            let mensagem = err.message;
-
-            // Customizar mensagens para tipos específicos de erro
-            if (err.code === 'invalid_type') {
-                switch (campo) {
-                    case 'nome_produto':
-                        mensagem = 'Nome do produto é obrigatório e deve ser um texto!';
-                        break;
-                    case 'descricao':
-                        mensagem = 'Descrição é obrigatória e deve ser um texto!';
-                        break;
-                    case 'preco':
-                        mensagem = 'Preço é obrigatório e deve ser um número!';
-                        break;
-                    case 'ativo':
-                        mensagem = 'Status ativo é obrigatório e deve ser verdadeiro ou falso!';
-                        break;
-                    case 'mensagem':
-                        mensagem = 'Mensagem é obrigatória e deve ser um texto!';
-                        break;
-                    case 'criador':
-                        mensagem = 'ID do criador é obrigatório!';
-                        break;
-                    default:
-                        mensagem = `Campo ${campo} é obrigatório ou tem tipo inválido!`;
-                }
-            }
-
-            return {
-                campo: campo,
-                mensagem: mensagem
-            };
-        });
-    }
-
     async cadastrar(dadosProduto: typeProduto): Promise<CommonResponse> {
         try {
             // Validação com Zod
@@ -60,8 +22,14 @@ class ServiceProduto {
             return CommonResponse.created('Produto cadastrado com sucesso!', produto);
         } catch (erro) {
             if (erro instanceof z.ZodError) {
-                const mensagensErro = this.formatarErrosZod(erro);
-                
+                const mensagensErro = erro.issues.map(err => {
+                    const campo = err.path.length > 0 ? err.path.join('.') : 'campo';
+                    return {
+                        campo: campo,
+                        mensagem: err.message
+                    };
+                });
+
                 console.log('[Service] Erros de validação:', mensagensErro);
                 return CommonResponse.validationError('Dados inválidos para cadastro', mensagensErro);
             }
@@ -125,12 +93,18 @@ class ServiceProduto {
             return CommonResponse.success('Produto atualizado com sucesso', produtoAtualizado);
         } catch (erro) {
             if (erro instanceof z.ZodError) {
-                const mensagensErro = this.formatarErrosZod(erro);
-                
+                const mensagensErro = erro.issues.map(err => {
+                    const campo = err.path.length > 0 ? err.path.join('.') : 'campo';
+                    return {
+                        campo: campo,
+                        mensagem: err.message
+                    };
+                });
+
                 console.log('[Service] Erros de validação na edição:', mensagensErro);
                 return CommonResponse.validationError('Dados inválidos para atualização', mensagensErro);
             }
-            
+
             console.error('[Service] Falha ao editar os dados de produto!', erro);
             return CommonResponse.error('Falha ao editar dados de produto');
         }
