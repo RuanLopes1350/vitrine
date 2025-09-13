@@ -93,7 +93,6 @@ export class CommonResponse {
             erro: this.erro,
             code: this.code,
             mensagem: this.mensagem,
-            data: this.data,
             erros: this.erros.length > 0 ? this.erros : undefined
         };
     }
