@@ -20,8 +20,9 @@ class ServiceAuth {
 
         }catch(erro){
             console.log(erro,'Deu ruim aqui')
-            throw new Error(erro)
+            throw new Error(erro.message)
 
         }
     }
 }
+export default ServiceAuth

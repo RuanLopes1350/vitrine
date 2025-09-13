@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import DbConnect from './config/DbConnect';
 import routesUsuario from './routes/routesUsuario'
 import routesProduto from './routes/routesProduto'
+import routesAuth from './routes/routesAuth'
 
 dotenv.config();
 
@@ -20,6 +21,9 @@ app.use(routesUsuario);
 
 // Rotas de produtos
 app.use(routesProduto);
+
+// Rotas de Auth
+app.use(routesAuth);
 
 // Rota para tratar requisições para rotas não definidas
 app.use((req, res) => {
