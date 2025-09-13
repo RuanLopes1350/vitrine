@@ -6,44 +6,68 @@ const controller = new ControllerProduto();
 
 router
     .post('/produtos', async (req, res) => {
-        try {
-            const produto = await controller.cadastrar(req.body);
-            res.status(201).json(produto);
-        } catch (erro) {
-            res.status(500).json({ error: erro.message });
-        }
+        const response = await controller.cadastrar(req.body);
+        return response.send(res);
     })
     .get('/produtos', async (req, res) => {
-        try {
-            const produtos = await controller.listar();
-            res.status(200).json(produtos);
-        } catch (erro) {
-            res.status(500).json({ error: erro.message });
-        }
+        const response = await controller.listar();
+        return response.send(res);
     })
     .get('/produtos/:id', async (req, res) => {
-        try {
-            const produto = await controller.buscarPorId(req.params.id);
-            res.status(200).json(produto);
-        } catch (erro) {
-            res.status(500).json({ error: erro.message });
+        // Validar se o ID é um ObjectId válido
+        if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                erro: true,
+                code: 400,
+                mensagem: 'ID inválido. Deve ser um ObjectId válido do MongoDB.',
+                data: null,
+                erros: []
+            });
         }
+
+        const response = await controller.buscarPorId(req.params.id);
+        return response.send(res);
     })
     .patch('/produtos/:id', async (req, res) => {
-        try {
-            const produto = await controller.editar(req.params.id, req.body);
-            res.status(200).json(produto);
-        } catch (erro) {
-            res.status(500).json({ error: erro.message });
+        // Validar se o ID é um ObjectId válido
+        if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                erro: true,
+                code: 400,
+                mensagem: 'ID inválido. Deve ser um ObjectId válido do MongoDB.',
+                data: null,
+                erros: []
+            });
         }
+
+        // Validar se há dados para atualizar
+        if (!req.body || Object.keys(req.body).length === 0) {
+            return res.status(400).json({
+                erro: true,
+                code: 400,
+                mensagem: 'Nenhum dado fornecido para atualização',
+                data: null,
+                erros: []
+            });
+        }
+
+        const response = await controller.editar(req.params.id, req.body);
+        return response.send(res);
     })
     .delete('/produtos/:id', async (req, res) => {
-        try {
-            const produtos = await controller.deletar(req.params.id);
-            res.status(200).json(produtos);
-        } catch (erro) {
-            res.status(500).json({ error: erro.message })
+        // Validar se o ID é um ObjectId válido
+        if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                erro: true,
+                code: 400,
+                mensagem: 'ID inválido. Deve ser um ObjectId válido do MongoDB.',
+                data: null,
+                erros: []
+            });
         }
+
+        const response = await controller.deletar(req.params.id);
+        return response.send(res);
     })
 
 export default router;
