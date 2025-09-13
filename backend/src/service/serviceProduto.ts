@@ -1,7 +1,7 @@
 import { z } from "zod";
 import RepositoryProduto from "../repository/repositoryProduto";
 import { typeProduto, typeProdutoEdicao } from "../types/typeProduto";
-import { ProdutoSchema } from "../utils/validations/produtoSchema";
+import { ProdutoSchema, ProdutoEdicaoSchema } from "../utils/validations/produtoSchema";
 import { CommonResponse } from "../utils/helpers/commonResponse";
 import HttpStatusCodes from "../utils/helpers/httpStatusCodes";
 
@@ -9,6 +9,44 @@ class ServiceProduto {
     private repository: RepositoryProduto
     constructor() {
         this.repository = new RepositoryProduto()
+    }
+
+    private formatarErrosZod(erros: z.ZodError): any[] {
+        return erros.issues.map(err => {
+            const campo = err.path.length > 0 ? err.path.join('.') : 'campo';
+            let mensagem = err.message;
+
+            // Customizar mensagens para tipos específicos de erro
+            if (err.code === 'invalid_type') {
+                switch (campo) {
+                    case 'nome_produto':
+                        mensagem = 'Nome do produto é obrigatório e deve ser um texto!';
+                        break;
+                    case 'descricao':
+                        mensagem = 'Descrição é obrigatória e deve ser um texto!';
+                        break;
+                    case 'preco':
+                        mensagem = 'Preço é obrigatório e deve ser um número!';
+                        break;
+                    case 'ativo':
+                        mensagem = 'Status ativo é obrigatório e deve ser verdadeiro ou falso!';
+                        break;
+                    case 'mensagem':
+                        mensagem = 'Mensagem é obrigatória e deve ser um texto!';
+                        break;
+                    case 'criador':
+                        mensagem = 'ID do criador é obrigatório!';
+                        break;
+                    default:
+                        mensagem = `Campo ${campo} é obrigatório ou tem tipo inválido!`;
+                }
+            }
+
+            return {
+                campo: campo,
+                mensagem: mensagem
+            };
+        });
     }
 
     async cadastrar(dadosProduto: typeProduto): Promise<CommonResponse> {
@@ -22,9 +60,9 @@ class ServiceProduto {
             return CommonResponse.created('Produto cadastrado com sucesso!', produto);
         } catch (erro) {
             if (erro instanceof z.ZodError) {
-                const mensagensErro = erro.issues.map(err =>
-                    `${err.path.join('.')}: ${err.message}`
-                );
+                const mensagensErro = this.formatarErrosZod(erro);
+                
+                console.log('[Service] Erros de validação:', mensagensErro);
                 return CommonResponse.validationError('Dados inválidos para cadastro', mensagensErro);
             }
 
@@ -76,6 +114,9 @@ class ServiceProduto {
                 return CommonResponse.badRequest('Nenhum dado fornecido para atualização');
             }
 
+            // Validação com Zod para dados de edição
+            ProdutoEdicaoSchema.parse(dadosProduto);
+
             const produtoAtualizado = await this.repository.editar(id, dadosProduto);
             if (!produtoAtualizado) {
                 return CommonResponse.error('Falha ao atualizar produto');
@@ -83,6 +124,13 @@ class ServiceProduto {
 
             return CommonResponse.success('Produto atualizado com sucesso', produtoAtualizado);
         } catch (erro) {
+            if (erro instanceof z.ZodError) {
+                const mensagensErro = this.formatarErrosZod(erro);
+                
+                console.log('[Service] Erros de validação na edição:', mensagensErro);
+                return CommonResponse.validationError('Dados inválidos para atualização', mensagensErro);
+            }
+            
             console.error('[Service] Falha ao editar os dados de produto!', erro);
             return CommonResponse.error('Falha ao editar dados de produto');
         }
