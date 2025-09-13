@@ -12,6 +12,8 @@ class Usuario {
                 senha: { type: String, required: true, select: false },
                 whatsapp: { type: String, required: true, unique: true },
                 ativo: { type: Boolean, default: false },
+                accessToken:{type: String, required: false, select: false},
+                refreshToken:{type: String, required: false, select: false}
             },
             {
                 timestamps: {

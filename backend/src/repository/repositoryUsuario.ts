@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { typeUsuario } from '../types/typeUsuario';
 import modelUsuario from '../models/modelUsuario';
+import { error } from "console";
 
 class RepositoryUsuario {
     private model: mongoose.Model<any>;
@@ -19,9 +20,17 @@ class RepositoryUsuario {
         return dados;
     }
 
-    async buscarPorId(id: string) {
-        const usuario = await this.model.findById(id);
-        return usuario;
+    async buscarPorId(id: string, includeTokens = false) {
+        let query = this.model.findById(id)
+        if (includeTokens) {
+            query.select('+refreshToken +accessToken')
+        }
+        const user = await query
+        if (!user) {
+            throw new Error('Usuário não encontrado')
+        }
+
+        return user;
     }
 
     async atualizar(id: string, dadosUsuario: typeUsuario) {
@@ -36,6 +45,18 @@ class RepositoryUsuario {
         const data = await this.model.findOne({email:email}, '+senha');
         return data
     }
+    async armazenarTokens(id: string, accesstoken: string, refreshtoken: string) {
+        const documento = await this.model.findById(id);
+        if (!documento) {
+            throw new Error('Nenhum documento encontrado');
+        }
+        documento.accessToken = accesstoken;
+        documento.refreshToken = refreshtoken;
+        console.log(accesstoken)
+        const data = await documento.save();
+        return data;
+    }
+
 
 }
 
