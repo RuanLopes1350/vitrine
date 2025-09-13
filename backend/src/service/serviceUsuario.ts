@@ -1,6 +1,9 @@
+import { z } from "zod";
 import RepositoryUsuario from "../repository/repositoryUsuario";
 import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuarioSchema.ts";
 import { typeUsuario } from "../types/typeUsuario";
+import { CommonResponse } from "../utils/helpers/commonResponse";
+import HttpStatusCodes from "../utils/helpers/httpStatusCodes";
 
 class ServiceUsuario {
     private repository: RepositoryUsuario
@@ -8,77 +11,127 @@ class ServiceUsuario {
         this.repository = new RepositoryUsuario
     }
 
-    async cadastrar(dadosUsuario: typeUsuario) {
+    async cadastrar(dadosUsuario: typeUsuario): Promise<CommonResponse> {
         try {
             // TODO: Implementar regras de negócios.
             // Exemplo: validar se email já existe
             UsuarioSchema.parse(dadosUsuario);
 
-            const usuario = await this.repository.cadastrar(dadosUsuario)
-            return usuario;
+            const usuario = await this.repository.cadastrar(dadosUsuario);
+            return CommonResponse.created('Usuário cadastrado com sucesso!', usuario);
         } catch (erro) {
+            if (erro instanceof z.ZodError) {
+                const mensagensErro = erro.issues.map(err => {
+                    const campo = err.path.length > 0 ? err.path.join('.') : 'campo';
+                    return {
+                        campo: campo,
+                        mensagem: err.message
+                    };
+                });
+
+                console.log('[Service] Erros de validação:', mensagensErro);
+                return CommonResponse.validationError('Dados inválidos para cadastro', mensagensErro);
+            }
+
             console.error('[Service] Erro ao cadastrar usuário:', erro);
-            throw new Error('Falha ao cadastrar usuário!');
+            return CommonResponse.error('Falha interna ao cadastrar usuário');
         }
     }
 
-    async listar() {
+    async listar(): Promise<CommonResponse> {
         try {
-            const dados = await this.repository.listar()
-            return dados;
+            const dados = await this.repository.listar();
+
+            if (!dados || dados.length === 0) {
+                return CommonResponse.success('Nenhum usuário encontrado', []);
+            }
+
+            return CommonResponse.success('Usuários listados com sucesso', dados);
         } catch (erro) {
-            console.error('[Service] Erro no ao listar usuários:', erro);
-            throw new Error('Falha ao buscar usuários');
+            console.error('[Service] Erro ao listar usuários:', erro);
+            return CommonResponse.error('Falha ao buscar usuários');
         }
     }
 
-    async buscarPorId(id: string) {
+    async buscarPorId(id: string): Promise<CommonResponse> {
         try {
             const dados = await this.repository.buscarPorId(id);
+
             if (!dados) {
-                throw new Error('Usuário não encontrado!');
+                return CommonResponse.notFound('Usuário não encontrado');
             }
-            return dados;
+
+            return CommonResponse.success('Usuário encontrado', dados);
         } catch (erro) {
-            console.error('[Service] Erro ao buscar usuário por id:', erro)
-            if (erro.message === 'Usuário não encontrado!') {
-                throw erro;
-            }
-            
-            throw new Error('Falha ao buscar usuário!')
+            console.error('[Service] Erro ao buscar usuário por id:', erro);
+            return CommonResponse.error('Falha ao buscar usuário por id');
         }
     }
 
-    async atualizar(id: string, dadosUsuario: typeUsuario) {
+    async atualizar(id: string, dadosUsuario: typeUsuario): Promise<CommonResponse> {
         try {
-            const usuarioExiste:typeUsuario = await this.repository.buscarPorId(id);
+            // Verificar se o usuário existe antes de atualizar
+            const usuarioExiste = await this.repository.buscarPorId(id);
 
+            if (!usuarioExiste) {
+                return CommonResponse.notFound('Usuário não encontrado');
+            }
+
+            // Validar se pelo menos um campo foi enviado para atualização
+            if (Object.keys(dadosUsuario).length === 0) {
+                return CommonResponse.badRequest('Nenhum dado fornecido para atualização');
+            }
+
+            // Validação com Zod para dados de atualização
             UsuarioUpdateSchema.parse(dadosUsuario);
 
-            if(usuarioExiste) {
-                console.log(`Usuário ${usuarioExiste.nome} encontrado, prosseguindo para atualizar!`)
-                return await this.repository.atualizar(id, dadosUsuario);
+            console.log(`Usuário ${usuarioExiste.nome} encontrado, prosseguindo para atualizar!`);
+            
+            const usuarioAtualizado = await this.repository.atualizar(id, dadosUsuario);
+            if (!usuarioAtualizado) {
+                return CommonResponse.error('Falha ao atualizar usuário');
             }
-            throw new Error('Usuário não encontrado para atualizar!');
+
+            return CommonResponse.success('Usuário atualizado com sucesso', usuarioAtualizado);
         } catch (erro) {
+            if (erro instanceof z.ZodError) {
+                const mensagensErro = erro.issues.map(err => {
+                    const campo = err.path.length > 0 ? err.path.join('.') : 'campo';
+                    return {
+                        campo: campo,
+                        mensagem: err.message
+                    };
+                });
+
+                console.log('[Service] Erros de validação na atualização:', mensagensErro);
+                return CommonResponse.validationError('Dados inválidos para atualização', mensagensErro);
+            }
+
             console.error('[Service] Erro ao atualizar usuário:', erro);
-            throw new Error('Falha ao atualizar usuário');
+            return CommonResponse.error('Falha ao atualizar usuário');
         }
     }
 
-    async deletar(id: string) {
+    async deletar(id: string): Promise<CommonResponse> {
         try {
-            const usuarioExiste:typeUsuario = await this.repository.buscarPorId(id)
-            
-            if(usuarioExiste) {
-                console.log(`Usuário ${usuarioExiste.nome} encontrado, prosseguindo para deletar!`)
-                return await this.repository.deletar(id);
+            // Verificar se o usuário existe
+            const usuarioExiste = await this.repository.buscarPorId(id);
+
+            if (!usuarioExiste) {
+                return CommonResponse.notFound('Usuário não encontrado para deletar');
             }
-            throw new Error('Usuário não encontrado para deletar!');
-            
+
+            console.log(`Usuário ${usuarioExiste.nome} encontrado, prosseguindo para deletar!`);
+
+            const resultado = await this.repository.deletar(id);
+            if (!resultado) {
+                return CommonResponse.error('Falha ao deletar usuário');
+            }
+
+            return CommonResponse.success('Usuário deletado com sucesso', { id, nome: usuarioExiste.nome });
         } catch (erro) {
             console.error('[Service] Erro ao deletar usuário:', erro);
-            throw new Error('Falha ao deletar usuário');
+            return CommonResponse.error('Falha ao deletar usuário');
         }
     }
 }
