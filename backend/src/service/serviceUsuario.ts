@@ -3,7 +3,6 @@ import RepositoryUsuario from "../repository/repositoryUsuario";
 import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuarioSchema.ts";
 import { typeUsuario } from "../types/typeUsuario";
 import { CommonResponse } from "../utils/helpers/commonResponse";
-import HttpStatusCodes from "../utils/helpers/httpStatusCodes";
 
 class ServiceUsuario {
     private repository: RepositoryUsuario
@@ -13,13 +12,11 @@ class ServiceUsuario {
 
     async cadastrar(dadosUsuario: typeUsuario): Promise<CommonResponse> {
         try {
-            // TODO: Implementar regras de negócios.
-            // Exemplo: validar se email já existe
             UsuarioSchema.parse(dadosUsuario);
 
             const usuario = await this.repository.cadastrar(dadosUsuario);
             return CommonResponse.created('Usuário cadastrado com sucesso!', usuario);
-        } catch (erro) {
+        } catch (erro: any) {
             if (erro instanceof z.ZodError) {
                 const mensagensErro = erro.issues.map(err => {
                     const campo = err.path.length > 0 ? err.path.join('.') : 'campo';
@@ -29,12 +26,11 @@ class ServiceUsuario {
                     };
                 });
 
-                console.log('[Service] Erros de validação:', mensagensErro);
+                console.log('[Service] Erros de validação Zod:', mensagensErro);
                 return CommonResponse.validationError('Dados inválidos para cadastro', mensagensErro);
             }
 
-            console.error('[Service] Erro ao cadastrar usuário:', erro);
-            return CommonResponse.error('Falha interna ao cadastrar usuário');
+            throw erro;
         }
     }
 
