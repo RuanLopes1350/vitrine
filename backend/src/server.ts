@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import DbConnect from './config/DbConnect';
 import routesUsuario from './routes/routesUsuario'
 import routesProduto from './routes/routesProduto'
+import { ErrorHandlerMiddleware } from './utils/middlewares/errorHandler';
 
 dotenv.config();
 
@@ -25,6 +26,9 @@ app.use(routesProduto);
 app.use((req, res) => {
   return res.status(404).json({ message: 'Rota não encontrada!' })
 })
+
+// Middleware de tratamento de erros
+app.use(ErrorHandlerMiddleware.handle);
 
 async function startServer() {
   try {
