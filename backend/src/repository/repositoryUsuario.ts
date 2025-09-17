@@ -56,6 +56,20 @@ class RepositoryUsuario {
         const data = await documento.save();
         return data;
     }
+    async removeToken(id:string) {
+        // Criar objeto com os campos a serem atualizados
+        const parsedData = {
+            accessToken: null,
+            refreshToken: null
+        };
+        const usuario = await this.model.findByIdAndUpdate(id, parsedData, { new: true }).exec();
+
+        // Validar se o usuário atualizado foi retornado
+        if (!usuario) {
+            throw new Error('Usuário não encontrado');
+        }
+        return usuario;
+    }
 
 
 }

@@ -1,6 +1,6 @@
 import RepositoryUsuario from "../repository/repositoryUsuario";
 import tokenUtil from "../utils/tokenUtil";
-import  jwt  from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 class ServiceAuth {
     private usuarioRepository: RepositoryUsuario
@@ -62,5 +62,30 @@ class ServiceAuth {
         return { data }
 
     }
+    async logout(id: string, token: string) {
+        // Validação do ID
+        if (!id) {
+            throw new Error('ID do usuário é obrigatório para logout.');
+        }
+
+        // Validação do token
+        if (!token) {
+            throw new Error('Token é obrigatório para logout.');
+        }
+
+        // Verificar se o usuário existe
+        const usuario = await this.usuarioRepository.buscarPorId(id);
+        if (!usuario) {
+            throw new Error('Usuário não encontrado para logout.');
+        }
+
+        const data = await this.usuarioRepository.removeToken(id);
+        if (!data) {
+            throw new Error('Erro ao fazer logout do usuário.');
+        }
+
+        return { message: 'Logout realizado com sucesso.' };
+    }
+
 }
 export default ServiceAuth
