@@ -2,7 +2,6 @@ import express from 'express'
 import ControllerAuth from '../controller/controllerAuth'
 import authMiddlerware from '../middlewares/authMiddlerware'
 import { Request, Response } from 'express'
-import { error } from 'console'
 
 const router = express.Router()
 const controller = new ControllerAuth()

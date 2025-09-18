@@ -25,15 +25,10 @@ class AuthMiddleware {
     async handle(req: Request, res: Response) {
         try {
             const { token, secret } = this._getTokenAndSecret(req)
-            const verifyJwt = (token: string, secret: string, callback: (err: any, decoded: any) => void) => {
-                jwt.verify(token, secret, callback);
-            };
-
-            const verifyAsync = promisify(verifyJwt);
-
-            // Uso com async/await
-            const decoded = await verifyAsync(token, secret);
-
+            
+            // Promisifica jwt.verify diretamente com tipagem adequada
+            const verifyAsync = promisify(jwt.verify) as (token: string, secret: string) => Promise<any>
+            const decoded = await verifyAsync(token, secret)
             if (!decoded) {
                 throw new Error('Token JWT expirado, tente novamente')
             }

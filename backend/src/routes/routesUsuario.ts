@@ -52,5 +52,4 @@ router
             res.status(500).json({error: erro.message})
         }
     })
-
 export default router;
