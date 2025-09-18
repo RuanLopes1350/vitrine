@@ -1,69 +1,77 @@
+import { Request, Response, NextFunction } from 'express';
 import { typeLogin } from "../types/typeLogin";
-import ServiceAuth from '../service/serviceAuth'
-import { promisify } from "util";
-import jwt from "jsonwebtoken";
-import { Request, Response } from "express";
-
+import ServiceAuth from '../service/serviceAuth';
+import { CommonResponse } from "../utils/helpers/commonResponse";
+import HttpStatusCodes from "../utils/helpers/httpStatusCodes";
 
 class ControllerAuth {
-    private service: ServiceAuth
+    private service: ServiceAuth;
+
     constructor() {
-        this.service = new ServiceAuth()
-    }
-    async login(usuario: typeLogin) {
-        console.log(usuario)
-        const data = await this.service.login(usuario.email, usuario.senha)
-
-        return data
+        this.service = new ServiceAuth();
     }
 
-    logout = async (req:Request<any, any, {access_token:string}>, res:Response) => {
+    async login(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            // Extrai o cabeçalho Authorization
-            const token = req.body?.access_token  || req.headers.authorization?.split(' ')[1];
-
-            // Verifica se o token está presente e não é uma string inválida
-            if (!token || token === 'null' || token === 'undefined') {
-                throw new Error('Nenhum Token informado');
+            const dadosLogin: typeLogin = req.body;
+            
+            const errosValidacao: string[] = [];
+            
+            if (!dadosLogin.email || dadosLogin.email.trim() === '') {
+                errosValidacao.push('Email é obrigatório e não pode estar vazio');
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dadosLogin.email)) {
+                errosValidacao.push('Email deve ter um formato válido');
             }
-            const verifyJwt = (token: string, secret: string, callback: (err: any, decoded: any) => void) => {
-                jwt.verify(token, process.env.JWT_SECRET_ACCESS_TOKEN as string, callback);
-            };
-
-            const verifyJwtAsync = promisify(verifyJwt);
-            const decoded = await verifyJwtAsync(token, process.env.JWT_SECRET_ACCESS_TOKEN as string) as { id?: string };
-            // Verifica se o token decodificado contém o ID do usuário
-            if (!decoded || !decoded.id) {
-                throw new Error("Não autorizado");
+            
+            if (!dadosLogin.senha || dadosLogin.senha.trim() === '') {
+                errosValidacao.push('Senha é obrigatória e não pode estar vazia');
             }
 
-            // Encaminha o token para o serviço de logout
-            const data = await this.service.logout(decoded.id, token);
-
-            // Retorna uma resposta de sucesso
-            return data
-        } catch (err:any) {
-            // Tratamento específico para erros de JWT
-            if (err.name === 'JsonWebTokenError') {
-                    throw new Error('Token de acesso inválido ou malformado.');
+            if (errosValidacao.length > 0) {
+                const response = CommonResponse.badRequest(
+                    HttpStatusCodes.BAD_REQUEST.message, 
+                    errosValidacao
+                );
+                response.send(res);
+                return;
             }
 
-            if (err.name === 'TokenExpiredError') {
-                    throw new Error('Token de acesso expirado.');
-            }
-
-            if (err.name === 'NotBeforeError') {
-                    throw new Error('Token de acesso ainda não é válido.');
-            }
-
-            // Se for um CustomError, apenas repassa
-                // ...existing code...
-
-            // Para outros erros, lança um erro genérico
-                throw new Error('Erro interno durante logout.');
+            const usuario = await this.service.login(dadosLogin.email, dadosLogin.senha);
+            usuario.send(res);
+        } catch (erro: any) {
+            next(erro);
         }
     }
 
+    async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            // Extrai o token do cabeçalho Authorization ou do body
+            const token = req.body?.access_token || req.headers.authorization?.split(' ')[1];
+
+            if (!token || token === 'null' || token === 'undefined') {
+                const response = CommonResponse.badRequest(
+                    HttpStatusCodes.BAD_REQUEST.message,
+                    ['Token é obrigatório para logout']
+                );
+                response.send(res);
+                return;
+            }
+
+            // Obtém o user_id do middleware de autenticação
+            const userId = (req as any).user_id;
+            
+            if (!userId) {
+                const response = CommonResponse.unauthorized('Usuário não autenticado');
+                response.send(res);
+                return;
+            }
+
+            const resultado = await this.service.logout(userId, token);
+            resultado.send(res);
+        } catch (erro: any) {
+            next(erro);
+        }
+    }
 }
 
-export default ControllerAuth
+export default ControllerAuth;

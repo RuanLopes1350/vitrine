@@ -52,7 +52,6 @@ class RepositoryUsuario {
         }
         documento.accessToken = accesstoken;
         documento.refreshToken = refreshtoken;
-        console.log(accesstoken)
         const data = await documento.save();
         return data;
     }
