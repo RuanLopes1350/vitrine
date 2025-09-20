@@ -8,8 +8,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className="h-screen flex flex-col"> {/* <-- ALTERAÇÃO AQUI */}
-        <Header nomePlataforma="Sua Plataforma" /> {/* Adicionei a prop para o exemplo */}
+      <body className="h-screen flex flex-col">
+        <Header nomeLoja="Sua Loja" />
         {children}
       </body>
     </html>

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface HeaderProps {
     nomeLoja: string;
@@ -6,6 +9,8 @@ interface HeaderProps {
 }
 
 export default function Header({ nomeLoja, label }: HeaderProps) {
+    const pathname = usePathname();
+    const rotasParaOcultar = ["/login", "/cadastro"];
     const logado = false;
     nomeLoja = "Nome de loja";
 
@@ -20,7 +25,7 @@ export default function Header({ nomeLoja, label }: HeaderProps) {
             </Link>
             {/* Direita: Ícones ou Links */}
             {logado ? (
-                <div className=" flex flex-row items-center gap-6">
+                <div className=" flex flex-row items-center gap-6 pr-20">
                     <Link href="/inicio"><img src="/home.png" /></Link>
                     <Link href="/perfil"><img src="/self.png" /></Link>
                     <img src="/exit.png" />
@@ -28,11 +33,12 @@ export default function Header({ nomeLoja, label }: HeaderProps) {
                         <p className="text-white font-bold">{nomeLoja}</p>
                     </div>
                 </div>
-            ) : (
-                <div className="">
+            ) : (!rotasParaOcultar.includes(pathname) && (
+                <div className="pr-20">
                     <Link href="/login" className="pr-8 text-white">Login</Link>
                     <Link href="/cadastro" className="text-[#7E22CE] bg-white rounded-[24px] h-[38px] w-[83.83px] p-3">Cadastrar</Link>
                 </div>
+            )
             )}
         </header>
     );
