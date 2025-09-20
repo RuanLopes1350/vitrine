@@ -1,12 +1,15 @@
 import express from 'express';
-import ControllerAuth from '../controller/controllerAuth';
-import authMiddlerware from '../middlewares/authMiddleware';
+import ControladorAuth from '../controller/controllerAuth';
+import authMiddleware from '../middlewares/authMiddleware';
 
-const router = express.Router();
-const controller = new ControllerAuth();
+const roteador = express.Router();
+const controlador = new ControladorAuth();
 
-router
-    .post('/login', controller.login.bind(controller))
-    .post('/logout', authMiddlerware, controller.logout.bind(controller));
+/**
+ * Rotas de autenticação - versão simplificada
+ */
+roteador
+  .post('/login', controlador.login.bind(controlador))
+  .post('/logout', authMiddleware, controlador.logout.bind(controlador));
 
-export default router;
+export default roteador;

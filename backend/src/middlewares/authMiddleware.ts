@@ -1,82 +1,86 @@
-import jwt from 'jsonwebtoken'
-import { promisify } from 'util'
-import ServiceAuth from '../service/serviceAuth';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import { CommonResponse } from '../utils/helpers/commonResponse.js';
 
-class AuthMiddleware {
-    private service: ServiceAuth
-    constructor() {
-        this.service = new ServiceAuth()
-        this.handle = this.handle.bind(this)
+/**
+ * Interface para estender o Request do Express com user_id
+ */
+interface AuthenticatedRequest extends Request {
+  user_id: string;
+}
+
+/**
+ * Interface para o payload do JWT
+ */
+interface TokenPayload extends JwtPayload {
+  id: string;
+}
+
+/**
+ * Middleware de autenticação JWT simples e eficiente
+ * Verifica se o token JWT é válido e adiciona o user_id ao request
+ */
+const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+  try {
+    // 1. Extrair o token do header Authorization
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader) {
+      res.status(401).json({ message: 'Token não fornecido' });
+      return;
     }
 
-    _getTokenAndSecret(req: Request | any, res:Response) {
-        const authHeader = req.headers?.authorization ?? null
-        if (authHeader) {
-            const parts: string = authHeader.split(' ');
-            const token = parts.length === 2 ? parts[1] : parts[0] 
+    // 2. Verificar formato "Bearer <token>"
+    const [bearer, token] = authHeader.split(' ');
+    
+    if (bearer !== 'Bearer' || !token) {
+      res.status(401).json({ message: 'Formato de token inválido' });
+      return;
+    }
 
-            return {
-                token,
-                secret: process.env.JWT_SECRET_ACCESS_TOKEN as string
-            }
-        }
-        throw new Error('Token não informado!')
+    // 3. Verificar se o JWT_SECRET existe
+    const jwtSecret = process.env.JWT_SECRET_ACCESS_TOKEN;
+    
+    if (!jwtSecret) {
+      res.status(500).json({ message: 'Erro interno do servidor' });
+      return;
+    }
+
+    // 4. Verificar e decodificar o token
+    const decoded = jwt.verify(token, jwtSecret) as TokenPayload;
+    
+    // 5. Verificar se o payload contém o ID do usuário
+    if (!decoded.id) {
+      res.status(401).json({ message: 'Token inválido' });
+      return;
+    }
+
+    // 6. Adicionar user_id ao request
+    (req as AuthenticatedRequest).user_id = decoded.id;
+    
+    // 7. Continuar para o próximo middleware/controller
+    next();
+    
+  } catch (error) {
+    // Tratar erros específicos do JWT
+    if (error instanceof jwt.JsonWebTokenError) {
+      res.status(401).json({ message: 'Token inválido' });
+      return;
     }
     
-    async handle(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const { token, secret } = this._getTokenAndSecret(req, res)
-            
-            // Promisifica jwt.verify diretamente com tipagem adequada
-            const verifyAsync = promisify(jwt.verify) as (token: string, secret: string) => Promise<any>
-            const decoded = await verifyAsync(token, secret)
-            
-            if (!decoded) {
-                throw new Error('Token JWT expirado, tente novamente')
-            }
-            
-            if (secret === process.env.JWT_SECRET_ACCESS_TOKEN) {
-                const tokenData = await this.service.carregaToken(decoded.id)
-                
-                // Como agora o service retorna CommonResponse, precisamos acessar os dados corretamente
-                if (tokenData.isErro() || !tokenData.getData()?.accessToken) {
-                    res.status(401).json({ message: "AccessToken inválido!, autentique-se novamente." });
-                    return;
-                }
-                
-                if (!tokenData.getData()?.refreshToken) {
-                    throw new Error('RefreshToken inválido!, autentique-se novamente.');
-                }
-            }
-            
-            interface AuthenticatedRequest extends Request {
-                user_id?: string;
-            }
-
-            // Adiciona o user_id ao request
-            const reqTyped = req as AuthenticatedRequest;
-            reqTyped.user_id = decoded.id;
-            
-            next(); // Chama o próximo middleware/controller
-        } catch (erro: any) {
-            if (erro.name === 'JsonWebTokenError') {
-                res.status(401).json({ message: 'Token JWT inválido!' });
-                return;
-            }
-            if (erro.name === 'TokenExpiredError') {
-                res.status(401).json({ message: 'Token JWT expirado, faça login novamente.' });
-                return;
-            }
-            if(erro.message === "Token não informado!"){
-                const response = CommonResponse.forbidden("Token não informado!")
-                response.send(res)
-                return;
-            }
-            // Outros erros seguem para o errorHandler global
-            next(erro);
-        }
+    if (error instanceof jwt.TokenExpiredError) {
+      res.status(401).json({ message: 'Token expirado' });
+      return;
     }
-}
-export default new AuthMiddleware().handle
+    
+    if (error instanceof jwt.NotBeforeError) {
+      res.status(401).json({ message: 'Token ainda não é válido' });
+      return;
+    }
+    
+    // Erro genérico
+    res.status(500).json({ message: 'Erro interno do servidor' });
+  }
+};
+
+export default authMiddleware;
+export type { AuthenticatedRequest };
