@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DadosLogin } from '../types/typeLogin';
 import ServicoAuth from '../service/serviceAuth';
 import { AuthenticatedRequest } from '../middlewares/authMiddleware';
+import { CommonResponse } from '../utils/helpers/commonResponse';
 
 /**
  * Controller de autenticação - versão simplificada
@@ -22,26 +23,19 @@ class ControladorAuth {
       
       // Validações simples
       if (!dados.email || !dados.senha) {
-        res.status(400).json({ 
-          erro: 'Email e senha são obrigatórios' 
-        });
+        const response = CommonResponse.badRequest('Email e senha são obrigatórios');
+        response.send(res);
         return;
       }
 
       const resultado = await this.servico.realizarLogin(dados.email, dados.senha);
-      
-      res.status(200).json({
-        sucesso: true,
-        mensagem: 'Login realizado com sucesso',
-        dados: resultado
-      });
+      resultado.send(res);
       
     } catch (erro: any) {
       // Erros específicos de login
       if (erro.message === 'CREDENCIAIS_INVALIDAS') {
-        res.status(401).json({ 
-          erro: 'Email ou senha incorretos' 
-        });
+        const response = CommonResponse.unauthorized('Email ou senha incorretos');
+        response.send(res);
         return;
       }
       
@@ -56,10 +50,8 @@ class ControladorAuth {
   async logout(req: Request, res: Response): Promise<void> {
     // Como o token é stateless, não precisamos fazer nada no backend
     // O frontend apenas remove o token do localStorage/sessionStorage
-    res.status(200).json({
-      sucesso: true,
-      mensagem: 'Logout realizado com sucesso'
-    });
+    const response = CommonResponse.success('Logout realizado com sucesso');
+    response.send(res);
   }
 }
 

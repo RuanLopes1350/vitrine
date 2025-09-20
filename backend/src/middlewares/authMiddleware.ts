@@ -1,5 +1,6 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import { CommonResponse } from '../utils/helpers/commonResponse';
 
 /**
  * Interface para estender o Request do Express com user_id
@@ -25,7 +26,8 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction): void =
     const authHeader = req.headers.authorization;
     
     if (!authHeader) {
-      res.status(401).json({ message: 'Token não fornecido' });
+      const response = CommonResponse.unauthorized('Token não fornecido');
+      response.send(res);
       return;
     }
 
@@ -33,7 +35,8 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction): void =
     const [bearer, token] = authHeader.split(' ');
     
     if (bearer !== 'Bearer' || !token) {
-      res.status(401).json({ message: 'Formato de token inválido' });
+      const response = CommonResponse.unauthorized('Formato de token inválido');
+      response.send(res);
       return;
     }
 
@@ -41,7 +44,8 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction): void =
     const jwtSecret = process.env.JWT_SECRET_ACCESS_TOKEN;
     
     if (!jwtSecret) {
-      res.status(500).json({ message: 'Erro interno do servidor' });
+      const response = CommonResponse.error('Erro interno do servidor');
+      response.send(res);
       return;
     }
 
@@ -50,7 +54,8 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction): void =
     
     // 5. Verificar se o payload contém o ID do usuário
     if (!decoded.id) {
-      res.status(401).json({ message: 'Token inválido' });
+      const response = CommonResponse.unauthorized('Token inválido');
+      response.send(res);
       return;
     }
 
@@ -63,22 +68,26 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction): void =
   } catch (error) {
     // Tratar erros específicos do JWT
     if (error instanceof jwt.JsonWebTokenError) {
-      res.status(401).json({ message: 'Token inválido' });
+      const response = CommonResponse.unauthorized('Token inválido');
+      response.send(res);
       return;
     }
     
     if (error instanceof jwt.TokenExpiredError) {
-      res.status(401).json({ message: 'Token expirado' });
+      const response = CommonResponse.unauthorized('Token expirado');
+      response.send(res);
       return;
     }
     
     if (error instanceof jwt.NotBeforeError) {
-      res.status(401).json({ message: 'Token ainda não é válido' });
+      const response = CommonResponse.unauthorized('Token ainda não é válido');
+      response.send(res);
       return;
     }
     
     // Erro genérico
-    res.status(500).json({ message: 'Erro interno do servidor' });
+    const response = CommonResponse.error('Erro interno do servidor');
+    response.send(res);
   }
 };
 

@@ -1,6 +1,7 @@
 import RepositoryUsuario from '../repository/repositoryUsuario';
 import geradorToken from '../utils/tokenUtil';
 import { RespostaLogin } from '../types/typeLogin';
+import { CommonResponse } from '../utils/helpers/commonResponse';
 
 /**
  * Serviço de autenticação - versão simplificada
@@ -15,7 +16,7 @@ class ServicoAuth {
   /**
    * Realiza login e retorna dados do usuário com token
    */
-  async realizarLogin(email: string, senha: string): Promise<RespostaLogin> {
+  async realizarLogin(email: string, senha: string): Promise<CommonResponse> {
     // 1. Buscar usuário por email
     const usuario = await this.repositorioUsuario.buscarPorEmail(email);
     
@@ -31,8 +32,8 @@ class ServicoAuth {
     // 3. Gerar token JWT
     const token = geradorToken.gerarToken(usuario._id.toString(), usuario.email);
 
-    // 4. Retornar dados do usuário sem a senha
-    return {
+    // 4. Preparar dados de resposta
+    const dadosResposta: RespostaLogin = {
       token,
       usuario: {
         id: usuario._id.toString(),
@@ -40,6 +41,9 @@ class ServicoAuth {
         email: usuario.email
       }
     };
+
+    // 5. Retornar usando CommonResponse
+    return CommonResponse.success('Login realizado com sucesso', dadosResposta);
   }
 }
 
