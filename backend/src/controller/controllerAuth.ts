@@ -4,9 +4,7 @@ import ServicoAuth from '../service/serviceAuth';
 import { AuthenticatedRequest } from '../middlewares/authMiddleware';
 import { CommonResponse } from '../utils/helpers/commonResponse';
 
-/**
- * Controller de autenticação - versão simplificada
- */
+// Controller de autenticação - versão simplificada
 class ControladorAuth {
   private servico: ServicoAuth;
 
@@ -14,9 +12,7 @@ class ControladorAuth {
     this.servico = new ServicoAuth();
   }
 
-  /**
-   * Realiza login do usuário
-   */
+  // Realiza login do usuário
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const dados: DadosLogin = req.body;
@@ -44,9 +40,7 @@ class ControladorAuth {
     }
   }
 
-  /**
-   * Realiza logout do usuário (opcional - apenas para limpar tokens do frontend)
-   */
+  // Realiza logout do usuário (opcional - apenas para limpar tokens do frontend)
   async logout(req: Request, res: Response): Promise<void> {
     // Como o token é stateless, não precisamos fazer nada no backend
     // O frontend apenas remove o token do localStorage/sessionStorage

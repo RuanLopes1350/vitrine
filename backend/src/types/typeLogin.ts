@@ -1,14 +1,10 @@
-/**
- * Dados necessários para realizar login
- */
+// Dados necessários para realizar login
 export interface DadosLogin {
   email: string;
   senha: string;
 }
 
-/**
- * Dados retornados após login bem-sucedido
- */
+// Dados retornados após login bem-sucedido
 export interface RespostaLogin {
   token: string;
   usuario: {
@@ -18,9 +14,7 @@ export interface RespostaLogin {
   };
 }
 
-/**
- * Payload do token JWT
- */
+// Payload do token JWT
 export interface PayloadToken {
   id: string;
   email: string;

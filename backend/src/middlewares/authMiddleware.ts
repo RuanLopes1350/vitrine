@@ -2,24 +2,21 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import { CommonResponse } from '../utils/helpers/commonResponse';
 
-/**
- * Interface para estender o Request do Express com user_id
- */
+// Regex para validar ObjectId do MongoDB
+const objectIdRegex = /^[a-fA-F0-9]{24}$/;
+
+// Interface para estender o Request do Express com user_id
 interface AuthenticatedRequest extends Request {
   user_id: string;
 }
 
-/**
- * Interface para o payload do JWT
- */
+// Interface para o payload do JWT
 interface TokenPayload extends JwtPayload {
   id: string;
 }
 
-/**
- * Middleware de autenticação JWT simples e eficiente
- * Verifica se o token JWT é válido e adiciona o user_id ao request
- */
+// Middleware de autenticação JWT simples e eficiente
+// Verifica se o token JWT é válido e adiciona o user_id ao request
 const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
   try {
     // 1. Extrair o token do header Authorization
@@ -59,10 +56,17 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction): void =
       return;
     }
 
-    // 6. Adicionar user_id ao request
+    // 6. Verificar se o ID do usuário é um ObjectId válido
+    if (!objectIdRegex.test(decoded.id)) {
+      const response = CommonResponse.unauthorized('ID de usuário inválido no token');
+      response.send(res);
+      return;
+    }
+
+    // 7. Adicionar user_id ao request
     (req as AuthenticatedRequest).user_id = decoded.id;
     
-    // 7. Continuar para o próximo middleware/controller
+    // 8. Continuar para o próximo middleware/controller
     next();
     
   } catch (error) {

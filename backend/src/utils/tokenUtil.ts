@@ -1,14 +1,10 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { PayloadToken } from '../types/typeLogin';
 
-/**
- * Utilitário para gerenciar tokens JWT de forma simples
- */
+// Utilitário para gerenciar tokens JWT de forma simples
 class GeradorToken {
   
-  /**
-   * Gera um token de acesso JWT
-   */
+  // Gera um token de acesso JWT
   gerarToken(id: string, email: string): string {
     const payload: PayloadToken = { id, email };
     
@@ -22,9 +18,7 @@ class GeradorToken {
     });
   }
   
-  /**
-   * Verifica se um token é válido e retorna o payload
-   */
+  // Verifica se um token é válido e retorna o payload
   verificarToken(token: string): PayloadToken {
     const segredo = process.env.JWT_SECRET_ACCESS_TOKEN;
     if (!segredo) {

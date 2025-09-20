@@ -3,9 +3,7 @@ import geradorToken from '../utils/tokenUtil';
 import { RespostaLogin } from '../types/typeLogin';
 import { CommonResponse } from '../utils/helpers/commonResponse';
 
-/**
- * Serviço de autenticação - versão simplificada
- */
+// Serviço de autenticação - versão simplificada
 class ServicoAuth {
   private repositorioUsuario: RepositoryUsuario;
 
@@ -13,9 +11,7 @@ class ServicoAuth {
     this.repositorioUsuario = new RepositoryUsuario();
   }
 
-  /**
-   * Realiza login e retorna dados do usuário com token
-   */
+  // Realiza login e retorna dados do usuário com token
   async realizarLogin(email: string, senha: string): Promise<CommonResponse> {
     // 1. Buscar usuário por email
     const usuario = await this.repositorioUsuario.buscarPorEmail(email);
