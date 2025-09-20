@@ -1,0 +1,13 @@
+import express from 'express';
+import ControladorAuth from '../controller/controllerAuth';
+import authMiddleware from '../middlewares/authMiddleware';
+
+const roteador = express.Router();
+const controlador = new ControladorAuth();
+
+// Rotas de autenticação - versão simplificada
+roteador
+  .post('/login', controlador.login.bind(controlador))
+  .post('/logout', authMiddleware, controlador.logout.bind(controlador));
+
+export default roteador;

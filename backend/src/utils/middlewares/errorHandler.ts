@@ -9,9 +9,7 @@ interface MongoError extends Error {
 
 export class ErrorHandlerMiddleware {
     
-    /**
-     * Middleware para capturar e tratar todos os erros da aplicação
-     */
+    // Middleware para capturar e tratar todos os erros da aplicação
     static handle(erro: MongoError, req: Request, res: Response, next: NextFunction): void {
         console.error('[ErrorHandler] Erro capturado:', erro);
 
@@ -44,9 +42,7 @@ export class ErrorHandlerMiddleware {
         response.send(res);
     }
 
-    /**
-     * Trata erros de duplicata do MongoDB (código 11000)
-     */
+    // Trata erros de duplicata do MongoDB (código 11000)
     private static handleDuplicateError(erro: MongoError): CommonResponse {
         if (erro.keyPattern && erro.keyValue) {
             const campo = Object.keys(erro.keyPattern)[0];
@@ -65,9 +61,7 @@ export class ErrorHandlerMiddleware {
         return CommonResponse.conflict('Dados duplicados encontrados');
     }
 
-    /**
-     * Trata erros de validação do Mongoose
-     */
+    // Trata erros de validação do Mongoose
     private static handleValidationError(erro: any): CommonResponse {
         const erros = Object.values(erro.errors).map((err: any) => ({
             campo: err.path,

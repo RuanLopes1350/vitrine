@@ -6,22 +6,35 @@ import { getGlobalFakeMapping } from './globalFakeMapping'
 async function seedUsuarios() {
     await modelUsuario.deleteMany();
 
-    const usuarioFixo: typeUsuario = {
+    const usuarioFixo: typeUsuario[] = [{
         nome: 'Ruan Lopes',
         email: 'intel.spec.lopes@gmail.com',
         senha: 'SenhaSuperSegur@123',
         whatsapp: '556992468120',
         ativo: true
+    },{
+        nome: 'Silvio Huan',
+        email: 'silvio.huan@gmail.com',
+        senha: 'SenhaSuperSegur@123',
+        whatsapp: '556955667788',
+        ativo: true
+    },{
+        nome: 'Luis Felipe',
+        email: 'luis.felipe@gmail.com',
+        senha: 'SenhaSuperSegur@123',
+        whatsapp: '556911223344',
+        ativo: true
     }
+]
 
-    await modelUsuario.collection.insertOne(usuarioFixo);
+    await modelUsuario.collection.insertMany(usuarioFixo);
     console.log('Usuario pré-definido cadastrado com sucesso!')
 
     const mapping = await getGlobalFakeMapping();
 
     const usuariosAleatorios: typeUsuario[] = [];
 
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 27; i++) {
         usuariosAleatorios.push(
             {
                 nome: mapping.usuario.nome(),
