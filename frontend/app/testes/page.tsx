@@ -13,7 +13,7 @@ export default function TestesPage() {
                 titulo="Adicionar Um Novo Produto"
                 button1={{
                     texto: "Cancelar",
-                    className: "bg-blue-500 text-white",
+                    className: "bg-blue-500 text-white hover:bg-blue-600",
                     action: () => {
                         setIsOpen(false);
                         console.log("Ação cancelada!");
@@ -21,7 +21,7 @@ export default function TestesPage() {
                 }}
                 button2={{
                     texto: "Salvar",
-                    className: "bg-gray-500 text-white",
+                    className: "bg-gray-500 text-white hover:bg-gray-600",
                     action: () => {
                         setIsOpen(false);
                         console.log("Produto salvo!");
