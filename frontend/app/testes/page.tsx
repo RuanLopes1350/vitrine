@@ -32,7 +32,7 @@ export default function TestesPage() {
                 onClose={() => {setIsOpen(false), console.log("Modal fechado")}}
             />
             <h1>Testes Page</h1>
-            <button onClick={() => {setIsOpen(true); console.log('Modal Aberto!')}}>abrir modal</button>
+            <button onClick={() => {setIsOpen(true); console.log('Modal Aberto!')}} className="bg-yellow-500 text-white border-1 border-yellow-700 rounded-full p-0.5">abrir modal</button>
         </div>
     );
 }
