@@ -1,8 +1,12 @@
 "use client"
 
 import Modal from "@/components/modal"
+import { useState } from "react";
 
 export default function TestesPage() {
+
+    const [isOpen, setIsOpen] = useState(false);
+    
     return (
         <div>
             <Modal
@@ -10,17 +14,25 @@ export default function TestesPage() {
                 button1={{
                     texto: "Cancelar",
                     className: "bg-blue-500 text-white",
-                    action: () => console.log("Ação do botão 1")
+                    action: () => {
+                        setIsOpen(false);
+                        console.log("Ação cancelada!");
+                    }
                 }}
                 button2={{
                     texto: "Salvar",
                     className: "bg-gray-500 text-white",
-                    action: () => console.log("Ação do botão 2")
+                    action: () => {
+                        setIsOpen(false);
+                        console.log("Produto salvo!");
+                        // Qualquer outra ação que você queira realizar ao clicar em "Salvar"
+                    }
                 }}
-                isOpen={true}
-                onClose={() => console.log("Modal fechado")}
+                isOpen={isOpen}
+                onClose={() => {setIsOpen(false), console.log("Modal fechado")}}
             />
             <h1>Testes Page</h1>
+            <button onClick={() => {setIsOpen(true); console.log('Modal Aberto!')}}>abrir modal</button>
         </div>
     );
 }

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 
 interface ModalProps {
     titulo: string;
@@ -18,14 +18,22 @@ interface ModalProps {
 
 export default function Modal({ titulo, button1, button2, isOpen, onClose }: ModalProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
-    isOpen = true;
 
     useEffect(() => {
-        const dialog = dialogRef.current;
-        if (dialog) {
-            isOpen ? dialog.showModal() : dialog.close();
+        const modalElement = dialogRef.current;
+        if (!modalElement) {
+            return;
+        }
+
+        if (isOpen) {
+            // Abre o modal de forma nativa e centralizada
+            modalElement.showModal();
+        } else {
+            // Fecha o modal
+            modalElement.close();
         }
     }, [isOpen]);
+
 
     const handlePrimaryAction = () => {
         button1.action();
@@ -62,8 +70,8 @@ export default function Modal({ titulo, button1, button2, isOpen, onClose }: Mod
                 />
                 <h4 className="text-[#374151] font-medium text-[11.9px]">URL da Imagem</h4>
                 <input type="text" id="input4" placeholder="Insira a URL da imagem" />
-                <button className={button1.className}>{button1.texto}</button>
-                {button2 && <button className={button2.className}>{button2.texto}</button>}
+                <button onClick={handlePrimaryAction} className={button1.className}>{button1.texto}</button>
+                {button2 && <button onClick={handleSecondaryAction} className={button2.className}>{button2.texto}</button>}
             </div>
         </dialog>
     )
