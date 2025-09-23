@@ -10,7 +10,7 @@ interface HeaderProps {
 
 export default function Header({ nomeLoja, label }: HeaderProps) {
     const pathname = usePathname();
-    const rotasParaOcultar = ["/login", "/cadastro"];
+    const rotasParaOcultar = ["/login", "/cadastro", "/esqueci-minha-senha-a", "/esqueci-minha-senha-b", "/esqueci-minha-senha-c"];
     const logado = false;
     nomeLoja = "Nome de loja";
 
