@@ -4,6 +4,7 @@ import DbConnect from './config/DbConnect';
 import routesUsuario from './routes/routesUsuario'
 import routesProduto from './routes/routesProduto'
 import routesAuth from './routes/routesAuth'
+import cors from 'cors'
 import { ErrorHandlerMiddleware } from './utils/middlewares/errorHandler';
 
 dotenv.config();
@@ -12,6 +13,8 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 app.use(express.json());
+
+app.use(cors())
 
 app.get('/', (req, res) => {
   res.json({ message: 'Hello, World!' });
