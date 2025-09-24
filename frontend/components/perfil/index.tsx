@@ -19,7 +19,7 @@ export default function DadosPerfil({ campo, svg, info, obj}: perfil) {
                 <img src={svg} alt="" />
                 <span className="text-[12px] text-[#6B7280]">{campo}</span>
             </div>
-            <input type="text" className={"font-medium border-none focus:outline-none dados"+obj.value} defaultValue={info}/>
+            <input type="text" className={"font-medium border-none focus:outline-none dados "+obj.value} defaultValue={info}/>
         </div>
     )
 }
