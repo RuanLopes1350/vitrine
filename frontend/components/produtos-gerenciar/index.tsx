@@ -16,24 +16,24 @@ interface Produto {
 const produtos: Produto[] = [
   {
     _id: "1",
-    titulo: "Handcrafted Leather Wallet",
-    descricao: "Genuine leather wallet with multiple card slots",
+    titulo: "Algum produto que esteja sendo vendido ai",
+    descricao: "Descrição detalhada do produto",
     preco: 89.99,
     foto: "/Image.png",
     usuarioId: "user1"
   },
   {
     _id: "2", 
-    titulo: "Ceramic Coffee Mug",
-    descricao: "Handmade ceramic mug, perfect for your morning coffee",
+    titulo: "Algum outro produto que esteja sendo vendido ai 2",
+    descricao: "Descrição detalhada do produto",
     preco: 24.99,
     foto: "/Image (1).png",
     usuarioId: "user1"
   },
   {
     _id: "3",
-    titulo: "Organic Cotton T-Shirt",
-    descricao: "Soft, comfortable made from 100% organic cotton",
+    titulo: "Algum outro produto que esteja sendo vendido ai 3",
+    descricao: "Descrição detalhada do produto",
     preco: 29.99,
     foto: "/Image (2).png",
     usuarioId: "user1"
@@ -62,14 +62,13 @@ export default function ProdutosGerenciar({ onAddProduct }: ProdutosGerenciarPro
   };
 
   return (
-    <section className="bg-white rounded-xl shadow-sm border p-8">
-      {/* Section Header */}
+    <section className="bg-white rounded-xl shadow-md p-8">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-3">
           <div className="bg-[#F3E8FF] p-2 rounded-lg border border-[#E9D5FF]">
             <ShoppingBag className="h-5 w-5 text-[#9333EA]" />
           </div>
-          <h2 className="text-2xl font-bold text-[#111827]">Manage Your Products</h2>
+          <h2 className="text-2xl font-bold text-[#111827]">Gerencie Seus Produtos</h2>
         </div>
         
         <Button 
