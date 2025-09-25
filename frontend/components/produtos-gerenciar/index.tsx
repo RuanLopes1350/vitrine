@@ -81,7 +81,7 @@ export default function ProdutosGerenciar({ onAddProduct }: ProdutosGerenciarPro
       </div>
 
       {produtos.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {produtos.map((produto) => (
             <ProdutoCardGerenciar 
               key={produto._id} 
