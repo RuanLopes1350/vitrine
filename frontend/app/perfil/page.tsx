@@ -1,173 +1,85 @@
 "use client"
 
-import { Spinner } from "@/components/ui/shadcn-io/spinner";
-import DadosPerfil from "@/components/perfil";
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
-interface resAPI {
-    code: number,
-    mensagem: string,
-    data: { token: string, usuario: { id: string, nome: string, email: string } }
-}
-
-interface usuarioDados {
-    code: number,
-    mensagem: string,
-    data: {
-        _id: string,
-        nome: string,
-        email: string,
-        whatsapp: string,
-        ativo: string
-    }
-}
-
-interface infoUsuario {
-    empresa:string,
-    email:string,
-    telefone:string
-}
-
-interface detectModify {
-    value: boolean
-}
+import { useState, useRef } from "react";
 
 export default function PerfilPage() {
-    const [isEditabel, setEditabel] = useState<string>("pointer-events-none")
     const [isVisible, setVisible] = useState<boolean>(true)
-    const [dadosUsuarios, setUsuario] = useState<infoUsuario>()
-    const [isLoading, setLoading] = useState<boolean>(true)
-    const [isDiferent, setDiferent] = useState<string>("pointer-events-none bg-[#FFFFF0]")
-    const [isInputModify, setInput] = useState<detectModify[]>([])
-    const buttonRef = useRef<HTMLButtonElement | null>(null)
-    async function login() {
-        try {
-            const userEmail = "silvio.huan@gmail.com";
-            const userSenha = "SenhaSuperSegur@123";
-            const response = await fetch(
-                'http://localhost:1350/login',
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 'email': 'silvio.huan@gmail.com', 'senha': 'SenhaSuperSegur@123' })
-                }
-            );
+    const [isInterable, setInterable] = useState<string>("pointer-events-none select-none")
+    
+    const nomeRef = useRef<HTMLInputElement>(null)
+    const telefoneRef = useRef<HTMLInputElement>(null)
 
-            // Verifica o status da resposta
-            if (!response.ok) {
-                console.error(`Erro na requisição: ${response.status} - ${response.statusText}`);
-                return;
-            }
-
-            // Processa os dados retornados
-            const dadosProcessados: resAPI = await response.json();
-            console.log(dadosProcessados);
-
-            if (dadosProcessados.data?.token) {
-                localStorage.token = dadosProcessados.data.token;
-                localStorage.id = dadosProcessados.data.usuario.id
-            }
-        } catch (error) {
-            console.error('Erro ao realizar o fetch:', error);
+    function dados() {
+        localStorage.setItem("nome", "Silvio Huan")
+        localStorage.setItem("email", "silvio.huan@gmail.com")
+        localStorage.setItem("telefone", "556988447766")
+    }
+    function validarDados(){
+        const telefoneRegex = /^\d+$/
+        const nomeRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9 ]+$/
+        const nome = nomeRef.current?.value as string
+        const telefone = telefoneRef.current?.value.trim() as string
+        console.log("Nome:",nome)
+        console.log("Telefone:", telefone)
+        if(telefone?.length < 12 || telefone?.length > 13){
+            window.alert("Deve ter de 10 a 11 numeros no campo numero de Whatsapp!")
+            return
         }
-    }
-    async function getDados() {
-        try {
-            const response = await fetch(`http://localhost:1350/usuarios/${localStorage.id}`, { method: 'GET', headers: { 'Authorization': `Bearer ${localStorage.token}`} })
-            const dados: usuarioDados = await response.json()
-            const perfil:infoUsuario = {
-                empresa: dados.data.nome,
-                email: dados.data.email,
-                telefone: dados.data.whatsapp
-            }
-            setUsuario(perfil)
-            setLoading(false)
-        }catch(error:any){
-            console.log("Erro ao requisitar dados do usuário", error)
+        if(!telefoneRegex.test(telefone)){
+           window.alert("O telefone deve conter somente numeros e sem espaços !")
+           return 
         }
-    }
-    function gerarPerfil(){
-
-    }
-    function saveInputValue() {
-        const inputs = document.querySelectorAll<HTMLInputElement>(".dados")
-        // console.log(inputs)
-
-        for(const input of inputs){
-            if(input.className.includes("email")){
-                continue
-            }
-            const modify:detectModify ={value:false}
-            isInputModify.push(modify)
-            input.addEventListener("input",()=>{
-                if(input.value !== input.defaultValue){
-                    modify.value = true
-                }
-                else{
-                    modify.value = false
-                }
-
-                if(isInputModify.find(item => item.value === true)){
-                    setDiferent("bg-green-600 hover:bg-green-700 text-white")
-                }
-                else {
-                    setDiferent("pointer-events-none bg-[#FFFFF0]")
-                }
-                if(!buttonRef.current){
-                   getButton()
-                }
-            })
+        if(!nomeRegex.test(nome)){
+            window.alert("O nome deve conter somente numeros e letras, sem caracteres especiais !")
+            return 
         }
+        localStorage.setItem("nome", nomeRef.current?.value as string)
+        localStorage.setItem("telefone", telefoneRef.current?.value as string)
+        setVisible(true)
+        setInterable("pointer-events-none select-none")
     }
-    function getButton(){
-        const button_ =  document.querySelector<HTMLButtonElement>("#salvar")
-        if(button_){
-            buttonRef.current = button_
-            console.log(buttonRef.current)
-        }
-    }
-        useEffect(() => {
-        login(); getDados();
-    }, [])
+    dados()
     return (
         <div className="w-[100%] h-[100%] flex justify-center items-center bg-[#F9FAFB]">
-           {isLoading? <div className="h-[750px] w-[869px] flex justify-center items-center"><Spinner/></div> : <div className="h-[750px] w-[869px]">
+            <div className="h-[750px] w-[869px]">
                 <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] h-[144px] w-[100%] flex p-[20px] items-center">
                     <div className="flex justify-center items-center gap-[20px] text-[#fff]">
-                        <div className="shadow-md h-[80px] w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[36px] font-bold text-[#9333EA]">{dadosUsuarios?.empresa[0]}</div>
+                        <div className="shadow-md h-[80px] w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[36px] font-bold text-[#9333EA]">{localStorage?.nome[0]}</div>
                         <div>
-                            <div className="text-[20px] font-bold">{dadosUsuarios?.empresa}</div>
-                            <p>Manage your store profile</p>
+                            <div className="text-[20px] font-bold">{localStorage.nome}</div>
+                            <p>Gerencie o perfil da sua loja</p>
                         </div>
                     </div>
                 </div>
                 <div className="w-[100%] bg-[#fff] p-[20px] gap-[20px] flex flex-col">
-                    <DadosPerfil
-                        campo="Store Name"
-                        svg="empresa.svg"
-                        info={dadosUsuarios?.empresa as string}
-                        obj={{ value: isEditabel }}
-
-                    />
-                    <DadosPerfil
-                        campo="Email"
-                        svg="email.svg"
-                        info={dadosUsuarios?.email as string}
-                        obj={{ value: "pointer-events-none email" }}
-
-                    />
-                    <DadosPerfil
-                        campo="WhatsApp Number"
-                        svg="telefone.svg"
-                        info={dadosUsuarios?.telefone as string}
-                        obj={{ value: isEditabel }}
-                    />
-                    <button onClick={() => { setEditabel("bg-white"); setVisible(false); saveInputValue(); }} className={"bg-[#9333EA] font-medium hover:bg-[#7E22CE] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-[#fff] " + (isVisible ? "" : "hidden")}>Editar</button>
+                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
+                        <div className="flex gap-[10px] items-center">
+                            <img src="empresa.svg" alt="" />
+                            <span className="text-[12px] text-[#6B7280]">Nome da Empresa</span>
+                        </div>
+                        <input ref={nomeRef} type="text" className={"font-medium border-none focus:outline-none dados "+isInterable} defaultValue={localStorage.getItem("nome") as string} />
+                    </div>
+                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
+                        <div className="flex gap-[10px] items-center">
+                            <img src="email.svg" alt="" />
+                            <span className="text-[12px] text-[#6B7280]">E-mail</span>
+                        </div>
+                        <input type="text" className="font-medium border-none focus:outline-none dados " readOnly defaultValue={localStorage.getItem("email") as string} />
+                    </div>
+                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
+                        <div className="flex gap-[10px] items-center">
+                            <img src="email.svg" alt="" />
+                            <span className="text-[12px] text-[#6B7280]">Whatsapp</span>
+                        </div>
+                        <input ref={telefoneRef} type="text" className={"font-medium border-none focus:outline-none dados "+isInterable} defaultValue={localStorage.getItem("telefone") as string}/>
+                    </div>
+                    <button onClick={() => { setVisible(false); setInterable("bg-[#fff]") }} className={"bg-[#9333EA] font-medium hover:bg-[#7E22CE] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-[#fff] " + (isVisible ? "" : "hidden")}>Editar</button>
                     <div className={"flex mx-auto gap-[20px] " + (!isVisible ? "" : "hidden")}>
-                        <button onClick={() => {setVisible(true); setEditabel("pointer-events-none")}} className={"bg-[#CD5C5C] text-[#fff] font-medium hover:bg-[#B22222] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer "}>Cancelar</button>
-                        <button id="salvar" onClick={() => { setEditabel(""); }} className={"font-medium hover:bg-[#7E22CE] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer " + isDiferent}>Salvar</button>
+                        <button onClick={() => {setInterable("pointer-events-none select-none")}} className={"bg-[#CD5C5C] text-[#fff] font-medium hover:bg-[#B22222] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer "}>Cancelar</button>
+                        <button onClick={() =>{validarDados();}} id="salvar" className="font-medium bg-green-600 text-[#fff] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer hover:bg-green-700 ">Salvar</button>
                     </div>
                 </div>
-            </div> }
+            </div>
         </div>
     );
 }
