@@ -84,15 +84,14 @@ export default function Produtos({
 
   return (
     <section className="bg-white rounded-xl shadow-md p-8">
-      <div className="flex items-center space-x-3 mb-8">
-        <div className="bg-[#F3E8FF] p-2 rounded-lg border border-[#E9D5FF]">
-          <ShoppingBag className="h-5 w-5 text-[#9333EA]" />
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center space-x-3">
+          <div className="bg-[#F3E8FF] p-2 rounded-lg border border-[#E9D5FF]">
+            <ShoppingBag className="h-5 w-5 text-[#9333EA]" />
+          </div>
+          <h2 className="text-2xl font-bold text-[#111827]">{titulo}</h2>
         </div>
-        <h2 className="text-2xl font-bold text-[#111827]">{titulo}</h2>
-      </div>
-      
-      {isGerenciar && (
-        <div className="flex justify-end mb-8 -mt-4">
+        {isGerenciar && (
           <Button 
             onClick={handleAddProduct}
             className="bg-[#9333EA] hover:bg-[#7C3AED] text-white"
@@ -100,8 +99,8 @@ export default function Produtos({
             <Plus className="w-4 h-4 mr-2" />
             Adicionar Produto
           </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       {produtos.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">

@@ -49,7 +49,6 @@ export default function CardSessao({
     );
   }
 
-  // Modo visitante (padrão)
   return (
     <div className="bg-white rounded-xl shadow-md p-8 mb-8">
       <div className="text-center">

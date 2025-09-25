@@ -42,7 +42,7 @@ export default function InicioPage() {
   }, []);
 
   return (
-    <main className="flex-1 bg-[#F9FAFB]">
+    <div className="bg-[#F9FAFB] min-h-full">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {isLoggedIn ? (
           <>
@@ -69,8 +69,8 @@ export default function InicioPage() {
           
           if (newLoggedInState) {
             setUserData({
-              nomeUsuario: 'Usuário Debug',
-              nomeLoja: 'Loja Debug',
+              nomeUsuario: 'Millenium',
+              nomeLoja: 'Millenium Store',
               fotoUsuario: undefined
             });
           } else {
@@ -81,6 +81,6 @@ export default function InicioPage() {
           }
         }}
       />
-    </main>
+    </div>
   );
 }
