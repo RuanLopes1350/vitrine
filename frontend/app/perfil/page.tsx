@@ -61,8 +61,8 @@ export default function PerfilPage() {
     }
     return (
         <div className="w-[100%] h-[100%] flex justify-center items-center bg-[#F9FAFB]">
-            <div className="h-[750px] w-[869px]">
-                <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] h-[144px] w-[100%] flex p-[20px] items-center">
+            <div className="h-[750px] w-[869px] rounded-[16px]">
+                <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] h-[144px] w-[100%] flex p-[20px] items-center rounded-t-[16px]">
                     <div className="flex justify-center items-center gap-[20px] text-[#fff]">
                         <div className="shadow-md h-[80px] w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[36px] font-bold text-[#9333EA]">{nome? nome[0]: ""}</div>
                         <div>
@@ -71,7 +71,7 @@ export default function PerfilPage() {
                         </div>
                     </div>
                 </div>
-                <div className="w-[100%] bg-[#fff] p-[20px] gap-[20px] flex flex-col">
+                <div className="w-[100%] bg-[#fff] p-[20px] gap-[20px] flex flex-col rounded-b-[16px]">
                     <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
                         <div className="flex gap-[10px] items-center">
                             <img src="empresa.svg" alt="" />
