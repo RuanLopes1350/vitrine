@@ -1,21 +1,26 @@
 "use client"
 
+import Modal from "@/components/modal";
+import ModalError from "@/components/modalError";
+
 import { useState, useRef, useEffect } from "react";
 
 export default function PerfilPage() {
+    const [descError, setIsDescError] = useState<string>("")
+    const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false);
     const [isVisible, setVisible] = useState<boolean>(true)
     const [isInterable, setInterable] = useState<string>("pointer-events-none select-none")
     const [nome, setNome] = useState<string>()
     const [email, setEmail] = useState<string>()
     const [telefone, setTelefone] = useState<string>()
-        useEffect(() => {
+    useEffect(() => {
         if (typeof window !== "undefined") {
             localStorage.setItem("nome", "Silvio Huan");
             localStorage.setItem("email", "silvio.huan@gmail.com");
-            localStorage.setItem("telefone", "556988447766");
-            let nome:string = localStorage.getItem("nome") as string
-            let email:string = localStorage.getItem("email") as string
-            let telefone:string = localStorage.getItem("telefone") as string
+            localStorage.setItem("telefone", "6988447766");
+            let nome: string = localStorage.getItem("nome") as string
+            let email: string = localStorage.getItem("email") as string
+            let telefone: string = localStorage.getItem("telefone") as string
             setNome(nome)
             setEmail(email)
             setTelefone(telefone)
@@ -36,35 +41,49 @@ export default function PerfilPage() {
     function validarDados() {
         const telefoneRegex = /^\d+$/
         const nomeRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9 ]+$/
-        const nome = nomeRef.current?.value as string
+        const nome = nomeRef.current?.value.trim() as string
         const telefone = telefoneRef.current?.value.trim() as string
         console.log("Nome:", nome)
         console.log("Telefone:", telefone)
-        if (telefone?.length < 12 || telefone?.length > 13) {
-            window.alert("Deve ter de 10 a 11 numeros no campo numero de Whatsapp!")
+        if (telefone?.length < 10 || telefone?.length > 11) {
+            setIsDescError(`O número de telefone deve ter entre 10 e 11 digitos! Exemplo: 99 9999-9999 ou 99 99999-9999 sem espaçamentos ou hífen.`)
+            setIsErrorModalOpen(true)
             return
         }
         if (!telefoneRegex.test(telefone)) {
-            window.alert("O telefone deve conter somente numeros e sem espaços !")
+            setIsDescError("O telefone deve conter somente números e sem espaços!")
+            setIsErrorModalOpen(true)
             return
         }
         if (!nomeRegex.test(nome)) {
-            window.alert("O nome deve conter somente numeros e letras, sem caracteres especiais !")
+            setIsDescError("O nome deve conter somente numeros e letras, sem caracteres especiais!")
+            setIsErrorModalOpen(true)
             return
         }
         setNome(nome)
         setTelefone(telefone)
+        if(nomeRef.current?.value && telefoneRef.current?.value){
+            nomeRef.current.value = nome
+            telefoneRef.current.value = telefone
+        }
         localStorage.setItem("nome", nome)
         localStorage.setItem("telefone", telefone)
         setVisible(true)
         setInterable("pointer-events-none select-none")
     }
     return (
+
         <div className="w-[100%] h-[100%] flex justify-center items-center bg-[#F9FAFB]">
+            <ModalError
+                tipoErro="Erro de Validação"
+                descricao={descError}
+                isOpen={isErrorModalOpen}
+                onClose={() => setIsErrorModalOpen(false)}
+            />
             <div className="h-[750px] w-[869px] rounded-[16px]">
                 <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] h-[144px] w-[100%] flex p-[20px] items-center rounded-t-[16px]">
                     <div className="flex justify-center items-center gap-[20px] text-[#fff]">
-                        <div className="shadow-md h-[80px] w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[36px] font-bold text-[#9333EA]">{nome? nome[0]: ""}</div>
+                        <div className="shadow-md h-[80px] w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[36px] font-bold text-[#9333EA]">{nome ? nome[0] : ""}</div>
                         <div>
                             <div className="text-[20px] font-bold">{nome}</div>
                             <p>Gerencie o perfil da sua loja</p>
