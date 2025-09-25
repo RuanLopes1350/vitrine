@@ -1,57 +1,86 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import CardInicio from "@/components/card-sessao";
-import CardSessaoLogado from "@/components/card-sessao-logado";
+import CardSessao from "@/components/card-sessao";
 import Produtos from "@/components/produtos";
-import ProdutosGerenciar from "@/components/produtos-gerenciar";
 import DebugAuthToggle from "@/components/debug-auth";
+
+interface UserData {
+  nomeUsuario: string;
+  nomeLoja: string;
+  fotoUsuario?: string;
+}
 
 export default function InicioPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState({
-    nomeUsuario: 'Millennium',
-    nomeLoja: 'Millennium',
-    fotoUsuario: '' as string | undefined
+  const [userData, setUserData] = useState<UserData>({
+    nomeUsuario: '',
+    nomeLoja: ''
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
+    
     if (token) {
-      setIsLoggedIn(true);
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        
+        setUserData({
+          nomeUsuario: payload.nomeUsuario || 'Usuário',
+          nomeLoja: payload.nomeLoja || 'Minha Loja',
+          fotoUsuario: payload.fotoUsuario
+        });
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.error('Erro ao decodificar token:', error);
+        localStorage.removeItem('token');
+        setIsLoggedIn(false);
+      }
+    } else {
+      setIsLoggedIn(false);
     }
   }, []);
-
-  const handleDebugToggle = () => {
-    setIsLoggedIn(!isLoggedIn);
-    if (!isLoggedIn) {
-      localStorage.setItem('authToken', 'debug-token');
-    } else {
-      localStorage.removeItem('authToken');
-    }
-  };
 
   return (
     <main className="flex-1 bg-[#F9FAFB]">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {isLoggedIn ? (
           <>
-            <CardSessaoLogado 
+            <CardSessao 
+              modo="logado"
               nomeUsuario={userData.nomeUsuario}
               nomeLoja={userData.nomeLoja}
               fotoUsuario={userData.fotoUsuario}
             />
-            <ProdutosGerenciar />
+            <Produtos modo="gerenciar" />
           </>
         ) : (
           <>
-            <CardInicio />
-            <Produtos />
+            <CardSessao modo="visitante" />
+            <Produtos modo="visualizar" />
           </>
         )}
       </div>
-      
-      <DebugAuthToggle isLoggedIn={isLoggedIn} onToggle={handleDebugToggle} />
+      <DebugAuthToggle 
+        isLoggedIn={isLoggedIn}
+        onToggle={() => {
+          const newLoggedInState = !isLoggedIn;
+          setIsLoggedIn(newLoggedInState);
+          
+          if (newLoggedInState) {
+            setUserData({
+              nomeUsuario: 'Usuário Debug',
+              nomeLoja: 'Loja Debug',
+              fotoUsuario: undefined
+            });
+          } else {
+            setUserData({
+              nomeUsuario: '',
+              nomeLoja: ''
+            });
+          }
+        }}
+      />
     </main>
   );
 }

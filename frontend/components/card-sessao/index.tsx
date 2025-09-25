@@ -1,6 +1,55 @@
-import { ShoppingBag } from "lucide-react";
+'use client';
 
-export default function CardInicio() {
+import { ShoppingBag } from "lucide-react";
+import Image from 'next/image';
+
+interface CardSessaoProps {
+  modo?: 'visitante' | 'logado';
+  nomeUsuario?: string;
+  nomeLoja?: string;
+  fotoUsuario?: string;
+}
+
+export default function CardSessao({ 
+  modo = 'visitante',
+  nomeUsuario = '',
+  nomeLoja = '',
+  fotoUsuario 
+}: CardSessaoProps) {
+  const getInitials = (name: string) => {
+    return name.charAt(0).toUpperCase();
+  };
+
+  if (modo === 'logado') {
+    return (
+      <div className="bg-gradient-to-r from-[#9333EA] to-[#7C3AED] rounded-xl p-8 mb-8 text-white shadow-md">
+        <div className="flex items-center space-x-6">
+          <div className="relative w-16 h-16 rounded-full overflow-hidden bg-white bg-opacity-20 flex items-center justify-center ring-4 ring-white ring-opacity-20">
+            {fotoUsuario ? (
+              <Image
+                src={fotoUsuario}
+                alt={`Foto de ${nomeUsuario}`}
+                fill
+                className="object-cover"
+                sizes="64px"
+              />
+            ) : (
+              <span className="text-2xl font-bold text-[#9333EA]">
+                {getInitials(nomeUsuario)}
+              </span>
+            )}
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold">{nomeLoja}</h2>
+            <p className="text-purple-100 text-sm">Sua loja digital está pronta para brilhar!</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Modo visitante (padrão)
   return (
     <div className="bg-white rounded-xl shadow-md p-8 mb-8">
       <div className="text-center">
