@@ -34,7 +34,10 @@ class ServicoAuth {
       usuario: {
         id: usuario._id.toString(),
         nome: usuario.nome,
-        email: usuario.email
+        email: usuario.email,
+        nomeLoja: usuario.nomeLoja,
+        whatsapp: usuario.whatsapp,
+        ativo: usuario.ativo
       }
     };
 

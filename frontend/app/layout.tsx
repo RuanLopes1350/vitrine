@@ -11,7 +11,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className="h-screen flex flex-col">
         <AuthProvider>
-          <Header nomeLoja="Sua Loja" />
+          <Header />
           {children}
         </AuthProvider>
       </body>

@@ -7,7 +7,10 @@ import apiClient from '@/apiClient';
 interface User {
     id: string;
     nome: string;
+    nomeLoja: string;
+    whatsapp: string;
     email: string;
+    ativo: boolean;
 }
 
 interface LoginResponse {

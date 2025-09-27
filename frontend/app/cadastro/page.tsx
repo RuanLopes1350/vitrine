@@ -16,12 +16,15 @@ export default function CadastroPage() {
                             className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
                         <Input
                             type="text"
-                            placeholder="CPF"
-                            className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
-                        <Input
-                            type="text"
                             placeholder="Nome Fantasia"
                             className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                        <Input
+                            type="number"
+                            placeholder="WhatsApp Ex: 2199999999"
+                            className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0
+                            [-moz-appearance:textfield] /* Para Firefox */ 
+                            [&::-webkit-outer-spin-button]:appearance-none /* Para WebKit */ 
+                            [&::-webkit-inner-spin-button]:appearance-none /* Para WebKit */" />
                         <Input
                             type="email"
                             placeholder="Email"
@@ -30,17 +33,6 @@ export default function CadastroPage() {
                             type="password"
                             placeholder="Senha"
                             className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
-                        <Input
-                            type="password"
-                            placeholder="Confirme a Senha"
-                            className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
-                        <Input
-                            type="number"
-                            placeholder="WhatsApp Ex: 558899999999"
-                            className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0
-                            [-moz-appearance:textfield] /* Para Firefox */ 
-                            [&::-webkit-outer-spin-button]:appearance-none /* Para WebKit */ 
-                            [&::-webkit-inner-spin-button]:appearance-none /* Para WebKit */" />
                     </div>
                     <Button className="w-[448px] h-[38px] bg-[#2563EB] text-white cursor-pointer">Cadastrar</Button>
                 </div>

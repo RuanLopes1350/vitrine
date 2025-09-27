@@ -4,18 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
-interface HeaderProps {
-    nomeLoja: string;
-    label?: string;
-}
-
-export default function Header({ nomeLoja, label }: HeaderProps) {
+export default function Header() {
     const pathname = usePathname();
     const rotasParaOcultar = ["/login", "/cadastro", "/esqueci-minha-senha-a", "/esqueci-minha-senha-b", "/esqueci-minha-senha-c"];
     const { isAuthenticated, user, logout, isLoading } = useAuth();
     
     // Usar o nome da loja do usuário ou um padrão
-    const nomeLojaExibir = user?.nome || nomeLoja || "Sua Loja";
+    const nomeLojaExibir =  user?.nomeLoja || user?.nome;
 
     const handleLogout = () => {
         logout();
