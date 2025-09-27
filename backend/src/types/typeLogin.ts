@@ -10,7 +10,10 @@ export interface RespostaLogin {
   usuario: {
     id: string;
     nome: string;
+    nomeLoja: string;
     email: string;
+    whatsapp: string;
+    ativo: boolean;
   };
 }
 

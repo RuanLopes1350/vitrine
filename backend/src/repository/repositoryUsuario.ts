@@ -42,7 +42,7 @@ class RepositoryUsuario {
     }
 
     async buscarPorEmail(email:string) {
-        const data = await this.model.findOne({email:email}, '+senha');
+        const data = await this.model.findOne({email:email}, '+senha +nomeLoja +whatsapp +ativo' );
         return data
     }
     async armazenarTokens(id: string, accesstoken: string, refreshtoken: string) {

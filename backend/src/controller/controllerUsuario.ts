@@ -15,6 +15,7 @@ class ControllerUsuario {
     }
 
     async cadastrar(req: Request, res: Response, next: NextFunction): Promise<void> {
+        console.log('Cadastrando usuário');
         try {
             const dadosUsuario: typeUsuario = req.body;
             
@@ -47,6 +48,7 @@ class ControllerUsuario {
     }
 
     async listar(req: Request, res: Response, next: NextFunction): Promise<void> {
+        console.log('Listando usuários');
         try {
             const usuarios = await this.service.listar();
             usuarios.send(res);
