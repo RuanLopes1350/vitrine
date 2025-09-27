@@ -2,18 +2,20 @@
 
 import ModalError from "@/components/modalError";
 import axios from "axios"
+import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 
 export default function PerfilPage() {
 
     const [descError, setIsDescError] = useState<string>("")
-    const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false);
+    const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false)
     const [isVisible, setVisible] = useState<boolean>(true)
     const [isInterable, setInterable] = useState<string>("pointer-events-none select-none")
     const [nome, setNome] = useState<string>()
     const [email, setEmail] = useState<string>()
     const [whatsapp, setWhatsapp] = useState<string>()
     const [aviso, setAviso] = useState<string>("Erro de validação")
+    const router = useRouter()
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -52,7 +54,6 @@ export default function PerfilPage() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             }
-            console.log("Aqui")
             const id = localStorage.getItem("id")
             const uri = localStorage.getItem("api")
             const resposta = await axios.patch(`${uri}/usuarios/${id}`, dados, { headers })
@@ -83,6 +84,10 @@ export default function PerfilPage() {
             setIsErrorModalOpen(true) 
 
         } catch (erro:any) {
+            if(erro.response.status === 403 || erro.response.status === 401){
+                router.push("/login")
+                return
+            }
             restaurarDados()
             setInterable("pointer-events-none select-none")
             setAviso("Erro desconhecido")
