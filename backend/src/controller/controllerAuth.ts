@@ -14,8 +14,10 @@ class ControladorAuth {
 
   // Realiza login do usuário
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
+    console.log('Iniciando login');
     try {
       const dados: DadosLogin = req.body;
+      console.log('Email recebido:', dados.email);
       
       // Validações simples
       if (!dados.email || !dados.senha) {
@@ -25,9 +27,11 @@ class ControladorAuth {
       }
 
       const resultado = await this.servico.realizarLogin(dados.email, dados.senha);
+      console.log('Login realizado com sucesso');
       resultado.send(res);
       
     } catch (erro: any) {
+      console.log('Erro no login:', erro.message);
       // Erros específicos de login
       if (erro.message === 'CREDENCIAIS_INVALIDAS') {
         const response = CommonResponse.unauthorized('Email ou senha incorretos');
@@ -42,6 +46,7 @@ class ControladorAuth {
 
   // Realiza logout do usuário (opcional - apenas para limpar tokens do frontend)
   async logout(req: Request, res: Response): Promise<void> {
+    console.log('Logout realizado');
     // Como o token é stateless, não precisamos fazer nada no backend
     // O frontend apenas remove o token do localStorage/sessionStorage
     const response = CommonResponse.success('Logout realizado com sucesso');

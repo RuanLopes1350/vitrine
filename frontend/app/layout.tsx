@@ -1,5 +1,6 @@
 import Header from "@/components/header";
 import "./globals.css";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export default function RootLayout({
   children,
@@ -9,8 +10,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className="h-screen flex flex-col">
-        <Header nomeLoja="Sua Loja" />
-        {children}
+        <AuthProvider>
+          <Header nomeLoja="Sua Loja" />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
