@@ -37,13 +37,13 @@ app.get('/', (req, res) => {
 });
 
 // Rotas de usuário
-app.use(routesUsuario);
+app.use('/usuarios', routesUsuario);
 
 // Rotas de produtos
-app.use(routesProduto);
+app.use('/produtos', routesProduto);
 
 // Rotas de Auth
-app.use(routesAuth);
+app.use('/auth', routesAuth);
 
 // Rota para tratar requisições para rotas não definidas
 app.use((req, res) => {

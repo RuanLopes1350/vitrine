@@ -6,10 +6,10 @@ const router = express.Router();
 const controller = new ControllerUsuario();
 
 router
-    .post('/usuarios', controller.cadastrar.bind(controller))
-    .get('/usuarios', authMiddleware, controller.listar.bind(controller))
-    .get('/usuarios/:id', authMiddleware, controller.buscarPorId.bind(controller))
-    .patch('/usuarios/:id', authMiddleware, controller.atualizar.bind(controller))
-    .delete('/usuarios/:id', authMiddleware, controller.deletar.bind(controller));
+    .post('/', controller.cadastrar.bind(controller))
+    .get('/', authMiddleware, controller.listar.bind(controller))
+    .get('/:id', authMiddleware, controller.buscarPorId.bind(controller))
+    .patch('/:id', authMiddleware, controller.atualizar.bind(controller))
+    .delete('/:id', authMiddleware, controller.deletar.bind(controller));
 
 export default router;

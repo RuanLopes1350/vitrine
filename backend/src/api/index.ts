@@ -25,9 +25,9 @@ app.use(cors({
 }))
 
 // Rotas
-app.use(routesUsuario);
-app.use(routesProduto);
-app.use(routesAuth);
+app.use('/usuarios', routesUsuario);
+app.use('/produtos', routesProduto);
+app.use('/auth', routesAuth);
 
 // Middleware de tratamento de erros
 app.use(ErrorHandlerMiddleware.handle);
