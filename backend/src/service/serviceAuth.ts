@@ -2,6 +2,7 @@ import RepositoryUsuario from '../repository/repositoryUsuario';
 import geradorToken from '../utils/tokenUtil';
 import { RespostaLogin } from '../types/typeLogin';
 import { CommonResponse } from '../utils/helpers/commonResponse';
+import { PasswordHelper } from '../utils/helpers/passwordHelper';
 
 // Serviço de autenticação - versão simplificada
 class ServicoAuth {
@@ -14,14 +15,15 @@ class ServicoAuth {
   // Realiza login e retorna dados do usuário com token
   async realizarLogin(email: string, senha: string): Promise<CommonResponse> {
     // 1. Buscar usuário por email
-    const usuario = await this.repositorioUsuario.buscarPorEmail(email);
+    const usuario = await this.repositorioUsuario.buscarPorEmailComSenha(email);
     
     if (!usuario) {
       throw new Error('CREDENCIAIS_INVALIDAS');
     }
 
-    // 2. Verificar senha (em produção, use bcrypt para hash)
-    if (usuario.senha !== senha) {
+    // 2. Verificar senha usando bcrypt.compare
+    const senhaValida = await PasswordHelper.compare(senha, usuario.senha);
+    if (!senhaValida) {
       throw new Error('CREDENCIAIS_INVALIDAS');
     }
 

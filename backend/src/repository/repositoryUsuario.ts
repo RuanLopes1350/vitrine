@@ -41,10 +41,17 @@ class RepositoryUsuario {
         return await this.model.findByIdAndDelete(id);
     }
 
-    async buscarPorEmail(email:string) {
-        const data = await this.model.findOne({email:email}, '+senha');
-        return data
+    /**
+     * Busca um usuário por email, incluindo o campo 'senha' no resultado.
+     * Necessário para o processo de autenticação.
+     * @param email - O email do usuário a ser buscado.
+     * @returns O documento do usuário, incluindo o hash da senha, ou null se não for encontrado.
+     */
+    async buscarPorEmailComSenha(email: string): Promise<any> {
+        const data = await this.model.findOne({ email: email }).select('+senha');
+        return data;
     }
+
     async armazenarTokens(id: string, accesstoken: string, refreshtoken: string) {
         const documento = await this.model.findById(id);
         if (!documento) {
@@ -55,15 +62,14 @@ class RepositoryUsuario {
         const data = await documento.save();
         return data;
     }
-    async removeToken(id:string) {
-        // Criar objeto com os campos a serem atualizados
+
+    async removeToken(id: string) {
         const parsedData = {
             accessToken: null,
             refreshToken: null
         };
         const usuario = await this.model.findByIdAndUpdate(id, parsedData, { new: true }).exec();
 
-        // Validar se o usuário atualizado foi retornado
         if (!usuario) {
             throw new Error('Usuário não encontrado');
         }
