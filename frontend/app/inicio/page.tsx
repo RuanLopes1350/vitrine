@@ -14,7 +14,13 @@ export default function InicioPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [produtoParaEditar, setProdutoParaEditar] = useState<Produto | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0); // Estado para controlar refresh
   const { toasts, showSuccess, showError, removeToast } = useToast();
+
+  // Função para fazer refresh da lista de produtos
+  const triggerRefresh = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
   const handleAddProduct = () => {
     setIsModalOpen(true);
@@ -69,7 +75,7 @@ export default function InicioPage() {
         descricao,
         preco,
         foto: foto || '/placeholder-image.png'
-      });
+      }, triggerRefresh); // Passa a função de refresh como callback
 
       if (result.success) {
         // Limpa os campos
@@ -135,7 +141,7 @@ export default function InicioPage() {
           descricao,
           preco,
           foto: foto || '/placeholder-image.png'
-        });
+        }, triggerRefresh); // Passa a função de refresh como callback
         
       if (result.success) {
         showSuccess('Produto editado com sucesso!');
@@ -177,12 +183,14 @@ export default function InicioPage() {
                 modo="gerenciar" 
                 onAddProduct={handleAddProduct}
                 onEditProduct={handleEditProduct}
+                refreshKey={refreshKey}
+                onRefresh={triggerRefresh}
               />
             </>
           ) : (
             <>
               <CardSessao modo="visitante" />
-              <Produtos modo="visualizar" />
+              <Produtos modo="visualizar" refreshKey={refreshKey} onRefresh={triggerRefresh} />
             </>
           )}
         </div>
