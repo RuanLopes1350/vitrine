@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const login = async (email: string, senha: string) => {
         try {
             console.log(`Enviando para API: ${email}, senha!`);
-            const response = await apiClient.post<LoginResponse>('/auth/login', { email, senha });
+            const response = await apiClient.post<LoginResponse>('/login', { email, senha });
             console.log('Resposta da API:', response.data);
 
             if (response.data.code === 200) {
