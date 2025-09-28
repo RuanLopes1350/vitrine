@@ -18,22 +18,39 @@ class ControllerUsuario {
         console.log('Cadastrando usuário');
         try {
             const dadosUsuario: typeUsuario = req.body;
-            
-            const errosValidacao: string[] = [];
-            
+
+            const errosValidacao: Array<{ campo: string; mensagem: string }> = [];
+
             if (!dadosUsuario.nome || dadosUsuario.nome.trim() === '') {
-                errosValidacao.push('Nome é obrigatório e não pode estar vazio');
+                errosValidacao.push({ campo: 'nome', mensagem: 'Nome é obrigatório e não pode estar vazio' });
             }
-            
+
+            if (!dadosUsuario.nomeLoja || dadosUsuario.nomeLoja.trim() === '') {
+                errosValidacao.push({ campo: 'nomeLoja', mensagem: 'Nome da loja é obrigatório' });
+            }
+
+            if (!dadosUsuario.whatsapp || dadosUsuario.whatsapp.trim() === '') {
+                errosValidacao.push({ campo: 'whatsapp', mensagem: 'WhatsApp é obrigatório' });
+            }
+
             if (!dadosUsuario.email || dadosUsuario.email.trim() === '') {
-                errosValidacao.push('Email é obrigatório e não pode estar vazio');
+                errosValidacao.push({ campo: 'email', mensagem: 'Email é obrigatório' });
             } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(dadosUsuario.email)) {
-                errosValidacao.push('Email deve ter um formato válido');
+                errosValidacao.push({ campo: 'email', mensagem: 'Email deve ter um formato válido' });
+            }
+
+            if (!dadosUsuario.senha || dadosUsuario.senha.trim() === '') {
+                errosValidacao.push({ campo: 'senha', mensagem: 'Senha é obrigatória' });
+            } else if (dadosUsuario.senha.length < 8) {
+                errosValidacao.push({
+                    campo: 'senha',
+                    mensagem: 'A senha deve conter pelo menos 8 caracteres'
+                });
             }
 
             if (errosValidacao.length > 0) {
-                const response = CommonResponse.badRequest(
-                    HttpStatusCodes.BAD_REQUEST.message, 
+                const response = CommonResponse.validationError(
+                    'Dados inválidos para cadastro',
                     errosValidacao
                 );
                 response.send(res);
@@ -60,7 +77,7 @@ class ControllerUsuario {
     async buscarPorId(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { id } = req.params;
-            
+
             if (!id) {
                 const response = CommonResponse.badRequest(
                     HttpStatusCodes.BAD_REQUEST.message,
@@ -91,7 +108,7 @@ class ControllerUsuario {
         try {
             const { id } = req.params;
             const dadosUsuario: typeUsuario = req.body;
-            
+
             if (!id) {
                 const response = CommonResponse.badRequest(
                     HttpStatusCodes.BAD_REQUEST.message,
@@ -121,7 +138,7 @@ class ControllerUsuario {
     async deletar(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { id } = req.params;
-            
+
             if (!id) {
                 const response = CommonResponse.badRequest(
                     HttpStatusCodes.BAD_REQUEST.message,

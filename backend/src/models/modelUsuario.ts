@@ -11,7 +11,7 @@ class Usuario {
                 nomeLoja: { type: String, required: true },
                 email: { type: String, required: true, unique: true },
                 senha: { type: String, required: true, select: false },
-                whatsapp: { type: String, required: true, unique: true },
+                whatsapp: { type: String, required: true },
                 ativo: { type: Boolean, default: false },
                 accessToken:{type: String, required: false, select: false}
             },
