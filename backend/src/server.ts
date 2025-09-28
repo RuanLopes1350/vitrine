@@ -30,12 +30,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
-// app.use(cors({ 
-//   origin: process.env.FRONTEND_URL, // Permitir apenas o frontend
-//   credentials: true, // Permitir cookies/credentials
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-//   allowedHeaders: ['Content-Type', 'Authorization']
-// }))
 
 app.get('/', (req, res) => {
   console.log('Requisição para rota raiz');
