@@ -183,6 +183,12 @@ const nextConfig: NextConfig = {
         port: '1350', 
         pathname: '/uploads/**',
       },
+
+      // === SITES ALEATÓRIOS E DIVERSOS ===
+      {
+        protocol: 'https',
+        hostname: 'www.gabriellfreitass.com.br',
+      }
     ],
   },
 };

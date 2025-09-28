@@ -7,8 +7,11 @@ import Produtos from "@/components/produtos";
 import Modal from "@/components/modal";
 import { useProdutos, Produto } from '@/hooks/useProdutos';
 import { useToast, ToastContainer } from '@/components/ui/toast';
+import { useRequireAuth } from '@/hooks/useAuth';
 
 export default function InicioPage() {
+  useRequireAuth();
+
   const { user, isAuthenticated, isLoading } = useAuth();
   const { adicionarProduto, editarProduto } = useProdutos();
   const [isModalOpen, setIsModalOpen] = useState(false);
