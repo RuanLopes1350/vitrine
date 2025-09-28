@@ -1,10 +1,10 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
-import DbConnect from './config/DbConnect';
-import routesUsuario from './routes/routesUsuario'
-import routesProduto from './routes/routesProduto'
-import routesAuth from './routes/routesAuth'
-import { ErrorHandlerMiddleware } from './utils/middlewares/errorHandler';
+import DbConnect from './config/DbConnect.js';
+import routesUsuario from './routes/routesUsuario.js'
+import routesProduto from './routes/routesProduto.js'
+import routesAuth from './routes/routesAuth.js'
+import { ErrorHandlerMiddleware } from './utils/middlewares/errorHandler.js';
 import cors from 'cors';
 
 dotenv.config();

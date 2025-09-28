@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import ServiceUsuario from "../service/serviceUsuario";
-import { typeUsuario } from "../types/typeUsuario";
-import { CommonResponse } from "../utils/helpers/commonResponse";
-import HttpStatusCodes from "../utils/helpers/httpStatusCodes";
+import ServiceUsuario from "../service/serviceUsuario.js";
+import { typeUsuario } from "../types/typeUsuario.js";
+import { CommonResponse } from "../utils/helpers/commonResponse.js";
+import HttpStatusCodes from "../utils/helpers/httpStatusCodes.js";
 
 // Regex para validar ObjectId do MongoDB
 const objectIdRegex = /^[a-fA-F0-9]{24}$/;

@@ -1,6 +1,6 @@
-import ServiceProduto from "../service/serviceProduto";
-import { typeProduto, typeProdutoEdicao } from "../types/typeProduto";
-import { CommonResponse } from "../utils/helpers/commonResponse";
+import ServiceProduto from "../service/serviceProduto.js";
+import { typeProduto, typeProdutoEdicao } from "../types/typeProduto.js";
+import { CommonResponse } from "../utils/helpers/commonResponse.js";
 
 class ControllerProduto {
     private service: ServiceProduto

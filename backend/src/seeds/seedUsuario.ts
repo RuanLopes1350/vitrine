@@ -1,7 +1,7 @@
-import modelUsuario from '../models/modelUsuario'
-import { typeUsuario } from '../types/typeUsuario'
+import modelUsuario from '../models/modelUsuario.js'
+import { typeUsuario } from '../types/typeUsuario.js'
 
-import { getGlobalFakeMapping } from './globalFakeMapping'
+import { getGlobalFakeMapping } from './globalFakeMapping.js'
 
 async function seedUsuarios() {
     await modelUsuario.deleteMany();

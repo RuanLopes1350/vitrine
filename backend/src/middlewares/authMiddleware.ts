@@ -1,6 +1,6 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import { CommonResponse } from '../utils/helpers/commonResponse';
+import { CommonResponse } from '../utils/helpers/commonResponse.js';
 
 // Regex para validar ObjectId do MongoDB
 const objectIdRegex = /^[a-fA-F0-9]{24}$/;

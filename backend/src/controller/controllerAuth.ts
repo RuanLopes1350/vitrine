@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { DadosLogin } from '../types/typeLogin';
-import ServicoAuth from '../service/serviceAuth';
-import { AuthenticatedRequest } from '../middlewares/authMiddleware';
-import { CommonResponse } from '../utils/helpers/commonResponse';
+import { DadosLogin } from '../types/typeLogin.js';
+import ServicoAuth from '../service/serviceAuth.js';
+import { CommonResponse } from '../utils/helpers/commonResponse.js';
 
 // Controller de autenticação - versão simplificada
 class ControladorAuth {
