@@ -1,11 +1,11 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
 import DbConnect from './config/DbConnect.js';
-import routesUsuario from './routes/routesUsuario.js'
-import routesProduto from './routes/routesProduto.js'
-import routesAuth from './routes/routesAuth.js'
-import { ErrorHandlerMiddleware } from './utils/middlewares/errorHandler.js';
+import routesUsuario from './routes/routesUsuario.js';
+import routesProduto from './routes/routesProduto.js';
+import routesAuth from './routes/routesAuth.js';
 import cors from 'cors';
+import { ErrorHandlerMiddleware } from './utils/middlewares/errorHandler.js';
 
 dotenv.config();
 
@@ -30,6 +30,8 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
+
+app.use(cors())
 
 app.get('/', (req, res) => {
   console.log('Requisição para rota raiz');
