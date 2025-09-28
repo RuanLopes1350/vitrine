@@ -1,12 +1,12 @@
 import express from 'express';
-import ControllerProduto from '../controller/controllerProduto';
-import authMiddleware from '../middlewares/authMiddleware';
+import ControllerProduto from '../controller/controllerProduto.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 const controller = new ControllerProduto();
 
 router
-    .post('/produtos', authMiddleware, async (req, res) => {
+    .post('/', authMiddleware, async (req, res) => {
         const response = await controller.cadastrar(req.body);
         return response.send(res);
     })
@@ -14,7 +14,7 @@ router
     //     const response = await controller.listar();
     //     return response.send(res);
     // })
-    .get('/produtos/:id', async (req, res) => {
+    .get('/:id', async (req, res) => {
         // Validar se o ID é um ObjectId válido
         if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
@@ -29,7 +29,7 @@ router
         const response = await controller.buscarPorId(req.params.id);
         return response.send(res);
     })
-    .patch('/produtos/:id', authMiddleware, async (req, res) => {
+    .patch('/:id', authMiddleware, async (req, res) => {
         // Validar se o ID é um ObjectId válido
         if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({
@@ -55,7 +55,7 @@ router
         const response = await controller.editar(req.params.id, req.body);
         return response.send(res);
     })
-    .delete('/produtos/:id', authMiddleware, async (req, res) => {
+    .delete('/:id', authMiddleware, async (req, res) => {
         // Validar se o ID é um ObjectId válido
         if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
             return res.status(400).json({

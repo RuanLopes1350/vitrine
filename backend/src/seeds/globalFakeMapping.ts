@@ -4,6 +4,7 @@ export async function getGlobalFakeMapping() {
     return {
         usuario: {
             nome: () => faker.person.fullName(),
+            nomeLoja: () => faker.company.name(),
             email: () => faker.internet.email(),
             senha: () => faker.internet.password(),
             whatsapp: () => faker.phone.number(),

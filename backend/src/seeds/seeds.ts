@@ -1,9 +1,8 @@
 import 'dotenv/config';
-import mongoose from 'mongoose';
 
-import DbConnect from '../config/DbConnect';
-import seedUsuarios from './seedUsuario';
-import seedProdutos from './seedProduto';
+import DbConnect from '../config/DbConnect.js';
+import seedUsuarios from './seedUsuario.js';
+import seedProdutos from './seedProduto.js';
 
 await DbConnect.conectar()
 

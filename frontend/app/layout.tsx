@@ -1,5 +1,7 @@
 import Header from "@/components/header";
 import "./globals.css";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ClientLayout from "@/components/ClientLayout.tsx";
 
 export default function RootLayout({
   children,
@@ -8,13 +10,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className="h-screen overflow-hidden">
-        <div className="h-full flex flex-col">
-          <Header nomeLoja="Sua Loja" />
-          <main className="flex-1 overflow-auto">
-            {children}
-          </main>
-        </div>
+      <body className="h-screen flex flex-col">
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

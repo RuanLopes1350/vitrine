@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function CadastroPage() {
     return (
-        <div className="bg-[#F9FAFB] h-screen flex flex-col justify-center items-center">
+        <div className="bg-[#F9FAFB] h-full flex flex-col justify-center items-center">
             <div className="w-[448px] h-[301px] text-[#111827]">
                 <h1 className="text-[25.5px] pl-8">Resetar sua senha</h1>
                 <p className="text-[#4B5563] pl-14 pb-14">Digite sua nova senha!</p>

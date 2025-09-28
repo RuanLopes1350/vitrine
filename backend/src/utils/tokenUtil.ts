@@ -1,5 +1,5 @@
-import jwt, { SignOptions } from 'jsonwebtoken';
-import { PayloadToken } from '../types/typeLogin';
+import jwt from 'jsonwebtoken';
+import { PayloadToken } from '../types/typeLogin.js';
 
 // Utilitário para gerenciar tokens JWT de forma simples
 class GeradorToken {

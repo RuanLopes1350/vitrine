@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { typeProduto, typeProdutoEdicao } from '../types/typeProduto';
-import modelProduto from '../models/modelProduto';
+import { typeProduto, typeProdutoEdicao } from '../types/typeProduto.js';
+import modelProduto from '../models/modelProduto.js';
 
 class RepositoryProduto {
     private model: mongoose.Model<any>;

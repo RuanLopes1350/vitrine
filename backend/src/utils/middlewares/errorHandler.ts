@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { CommonResponse } from '../helpers/commonResponse';
+import { CommonResponse } from '../helpers/commonResponse.js';
 
 interface MongoError extends Error {
     code?: number;

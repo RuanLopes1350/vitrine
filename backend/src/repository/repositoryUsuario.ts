@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
-import { typeUsuario } from '../types/typeUsuario';
-import modelUsuario from '../models/modelUsuario';
-import { error } from "console";
+import { typeUsuario } from '../types/typeUsuario.js';
+import modelUsuario from '../models/modelUsuario.js';
 
 class RepositoryUsuario {
     private model: mongoose.Model<any>;
@@ -42,7 +41,7 @@ class RepositoryUsuario {
     }
 
     async buscarPorEmail(email:string) {
-        const data = await this.model.findOne({email:email}, '+senha');
+        const data = await this.model.findOne({email:email}, '+senha +nomeLoja +whatsapp +ativo' );
         return data
     }
     async armazenarTokens(id: string, accesstoken: string, refreshtoken: string) {
