@@ -41,8 +41,8 @@ interface UseProdutosReturn {
     error: string | null;
     buscarProdutos: () => Promise<void>;
     buscarProdutosPorUsuario: () => Promise<void>;
-    adicionarProduto: (produto: Omit<Produto, '_id' | 'usuarioId'>) => Promise<{ success: boolean; message: string }>;
-    editarProduto: (id: string, produto: Omit<Produto, '_id' | 'usuarioId'>) => Promise<{ success: boolean; message: string }>;
+    adicionarProduto: (produto: Omit<Produto, '_id' | 'usuarioId'>, refreshCallback?: () => void) => Promise<{ success: boolean; message: string }>;
+    editarProduto: (id: string, produto: Omit<Produto, '_id' | 'usuarioId'>, refreshCallback?: () => void) => Promise<{ success: boolean; message: string }>;
     deletarProduto: (id: string) => Promise<{ success: boolean; message: string }>;
 }
 
@@ -135,7 +135,7 @@ export function useProdutos(): UseProdutosReturn {
         }
     }, [user?.id]);
 
-    const adicionarProduto = async (produto: Omit<Produto, '_id' | 'usuarioId'>) => {
+    const adicionarProduto = async (produto: Omit<Produto, '_id' | 'usuarioId'>, refreshCallback?: () => void) => {
         try {
             setLoading(true);
             setError(null);
@@ -155,6 +155,10 @@ export function useProdutos(): UseProdutosReturn {
             const response = await apiClient.post<ProdutoResponse>('/produtos', produtoBackend);
             
             if (response.data.code === 201) {
+                // Chama o callback para refresh se fornecido
+                if (refreshCallback) {
+                    refreshCallback();
+                }
                 return { success: true, message: 'Produto adicionado com sucesso!' };
             } else {
                 throw new Error(response.data.message || 'Erro ao adicionar produto');
@@ -168,7 +172,7 @@ export function useProdutos(): UseProdutosReturn {
         }
     };
 
-    const editarProduto = async (id: string, produto: Omit<Produto, '_id' | 'usuarioId'>) => {
+    const editarProduto = async (id: string, produto: Omit<Produto, '_id' | 'usuarioId'>, refreshCallback?: () => void) => {
         try {
             setLoading(true);
             setError(null);
@@ -188,6 +192,10 @@ export function useProdutos(): UseProdutosReturn {
             const response = await apiClient.patch<ProdutoResponse>(`/produtos/${id}`, produtoBackend);
             
             if (response.data.code === 200) {
+                // Chama o callback para refresh se fornecido
+                if (refreshCallback) {
+                    refreshCallback();
+                }
                 return { success: true, message: 'Produto atualizado com sucesso!' };
             } else {
                 throw new Error(response.data.message || 'Erro ao editar produto');
