@@ -17,7 +17,12 @@ const app = express();
 DbConnect.conectar();
 
 app.use(express.json());
-app.use(cors()); // Simplifique o CORS para o deploy inicial
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}))
 
 // Rotas
 app.use(routesUsuario);
