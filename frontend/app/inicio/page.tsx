@@ -72,7 +72,7 @@ export default function InicioPage() {
         descricao,
         preco,
         foto: foto || '/placeholder-image.png'
-      }, true); // true = modo gerenciar
+      });
 
       if (result.success) {
         // Limpa os campos
@@ -138,7 +138,7 @@ export default function InicioPage() {
           descricao,
           preco,
           foto: foto || '/placeholder-image.png'
-        }, true); // true = modo gerenciar
+        });
         
       if (result.success) {
         showSuccess('Produto editado com sucesso!');

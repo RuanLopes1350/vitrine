@@ -13,6 +13,7 @@ interface Produto {
   preco: number;
   foto: string;
   usuarioId: string;
+  whatsapp?: string;
 }
 
 interface ProdutoCardProps {
@@ -32,7 +33,13 @@ export default function ProdutoCard({
 
   const whatsAppRedirect = () => {
     const mensagem = `Olá! Tenho interesse no produto: "${produto.titulo}" no valor de R$ ${produto.preco?.toFixed(2).replace('.', ',')}. Poderia me dar mais informações?`;
-    const numeroWhatsApp = "5511999999999";
+    const numeroWhatsApp = produto.whatsapp;
+    
+    if (!numeroWhatsApp) {
+      alert('WhatsApp não disponível para este produto');
+      return;
+    }
+    
     const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
     window.open(url, '_blank');
   };
