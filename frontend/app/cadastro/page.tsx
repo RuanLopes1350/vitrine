@@ -6,9 +6,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { resumePluginState } from "next/dist/build/build-context";
+import { useRedirectIfAuthenticated } from "@/hooks/useAuth";
+
 
 export default function CadastroPage() {
+    useRedirectIfAuthenticated();
+
     const [nome, setNome] = useState('');
     const [nomeFantasia, setNomeFantasia] = useState('');
     const [whatsapp, setWhatsapp] = useState('');
@@ -84,7 +87,7 @@ export default function CadastroPage() {
         setIsLoading(false);
     }
     return (
-        <div className="bg-[#F9FAFB] h-screen flex flex-col justify-center items-center pb-50">
+        <div className="bg-[#F9FAFB] h-full flex flex-col justify-center items-center pb-50">
             <div className="w-[448px] h-[301px] text-[#111827]">
                 <h1 className="text-[25.5px] pl-8">Crie sua conta Vitrine</h1>
                 <p className="text-[#4B5563] pl-34 pb-14">Ou <Link href="/login" className="text-[#2563EB]">já possui uma conta? Fazer login</Link></p>

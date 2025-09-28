@@ -6,8 +6,11 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRedirectIfAuthenticated } from '@/hooks/useAuth';
 
 export default function LoginPage() {
+    useRedirectIfAuthenticated();
+
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +32,7 @@ export default function LoginPage() {
         
         if (result.success) {
             console.log('Login realizado com sucesso!');
-            router.push('/inicio'); // Redirecionar para a página inicial
+            router.push('/inicio');
         } else {
             setErrorMessage(result.message);
         }
@@ -38,8 +41,9 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="bg-[#F9FAFB] h-screen flex flex-col justify-center items-center">
-            <div className="w-[448px] h-[301px] text-[#111827]">
+        // A principal mudança está aqui: 'h-screen' foi trocado por 'h-full'
+        <div className="bg-[#F9FAFB] h-full flex flex-col justify-center items-center">
+            <div className="w-[448px] text-[#111827]">
                 <h1 className="text-[25.5px] pl-8">Faça login em sua conta</h1>
                 <p className="text-[#4B5563] pl-34 pb-14">Ou <Link href="/cadastro" className="text-[#2563EB]">crie uma nova conta</Link></p>
                 <div className="flex flex-col gap-8">
