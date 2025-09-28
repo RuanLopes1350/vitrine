@@ -170,6 +170,20 @@ const nextConfig: NextConfig = {
         hostname: '*.netlify.app',
       },
       
+      // === SITES BRASILEIROS ===
+      {
+        protocol: 'https',
+        hostname: 'www.gabriellfreitass.com.br',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.com.br',
+      },
+      {
+        protocol: 'http',
+        hostname: '*.com.br',
+      },
+      
       // === LOCALHOST (DESENVOLVIMENTO) ===
       {
         protocol: 'http',

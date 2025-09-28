@@ -12,13 +12,17 @@ interface ProdutosProps {
   onAddProduct?: () => void;
   onEditProduct?: (produto: Produto) => void;
   onDeleteProduct?: (produtoId: string) => void;
+  refreshKey?: number; // Nova prop para forçar refresh
+  onRefresh?: () => void; // Callback para notificar refresh
 }
 
 export default function Produtos({ 
   modo = 'visualizar',
   onAddProduct,
   onEditProduct,
-  onDeleteProduct 
+  onDeleteProduct,
+  refreshKey,
+  onRefresh 
 }: ProdutosProps) {
   const { produtos, loading, error, buscarProdutos, buscarProdutosPorUsuario, deletarProduto } = useProdutos();
   const { user, isAuthenticated } = useAuth();
@@ -31,12 +35,10 @@ export default function Produtos({
       // Se for modo visualizar, sempre busca todos os produtos
       buscarProdutos();
     }
-  }, [modo, isAuthenticated, user]);
+  }, [modo, isAuthenticated, user, refreshKey]); // Inclui refreshKey como dependência
   const handleEditProduct = (produto: Produto) => {
     if (onEditProduct) {
       onEditProduct(produto);
-    } else {
-      console.log('Editando produto:', produto);
     }
   };
 
@@ -44,9 +46,12 @@ export default function Produtos({
     if (onDeleteProduct) {
       onDeleteProduct(produtoId);
     } else {
-      const result = await deletarProduto(produtoId, modo === 'gerenciar');
+      const result = await deletarProduto(produtoId);
       if (result.success) {
-        console.log('Produto deletado com sucesso:', result.message);
+        // Notifica o componente pai para fazer refresh
+        if (onRefresh) {
+          onRefresh();
+        }
       } else {
         console.error('Erro ao deletar produto:', result.message);
       }
@@ -56,8 +61,6 @@ export default function Produtos({
   const handleAddProduct = () => {
     if (onAddProduct) {
       onAddProduct();
-    } else {
-      console.log('Adicionando novo produto');
     }
   };
 
