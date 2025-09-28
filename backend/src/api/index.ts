@@ -25,9 +25,13 @@ app.use(cors({
 }))
 
 // Rotas
-app.use('/usuarios', routesUsuario);
-app.use('/produtos', routesProduto);
-app.use('/auth', routesAuth);
+const apiRouter = express.Router();
+
+apiRouter.use('/usuarios', routesUsuario);
+apiRouter.use('/produtos', routesProduto);
+apiRouter.use('/', routesAuth);
+
+app.use('/api', apiRouter);
 
 // Middleware de tratamento de erros
 app.use(ErrorHandlerMiddleware.handle);

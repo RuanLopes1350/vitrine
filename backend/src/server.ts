@@ -36,14 +36,13 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hello, World!' });
 });
 
-// Rotas de usuário
-app.use('/usuarios', routesUsuario);
+const apiRouter = express.Router();
 
-// Rotas de produtos
-app.use('/produtos', routesProduto);
+apiRouter.use('/usuarios', routesUsuario);
+apiRouter.use('/produtos', routesProduto);
+apiRouter.use('/', routesAuth);
 
-// Rotas de Auth
-app.use('/auth', routesAuth);
+app.use('/api', apiRouter);
 
 // Rota para tratar requisições para rotas não definidas
 app.use((req, res) => {
