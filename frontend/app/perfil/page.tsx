@@ -188,7 +188,7 @@ export default function PerfilPage() {
                         </div>
                         <input 
                             type="text" 
-                            className="font-medium border-none focus:outline-none dados " 
+                            className="font-medium border-none focus:outline-none dados pointer-events-none select-none" 
                             readOnly 
                             defaultValue={email || user?.email} 
                         />
