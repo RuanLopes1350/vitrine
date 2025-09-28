@@ -26,12 +26,20 @@ app.use(cors({
 
 // Rotas
 const apiRouter = express.Router();
+app.use('/api', apiRouter);
 
 apiRouter.use('/usuarios', routesUsuario);
 apiRouter.use('/produtos', routesProduto);
 apiRouter.use('/', routesAuth);
 
-app.use('/api', apiRouter);
+app.use((req, res) => {
+  return res.status(404).json({ message: 'Rota não encontrada!' })
+})
+
+app.get('/', (req, res) => {
+  console.log('Requisição para rota raiz');
+  res.json({ message: 'Hello, World!' });
+});
 
 // Middleware de tratamento de erros
 app.use(ErrorHandlerMiddleware.handle);
