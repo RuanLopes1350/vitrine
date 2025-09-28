@@ -6,8 +6,20 @@ import { CommonResponse } from "../utils/helpers/commonResponse.js";
 
 class ServiceProduto {
     private repository: RepositoryProduto
+    
     constructor() {
         this.repository = new RepositoryProduto()
+    }
+
+    // Helper para extrair ID do criador (objeto ou string)
+    private getCriadorId(criador: any): string {
+        if (typeof criador === 'string') {
+            return criador;
+        }
+        if (criador && typeof criador === 'object' && criador._id) {
+            return criador._id.toString();
+        }
+        return '';
     }
 
     async cadastrar(dadosProduto: typeProduto): Promise<CommonResponse> {
@@ -76,8 +88,9 @@ class ServiceProduto {
                 return CommonResponse.notFound('Produto não encontrado');
             }
 
-            // Verificar se o produto pertence ao usuário
-            if (buscaResult.criador.toString() !== userId) {
+            // Verificar se o produto pertence ao usuário (com helper)
+            const criadorId = this.getCriadorId(buscaResult.criador);
+            if (criadorId !== userId) {
                 return CommonResponse.forbidden('Você não tem permissão para editar este produto');
             }
 
@@ -123,8 +136,9 @@ class ServiceProduto {
                 return CommonResponse.notFound('Produto não encontrado para deletar');
             }
 
-            // Verificar se o produto pertence ao usuário
-            if (produtoExiste.criador.toString() !== userId) {
+            // Verificar se o produto pertence ao usuário (com helper)
+            const criadorId = this.getCriadorId(produtoExiste.criador);
+            if (criadorId !== userId) {
                 return CommonResponse.forbidden('Você não tem permissão para deletar este produto');
             }
 
