@@ -41,35 +41,26 @@ export default function InicioPage() {
     const precoStr = (document.getElementById('input3') as HTMLInputElement)?.value?.trim();
     const foto = (document.getElementById('input4') as HTMLInputElement)?.value?.trim();
 
-    // Validações específicas seguindo o schema do backend
-    if (!nome || nome.length < 3 || nome.length > 100) {
-      showError('Nome do produto deve ter entre 3 e 100 caracteres');
+    // Validações básicas de campos obrigatórios
+    if (!nome) {
+      showError('Nome do produto é obrigatório');
       return;
     }
 
-    if (!descricao || descricao.length < 10 || descricao.length > 500) {
-      showError('Descrição deve ter entre 10 e 500 caracteres');
+    if (!descricao) {
+      showError('Descrição é obrigatória');
+      return;
+    }
+
+    if (!precoStr) {
+      showError('Preço é obrigatório');
       return;
     }
 
     const preco = parseFloat(precoStr);
-    if (!precoStr || isNaN(preco) || preco <= 0 || preco > 999999.99) {
-      showError('Preço deve ser um valor válido entre R$ 0,01 e R$ 999.999,99');
+    if (isNaN(preco)) {
+      showError('Preço deve ser um número válido');
       return;
-    }
-
-    // Validar URL da imagem se fornecida
-    if (foto && foto !== '/placeholder-image.png') {
-      try {
-        new URL(foto);
-        if (!foto.startsWith('http://') && !foto.startsWith('https://')) {
-          showError('URL da imagem deve começar com http:// ou https://');
-          return;
-        }
-      } catch {
-        showError('URL da imagem inválida');
-        return;
-      }
     }
 
     try {
@@ -78,7 +69,7 @@ export default function InicioPage() {
         descricao,
         preco,
         foto: foto || '/placeholder-image.png'
-      }, triggerRefresh); // Passa a função de refresh como callback
+      }, triggerRefresh, showError); // Passa showError para tratamento de erros de validação
 
       if (result.success) {
         // Limpa os campos
@@ -89,8 +80,6 @@ export default function InicioPage() {
         
         showSuccess('Produto cadastrado com sucesso!');
         setIsModalOpen(false);
-      } else {
-        showError(`Erro ao cadastrar produto: ${result.message}`);
       }
     } catch (error) {
       showError('Erro interno ao cadastrar produto');
@@ -107,35 +96,26 @@ export default function InicioPage() {
     const precoStr = (document.getElementById('edit-input3') as HTMLInputElement)?.value?.trim();
     const foto = (document.getElementById('edit-input4') as HTMLInputElement)?.value?.trim();
 
-    // Validações específicas seguindo o schema do backend
-    if (!nome || nome.length < 3 || nome.length > 100) {
-      showError('Nome do produto deve ter entre 3 e 100 caracteres');
+    // Validações básicas de campos obrigatórios
+    if (!nome) {
+      showError('Nome do produto é obrigatório');
       return;
     }
 
-    if (!descricao || descricao.length < 10 || descricao.length > 500) {
-      showError('Descrição deve ter entre 10 e 500 caracteres');
+    if (!descricao) {
+      showError('Descrição é obrigatória');
+      return;
+    }
+
+    if (!precoStr) {
+      showError('Preço é obrigatório');
       return;
     }
 
     const preco = parseFloat(precoStr);
-    if (!precoStr || isNaN(preco) || preco <= 0 || preco > 999999.99) {
-      showError('Preço deve ser um valor válido entre R$ 0,01 e R$ 999.999,99');
+    if (isNaN(preco)) {
+      showError('Preço deve ser um número válido');
       return;
-    }
-
-    // Validar URL da imagem se fornecida
-    if (foto && foto !== '/placeholder-image.png') {
-      try {
-        new URL(foto);
-        if (!foto.startsWith('http://') && !foto.startsWith('https://')) {
-          showError('URL da imagem deve começar com http:// ou https://');
-          return;
-        }
-      } catch {
-        showError('URL da imagem inválida');
-        return;
-      }
     }
 
     try {
@@ -144,14 +124,12 @@ export default function InicioPage() {
           descricao,
           preco,
           foto: foto || '/placeholder-image.png'
-        }, triggerRefresh); // Passa a função de refresh como callback
+        }, triggerRefresh, showError); // Passa showError para tratamento de erros de validação
         
       if (result.success) {
         showSuccess('Produto editado com sucesso!');
         setIsEditModalOpen(false);
         setProdutoParaEditar(null);
-      } else {
-        showError(`Erro ao editar produto: ${result.message}`);
       }
     } catch (error) {
       showError('Erro interno ao editar produto');

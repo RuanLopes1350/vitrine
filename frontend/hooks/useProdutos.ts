@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import apiClient from '@/apiClient';
 import { useAuth } from '@/contexts/AuthContext';
+import { handleApiError } from '@/lib/errorHandling';
 
 export interface Produto {
     _id: string;
@@ -41,9 +42,18 @@ interface UseProdutosReturn {
     error: string | null;
     buscarProdutos: () => Promise<void>;
     buscarProdutosPorUsuario: () => Promise<void>;
-    adicionarProduto: (produto: Omit<Produto, '_id' | 'usuarioId'>, refreshCallback?: () => void) => Promise<{ success: boolean; message: string }>;
-    editarProduto: (id: string, produto: Omit<Produto, '_id' | 'usuarioId'>, refreshCallback?: () => void) => Promise<{ success: boolean; message: string }>;
-    deletarProduto: (id: string) => Promise<{ success: boolean; message: string }>;
+    adicionarProduto: (
+        produto: Omit<Produto, '_id' | 'usuarioId'>, 
+        refreshCallback?: () => void,
+        showError?: (message: string) => void
+    ) => Promise<{ success: boolean; message: string }>;
+    editarProduto: (
+        id: string, 
+        produto: Omit<Produto, '_id' | 'usuarioId'>, 
+        refreshCallback?: () => void,
+        showError?: (message: string) => void
+    ) => Promise<{ success: boolean; message: string }>;
+    deletarProduto: (id: string, showError?: (message: string) => void) => Promise<{ success: boolean; message: string }>;
 }
 
 export function useProdutos(): UseProdutosReturn {
@@ -135,7 +145,11 @@ export function useProdutos(): UseProdutosReturn {
         }
     }, [user?.id]);
 
-    const adicionarProduto = async (produto: Omit<Produto, '_id' | 'usuarioId'>, refreshCallback?: () => void) => {
+    const adicionarProduto = async (
+        produto: Omit<Produto, '_id' | 'usuarioId'>, 
+        refreshCallback?: () => void,
+        showError?: (message: string) => void
+    ) => {
         try {
             setLoading(true);
             setError(null);
@@ -164,15 +178,24 @@ export function useProdutos(): UseProdutosReturn {
                 throw new Error(response.data.message || 'Erro ao adicionar produto');
             }
         } catch (error: any) {
-            const errorMessage = error.response?.data?.message || error.message || 'Erro ao adicionar produto';
-            setError(errorMessage);
-            return { success: false, message: errorMessage };
+            if (showError) {
+                return handleApiError(error, showError, 'Erro ao adicionar produto');
+            } else {
+                const errorMessage = error.response?.data?.message || error.message || 'Erro ao adicionar produto';
+                setError(errorMessage);
+                return { success: false, message: errorMessage };
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    const editarProduto = async (id: string, produto: Omit<Produto, '_id' | 'usuarioId'>, refreshCallback?: () => void) => {
+    const editarProduto = async (
+        id: string, 
+        produto: Omit<Produto, '_id' | 'usuarioId'>, 
+        refreshCallback?: () => void,
+        showError?: (message: string) => void
+    ) => {
         try {
             setLoading(true);
             setError(null);
@@ -201,15 +224,20 @@ export function useProdutos(): UseProdutosReturn {
                 throw new Error(response.data.message || 'Erro ao editar produto');
             }
         } catch (error: any) {
-            const errorMessage = error.response?.data?.message || error.message || 'Erro ao editar produto';
-            setError(errorMessage);
-            return { success: false, message: errorMessage };
+            if (showError) {
+                return handleApiError(error, showError, 'Erro ao editar produto');
+            } else {
+                // Fallback para compatibilidade
+                const errorMessage = error.response?.data?.message || error.message || 'Erro ao editar produto';
+                setError(errorMessage);
+                return { success: false, message: errorMessage };
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    const deletarProduto = async (id: string) => {
+    const deletarProduto = async (id: string, showError?: (message: string) => void) => {
         try {
             setLoading(true);
             setError(null);
@@ -223,16 +251,20 @@ export function useProdutos(): UseProdutosReturn {
                 throw new Error(response.data.message || 'Erro ao excluir produto');
             }
         } catch (error: any) {
-            const errorMessage = error.response?.data?.message || error.message || 'Erro ao excluir produto';
-            
             // Se o produto não foi encontrado (404/422), remove da lista mesmo assim
             if (error.response?.status === 404 || error.response?.status === 422) {
                 setProdutos(prevProdutos => prevProdutos.filter(p => p._id !== id));
                 return { success: true, message: 'Produto removido da lista!' };
             }
-            
-            setError(errorMessage);
-            return { success: false, message: errorMessage };
+
+            if (showError) {
+                return handleApiError(error, showError, 'Erro ao excluir produto');
+            } else {
+                // Fallback para compatibilidade
+                const errorMessage = error.response?.data?.message || error.message || 'Erro ao excluir produto';
+                setError(errorMessage);
+                return { success: false, message: errorMessage };
+            }
         } finally {
             setLoading(false);
         }
