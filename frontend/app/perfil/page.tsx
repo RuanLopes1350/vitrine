@@ -7,10 +7,10 @@ import { useRequireAuth } from "@/hooks/useAuth";
 import apiClient from "@/apiClient";
 import { useState, useRef, useEffect } from "react";
 
+
 export default function PerfilPage() {
     // Hook que protege a rota - redireciona para login se não autenticado
     const { isAuthenticated, isLoading } = useRequireAuth();
-    
     // Context de autenticação
     const { user, logout } = useAuth();
 
@@ -18,6 +18,7 @@ export default function PerfilPage() {
     const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false)
     const [isVisible, setVisible] = useState<boolean>(true)
     const [isInterable, setInterable] = useState<string>("pointer-events-none select-none")
+    const [nomeLoja, setNomeLoja] = useState<string>("")
     const [nome, setNome] = useState<string>("")
     const [email, setEmail] = useState<string>("")
     const [whatsapp, setWhatsapp] = useState<string>("")
@@ -27,18 +28,19 @@ export default function PerfilPage() {
     useEffect(() => {
         if (user) {
             setNome(user.nome || "");
+            setNomeLoja(user.nomeLoja || "");
             setEmail(user.email || "");
             setWhatsapp(user.whatsapp || "");
         }
     }, [user]);
 
-    const nomeRef = useRef<HTMLInputElement>(null)
+    const nomeRefLoja = useRef<HTMLInputElement>(null)
     const whatsappRef = useRef<HTMLInputElement>(null)
     
-    async function postDados(nome: string, whatsapp: string) {
+    async function postDados(nomeLoja: string, whatsapp: string) {
         try {
             const dados = {
-                nome: nome,
+                nomeLoja: nomeLoja,
                 whatsapp: whatsapp
             }
 
@@ -46,14 +48,18 @@ export default function PerfilPage() {
             const resposta = await apiClient.patch(`/usuarios/${user?.id}`, dados);
 
             if (resposta.status === 200) {
-                if (nomeRef.current?.value && whatsappRef.current?.value) {
-                    nomeRef.current.value = nome
+                if (nomeRefLoja.current?.value && whatsappRef.current?.value) {
+                    nomeRefLoja.current.value = nomeLoja
                     whatsappRef.current.value = whatsapp
                 }
 
                 // Atualizar estados locais
-                setNome(nome)
+                setNomeLoja(nomeLoja)
                 setWhatsapp(whatsapp)
+                if(user){
+                    user.nomeLoja = nomeLoja
+                    user.whatsapp = whatsapp
+                }
                 setVisible(true)
                 setInterable("pointer-events-none select-none")
 
@@ -78,8 +84,8 @@ export default function PerfilPage() {
         }
     }
     function restaurarDados() {
-        if (nomeRef.current && user?.nome) {
-            nomeRef.current.value = user.nome
+        if (nomeRefLoja.current && user?.nomeLoja) {
+            nomeRefLoja.current.value = user.nomeLoja
         }
         if (whatsappRef.current && user?.whatsapp) {
             whatsappRef.current.value = user.whatsapp
@@ -90,7 +96,7 @@ export default function PerfilPage() {
 
         const whatsappRegex = /^\d+$/
         const nomeRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9 ]+$/
-        const nome = nomeRef.current?.value.trim() as string
+        const nomeLoja = nomeRefLoja.current?.value.trim() as string
         const whatsapp = whatsappRef.current?.value.trim() as string
 
         if (whatsapp?.length < 10 || whatsapp?.length > 11) {
@@ -109,7 +115,7 @@ export default function PerfilPage() {
             return
         }
 
-        if (!nomeRegex.test(nome)) {
+        if (!nomeRegex.test(nomeLoja)) {
 
             setAviso("Erro de Validação!")
             setIsDescError("O nome deve conter somente numeros e letras, sem caracteres especiais!")
@@ -117,7 +123,7 @@ export default function PerfilPage() {
             return
         }
 
-        await postDados(nome, whatsapp)
+        await postDados(nomeLoja, whatsapp)
     }
 
     // Mostrar loading enquanto verifica autenticação
@@ -169,10 +175,10 @@ export default function PerfilPage() {
                             <span className="text-[12px] text-[#6B7280]">Nome da Empresa</span>
                         </div>
                         <input 
-                            ref={nomeRef} 
+                            ref={nomeRefLoja} 
                             type="text" 
                             className={"font-medium border-none focus:outline-none dados " + isInterable} 
-                            defaultValue={nome || user?.nome} 
+                            defaultValue={nomeLoja || user?.nomeLoja} 
                         />
                     </div>
                     <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
