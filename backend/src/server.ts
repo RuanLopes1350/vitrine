@@ -6,17 +6,42 @@ import routesProduto from './routes/routesProduto'
 import routesAuth from './routes/routesAuth'
 import cors from 'cors'
 import { ErrorHandlerMiddleware } from './utils/middlewares/errorHandler';
+import cors from 'cors';
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
 const app = express();
+
+// Log simples das requisições
+app.use((req, res, next) => {
+  console.log('--- Nova Requisição ---');
+  console.log(`- Origem: ${req.ip} \n- User-Agent: ${req.headers['user-agent']} \n${req.hostname ? `- Hostname: ${req.hostname}` : ''}`);
+  console.log(`Requisição para: ${req.method} ${req.path}`);
+
+  next();
+});
+
+
 app.use(express.json());
+app.use(cors({
+  origin: true, // Aceita qualquer origem (só para teste!)
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}))
+// app.use(cors({ 
+//   origin: process.env.FRONTEND_URL, // Permitir apenas o frontend
+//   credentials: true, // Permitir cookies/credentials
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+//   allowedHeaders: ['Content-Type', 'Authorization']
+// }))
 
 app.use(cors())
 
 app.get('/', (req, res) => {
+  console.log('Requisição para rota raiz');
   res.json({ message: 'Hello, World!' });
 });
 
@@ -39,6 +64,11 @@ app.use(ErrorHandlerMiddleware.handle);
 
 async function startServer() {
   try {
+    console.log('Configurações do CORS:');
+    console.log(`- Origem: ${process.env.FRONTEND_URL}`);
+    console.log(`- Credenciais: ${true}`);
+    console.log(`- Métodos: ${['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']}`);
+    console.log(`- Headers Permitidos: ${['Content-Type', 'Authorization']}`);
     await DbConnect.conectar();
     app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);

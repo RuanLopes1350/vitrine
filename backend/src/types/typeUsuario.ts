@@ -1,8 +1,9 @@
 export type typeUsuario = {
     nome: string,
+    nomeLoja: string,
+    whatsapp: string,
     email: string,
     senha: string,
-    whatsapp: string,
     ativo: boolean,
 }
 

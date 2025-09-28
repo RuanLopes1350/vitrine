@@ -1,79 +1,59 @@
+
 "use client"
 
 import ModalError from "@/components/modalError";
-import axios from "axios"
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRequireAuth } from "@/hooks/useAuth";
+import apiClient from "@/apiClient";
 import { useState, useRef, useEffect } from "react";
 
 export default function PerfilPage() {
+    // Hook que protege a rota - redireciona para login se não autenticado
+    const { isAuthenticated, isLoading } = useRequireAuth();
+    
+    // Context de autenticação
+    const { user, logout } = useAuth();
 
     const [descError, setIsDescError] = useState<string>("")
     const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false)
     const [isVisible, setVisible] = useState<boolean>(true)
     const [isInterable, setInterable] = useState<string>("pointer-events-none select-none")
-    const [nome, setNome] = useState<string>()
-    const [email, setEmail] = useState<string>()
-    const [whatsapp, setWhatsapp] = useState<string>()
+    const [nome, setNome] = useState<string>("")
+    const [email, setEmail] = useState<string>("")
+    const [whatsapp, setWhatsapp] = useState<string>("")
     const [aviso, setAviso] = useState<string>("Erro de validação")
-    const router = useRouter()
 
+    // Carregar dados do usuário logado
     useEffect(() => {
-        if (typeof window !== "undefined") {
-            localStorage.setItem("nome", "Silvio Huan");
-            localStorage.setItem("email", "silvio.huan@gmail.com");
-            localStorage.setItem("whatsapp", "6988447766");
-            let nome: string = localStorage.getItem("nome") as string
-            let email: string = localStorage.getItem("email") as string
-            let whatsapp: string = localStorage.getItem("whatsapp") as string
-            setNome(nome)
-            setEmail(email)
-            setWhatsapp(whatsapp)
+        if (user) {
+            setNome(user.nome || "");
+            setEmail(user.email || "");
+            setWhatsapp(user.whatsapp || "");
         }
-        if(process.env.NEXT_PUBLIC_NODE_ENV === "development"){
-            localStorage.setItem("token", process.env.NEXT_PUBLIC_TOKEN as string)
-            localStorage.setItem("id", process.env.NEXT_PUBLIC_FAKE_ID as string)
-            localStorage.setItem("api", process.env.NEXT_PUBLIC_API_URI as string)
-        }
-
-    }, []);
+    }, [user]);
 
     const nomeRef = useRef<HTMLInputElement>(null)
     const whatsappRef = useRef<HTMLInputElement>(null)
+    
     async function postDados(nome: string, whatsapp: string) {
-
         try {
-
             const dados = {
                 nome: nome,
                 whatsapp: whatsapp
             }
 
-            const token = localStorage.getItem("token")
-
-            const headers = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-            const id = localStorage.getItem("id")
-            const uri = localStorage.getItem("api")
-            const resposta = await axios.patch(`${uri}/usuarios/${id}`, dados, { headers })
+            // Usar o apiClient que já tem o token configurado automaticamente
+            const resposta = await apiClient.patch(`/usuarios/${user?.id}`, dados);
 
             if (resposta.status === 200) {
-
                 if (nomeRef.current?.value && whatsappRef.current?.value) {
-
                     nomeRef.current.value = nome
                     whatsappRef.current.value = whatsapp
                 }
 
-                localStorage.setItem("nome", nome)
-                localStorage.setItem("whatsapp", whatsapp)
-                setVisible(true)
-                setInterable("pointer-events-none select-none")
+                // Atualizar estados locais
                 setNome(nome)
                 setWhatsapp(whatsapp)
-                localStorage.setItem("nome", nome)
-                localStorage.setItem("whatsapp", whatsapp)
                 setVisible(true)
                 setInterable("pointer-events-none select-none")
 
@@ -83,25 +63,26 @@ export default function PerfilPage() {
             setIsDescError(`Não foi possivel salvar as alterações, erro ${resposta.status}`)
             setIsErrorModalOpen(true) 
 
-        } catch (erro:any) {
-            if(erro.response.status === 403 || erro.response.status === 401){
-                router.push("/login")
+        } catch (erro: any) {
+            // O apiClient já trata 401/403 automaticamente fazendo logout
+            if (erro.response?.status === 403 || erro.response?.status === 401) {
+                logout();
                 return
             }
+            
             restaurarDados()
             setInterable("pointer-events-none select-none")
             setAviso("Erro desconhecido")
-            setIsDescError(`Não foi possivel salvar as alterações, erro ${erro.response.status}`)
+            setIsDescError(`Não foi possivel salvar as alterações, erro ${erro.response?.status || 'desconhecido'}`)
             setIsErrorModalOpen(true)
         }
-
     }
     function restaurarDados() {
-        if (nomeRef.current) {
-            nomeRef.current.value = localStorage.getItem("nome") as string
+        if (nomeRef.current && user?.nome) {
+            nomeRef.current.value = user.nome
         }
-        if (whatsappRef.current) {
-            whatsappRef.current.value = localStorage.getItem("whatsapp") as string
+        if (whatsappRef.current && user?.whatsapp) {
+            whatsappRef.current.value = user.whatsapp
         }
         setVisible(true)
     }
@@ -138,6 +119,29 @@ export default function PerfilPage() {
 
         await postDados(nome, whatsapp)
     }
+
+    // Mostrar loading enquanto verifica autenticação
+    if (isLoading) {
+        return (
+            <div className="w-full h-full flex justify-center items-center bg-[#F9FAFB]">
+                <div className="text-center">
+                    <div className="text-lg font-medium text-gray-700">Carregando...</div>
+                </div>
+            </div>
+        );
+    }
+
+    // Se não estiver autenticado, o hook já redirecionará
+    if (!isAuthenticated) {
+        return (
+            <div className="w-full h-full flex justify-center items-center bg-[#F9FAFB]">
+                <div className="text-center">
+                    <div className="text-lg font-medium text-gray-700">Redirecionando...</div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="w-[100%] h-[100%] flex justify-center items-center bg-[#F9FAFB]">
             <ModalError
@@ -149,9 +153,11 @@ export default function PerfilPage() {
             <div className="h-[750px] w-[869px] rounded-[16px]">
                 <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] h-[144px] w-[100%] flex p-[20px] items-center rounded-t-[16px]">
                     <div className="flex justify-center items-center gap-[20px] text-[#fff]">
-                        <div className="shadow-md h-[80px] w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[36px] font-bold text-[#9333EA]">{nome ? nome[0] : ""}</div>
+                        <div className="shadow-md h-[80px] w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[36px] font-bold text-[#9333EA]">
+                            {nome ? nome[0].toUpperCase() : "U"}
+                        </div>
                         <div>
-                            <div className="text-[20px] font-bold">{nome}</div>
+                            <div className="text-[20px] font-bold">{nome || user?.nome}</div>
                             <p>Gerencie o perfil da sua loja</p>
                         </div>
                     </div>
@@ -162,21 +168,36 @@ export default function PerfilPage() {
                             <img src="empresa.svg" alt="" />
                             <span className="text-[12px] text-[#6B7280]">Nome da Empresa</span>
                         </div>
-                        <input ref={nomeRef} type="text" className={"font-medium border-none focus:outline-none dados " + isInterable} defaultValue={nome} />
+                        <input 
+                            ref={nomeRef} 
+                            type="text" 
+                            className={"font-medium border-none focus:outline-none dados " + isInterable} 
+                            defaultValue={nome || user?.nome} 
+                        />
                     </div>
                     <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
                         <div className="flex gap-[10px] items-center">
                             <img src="email.svg" alt="" />
                             <span className="text-[12px] text-[#6B7280]">E-mail</span>
                         </div>
-                        <input type="text" className="font-medium border-none focus:outline-none dados " readOnly defaultValue={email} />
+                        <input 
+                            type="text" 
+                            className="font-medium border-none focus:outline-none dados " 
+                            readOnly 
+                            defaultValue={email || user?.email} 
+                        />
                     </div>
                     <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
                         <div className="flex gap-[10px] items-center">
                             <img src="whatsapp.svg" alt="" />
                             <span className="text-[12px] text-[#6B7280]">Whatsapp</span>
                         </div>
-                        <input ref={whatsappRef} type="text" className={"font-medium border-none focus:outline-none dados " + isInterable} defaultValue={whatsapp} />
+                        <input 
+                            ref={whatsappRef} 
+                            type="text" 
+                            className={"font-medium border-none focus:outline-none dados " + isInterable} 
+                            defaultValue={whatsapp || user?.whatsapp} 
+                        />
                     </div>
                     <button onClick={() => { setVisible(false); setInterable("bg-[#fff]") }} className={"bg-[#9333EA] font-medium hover:bg-[#7E22CE] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-[#fff] " + (isVisible ? "" : "hidden")}>Editar</button>
                     <div className={"flex mx-auto gap-[20px] " + (!isVisible ? "" : "hidden")}>
