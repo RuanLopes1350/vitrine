@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { MessageCircle, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import ConfirmModal from '@/components/confirm-modal';
 
 interface Produto {
   _id: string;
@@ -26,6 +28,8 @@ export default function ProdutoCard({
   onEdit,
   onDelete 
 }: ProdutoCardProps) {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const whatsAppRedirect = () => {
     const mensagem = `Olá! Tenho interesse no produto: "${produto.titulo}" no valor de R$ ${produto.preco?.toFixed(2).replace('.', ',')}. Poderia me dar mais informações?`;
     const numeroWhatsApp = "5511999999999";
@@ -39,8 +43,12 @@ export default function ProdutoCard({
     }
   };
 
-  const handleDelete = () => {
-    if (onDelete && confirm('Tem certeza que deseja excluir este produto?')) {
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (onDelete) {
       onDelete(produto._id);
     }
   };
@@ -114,7 +122,7 @@ export default function ProdutoCard({
                 Editar
               </Button>
               <Button 
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 variant="outline"
                 size="sm"
                 className="flex-1 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
@@ -134,6 +142,17 @@ export default function ProdutoCard({
           )}
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        title="Excluir Produto"
+        message={`Tem certeza que deseja excluir o produto "${produto.titulo}"? Esta ação não pode ser desfeita.`}
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        type="danger"
+      />
     </div>
   );
 }

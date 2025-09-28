@@ -8,7 +8,7 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/login');
+    router.replace('/inicio');
   }, [router]);
   return null;
 }

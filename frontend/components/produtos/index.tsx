@@ -1,60 +1,37 @@
 'use client';
 
-import { ShoppingBag, Plus } from "lucide-react";
+import { ShoppingBag, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProdutoCard from "../produto-card";
-
-interface Produto {
-  _id: string;
-  titulo: string;
-  descricao: string;
-  preco: number;
-  foto: string;
-  usuarioId: string;
-}
+import { useProdutos, Produto } from "@/hooks/useProdutos";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from 'react';
 
 interface ProdutosProps {
   modo?: 'visualizar' | 'gerenciar';
-  produtos?: Produto[];
   onAddProduct?: () => void;
   onEditProduct?: (produto: Produto) => void;
   onDeleteProduct?: (produtoId: string) => void;
 }
 
-const produtosPadrao: Produto[] = [
-  {
-    _id: "1",
-    titulo: "Algum produto que esteja sendo vendido ai",
-    descricao: "Descrição detalhada do produto",
-    preco: 89.99,
-    foto: "/Image.png",
-    usuarioId: "user1"
-  },
-  {
-    _id: "2", 
-    titulo: "Algum outro produto que esteja sendo vendido ai 2",
-    descricao: "Descrição detalhada do produto",
-    preco: 24.99,
-    foto: "/Image (1).png",
-    usuarioId: "user1"
-  },
-  {
-    _id: "3",
-    titulo: "Algum outro produto que esteja sendo vendido ai 3",
-    descricao: "Descrição detalhada do produto",
-    preco: 29.99,
-    foto: "/Image (2).png",
-    usuarioId: "user1"
-  }
-];
-
 export default function Produtos({ 
   modo = 'visualizar',
-  produtos = produtosPadrao,
   onAddProduct,
   onEditProduct,
   onDeleteProduct 
 }: ProdutosProps) {
+  const { produtos, loading, error, buscarProdutos, buscarProdutosPorUsuario, deletarProduto } = useProdutos();
+  const { user, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (modo === 'gerenciar' && isAuthenticated && user) {
+      // Se estiver no modo gerenciar, busca apenas produtos do usuário logado
+      buscarProdutosPorUsuario();
+    } else {
+      // Se for modo visualizar, sempre busca todos os produtos
+      buscarProdutos();
+    }
+  }, [modo, isAuthenticated, user]);
   const handleEditProduct = (produto: Produto) => {
     if (onEditProduct) {
       onEditProduct(produto);
@@ -63,11 +40,16 @@ export default function Produtos({
     }
   };
 
-  const handleDeleteProduct = (produtoId: string) => {
+  const handleDeleteProduct = async (produtoId: string) => {
     if (onDeleteProduct) {
       onDeleteProduct(produtoId);
     } else {
-      console.log('Excluindo produto:', produtoId);
+      const result = await deletarProduto(produtoId, modo === 'gerenciar');
+      if (result.success) {
+        console.log('Produto deletado com sucesso:', result.message);
+      } else {
+        console.error('Erro ao deletar produto:', result.message);
+      }
     }
   };
 
@@ -81,6 +63,39 @@ export default function Produtos({
 
   const isGerenciar = modo === 'gerenciar';
   const titulo = isGerenciar ? 'Gerencie Seus Produtos' : 'Produtos';
+
+  if (loading) {
+    return (
+      <section className="bg-white rounded-xl shadow-md p-8">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-[#9333EA]" />
+          <span className="ml-3 text-gray-600">Carregando produtos...</span>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="bg-white rounded-xl shadow-md p-8">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-xl mx-auto mb-4 flex items-center justify-center">
+              <ShoppingBag className="w-8 h-8 text-red-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Erro ao carregar produtos</h3>
+            <p className="text-red-500 mb-4">{error}</p>
+            <Button 
+              onClick={() => modo === 'gerenciar' && user ? buscarProdutosPorUsuario() : buscarProdutos()}
+              variant="outline"
+            >
+              Tentar novamente
+            </Button>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-white rounded-xl shadow-md p-8">
