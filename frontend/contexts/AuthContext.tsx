@@ -37,6 +37,7 @@ interface AuthContextType {
         message: string;
         errors?: Array<{ campo?: string; mensagem: string }>; // ← ADICIONAR
     }>;
+    updateUser: (userData: Partial<User>) => void;
     logout: () => void;
 }
 
@@ -151,6 +152,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }
 
+    // Função para atualizar dados do usuário
+    const updateUser = (userData: Partial<User>) => {
+        if (user) {
+            const updatedUser = { ...user, ...userData };
+            setUser(updatedUser);
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+        }
+    };
+
     const value = {
         user,
         token,
@@ -158,6 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isLoading,
         login,
         cadastro,
+        updateUser,
         logout,
     };
 
