@@ -1,9 +1,8 @@
 import { z } from "zod";
-import RepositoryProduto from "../repository/repositoryProduto";
-import { typeProduto, typeProdutoEdicao } from "../types/typeProduto";
-import { ProdutoSchema, ProdutoEdicaoSchema } from "../utils/validations/produtoSchema";
-import { CommonResponse } from "../utils/helpers/commonResponse";
-import HttpStatusCodes from "../utils/helpers/httpStatusCodes";
+import RepositoryProduto from "../repository/repositoryProduto.js";
+import { typeProduto, typeProdutoEdicao } from "../types/typeProduto.js";
+import { ProdutoSchema, ProdutoEdicaoSchema } from "../utils/validations/produtoSchema.js";
+import { CommonResponse } from "../utils/helpers/commonResponse.js";
 
 class ServiceProduto {
     private repository: RepositoryProduto

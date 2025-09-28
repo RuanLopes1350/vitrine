@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
-import { typeUsuario } from '../types/typeUsuario';
-import modelUsuario from '../models/modelUsuario';
-import { error } from "console";
+import { typeUsuario } from '../types/typeUsuario.js';
+import modelUsuario from '../models/modelUsuario.js';
 
 class RepositoryUsuario {
     private model: mongoose.Model<any>;

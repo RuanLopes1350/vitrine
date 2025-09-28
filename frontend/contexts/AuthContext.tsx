@@ -27,7 +27,16 @@ interface AuthContextType {
     token: string | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: (email: string, senha: string) => Promise<{ success: boolean; message: string }>;
+    login: (email: string, senha: string) => Promise<{
+        success: boolean;
+        message: string;
+        errors?: Array<{ campo?: string; mensagem: string }>; // ← ADICIONAR
+    }>;
+    cadastro: (nome: string, nomeLoja: string, whatsapp: string, email: string, senha: string) => Promise<{
+        success: boolean;
+        message: string;
+        errors?: Array<{ campo?: string; mensagem: string }>; // ← ADICIONAR
+    }>;
     logout: () => void;
 }
 
@@ -55,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Função de Login
     const login = async (email: string, senha: string) => {
         try {
-            console.log('Enviando para API:', { email, senha });
+            console.log(`Enviando para API: ${email}, senha!`);
             const response = await apiClient.post<LoginResponse>('/login', { email, senha });
             console.log('Resposta da API:', response.data);
 
@@ -72,15 +81,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
                 return { success: true, message: response.data.mensagem };
             } else {
-                return { success: false, message: response.data.mensagem };
+                return { 
+                    success: false, 
+                    message: response.data.mensagem,
+                    errors: (response.data as any).erros || []
+                };
             }
         } catch (error: any) {
             console.error('Erro no login:', error);
 
             if (error.response) {
-                return { success: false, message: error.response.data.mensagem || 'Erro ao fazer login' };
+                const errorData = error.response.data;
+                return {
+                    success: false,
+                    message: errorData.mensagem || 'Erro ao fazer login',
+                    errors: errorData.erros || []
+                };
             } else {
-                return { success: false, message: 'Erro de conexão. Verifique se o servidor está rodando.' };
+                return { 
+                    success: false, 
+                    message: 'Erro de conexão. Verifique se o servidor está rodando.' 
+                };
             }
         }
     };
@@ -95,12 +116,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const isAuthenticated = !!user && !!token;
 
+    const cadastro = async (nome: string, nomeLoja: string, whatsapp: string, email: string, senha: string) => {
+        try {
+            console.log(`Enviando para API: ${nome}, ${nomeLoja}, ${whatsapp}, ${email}, senha`);
+            const response = await apiClient.post('/usuarios', { nome, nomeLoja, whatsapp, email, senha });
+            console.log('Resposta da API:', response.data);
+
+            const data = response.data as { code: number; mensagem?: string; erros?: any[] };
+            if (data.code !== 200 && data.code !== 201) {
+                return { 
+                    success: false, 
+                    message: data.mensagem || 'Erro ao cadastrar',
+                    errors: data.erros || []
+                };
+            }
+
+            return { success: true, message: data.mensagem || 'Cadastro realizado com sucesso' };
+        } catch (error: any) {
+            console.error('Erro no cadastro:', error);
+
+            if (error.response) {
+                const errorData = error.response.data;
+                return { 
+                    success: false, 
+                    message: errorData.mensagem || 'Erro ao fazer cadastro',
+                    errors: errorData.erros || []
+                };
+            } else {
+                return { 
+                    success: false, 
+                    message: 'Erro de conexão. Verifique se o servidor está rodando.' 
+                };
+            }
+        }
+    }
+
     const value = {
         user,
         token,
         isAuthenticated,
         isLoading,
         login,
+        cadastro,
         logout,
     };
 

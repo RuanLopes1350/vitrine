@@ -1,12 +1,11 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
-import DbConnect from './config/DbConnect';
-import routesUsuario from './routes/routesUsuario'
-import routesProduto from './routes/routesProduto'
-import routesAuth from './routes/routesAuth'
-import cors from 'cors'
-import { ErrorHandlerMiddleware } from './utils/middlewares/errorHandler';
+import DbConnect from './config/DbConnect.js';
+import routesUsuario from './routes/routesUsuario.js';
+import routesProduto from './routes/routesProduto.js';
+import routesAuth from './routes/routesAuth.js';
 import cors from 'cors';
+import { ErrorHandlerMiddleware } from './utils/middlewares/errorHandler.js';
 
 dotenv.config();
 
@@ -31,12 +30,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
-// app.use(cors({ 
-//   origin: process.env.FRONTEND_URL, // Permitir apenas o frontend
-//   credentials: true, // Permitir cookies/credentials
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-//   allowedHeaders: ['Content-Type', 'Authorization']
-// }))
 
 app.use(cors())
 
@@ -45,14 +38,13 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hello, World!' });
 });
 
-// Rotas de usuário
-app.use(routesUsuario);
+const apiRouter = express.Router();
 
-// Rotas de produtos
-app.use(routesProduto);
+apiRouter.use('/usuarios', routesUsuario);
+apiRouter.use('/produtos', routesProduto);
+apiRouter.use('/', routesAuth);
 
-// Rotas de Auth
-app.use(routesAuth);
+app.use('/api', apiRouter);
 
 // Rota para tratar requisições para rotas não definidas
 app.use((req, res) => {
