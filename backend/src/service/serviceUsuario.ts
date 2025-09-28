@@ -3,6 +3,7 @@ import RepositoryUsuario from "../repository/repositoryUsuario";
 import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuarioSchema.ts";
 import { typeUsuario } from "../types/typeUsuario";
 import { CommonResponse } from "../utils/helpers/commonResponse";
+import { PasswordHelper } from "../utils/helpers/passwordHelper";
 
 class ServiceUsuario {
     private repository: RepositoryUsuario
@@ -13,6 +14,10 @@ class ServiceUsuario {
     async cadastrar(dadosUsuario: typeUsuario): Promise<CommonResponse> {
         try {
             UsuarioSchema.parse(dadosUsuario);
+
+            // Criptografa a senha antes de salvar
+            const senhaCriptografada = await PasswordHelper.hash(dadosUsuario.senha);
+            dadosUsuario.senha = senhaCriptografada;
 
             const usuario = await this.repository.cadastrar(dadosUsuario);
             return CommonResponse.created('Usuário cadastrado com sucesso!', usuario);
@@ -66,22 +71,22 @@ class ServiceUsuario {
 
     async atualizar(id: string, dadosUsuario: typeUsuario): Promise<CommonResponse> {
         try {
-            // Verificar se o usuário existe antes de atualizar
             const usuarioExiste = await this.repository.buscarPorId(id);
 
             if (!usuarioExiste) {
                 return CommonResponse.notFound('Usuário não encontrado');
             }
 
-            // Validar se pelo menos um campo foi enviado para atualização
             if (Object.keys(dadosUsuario).length === 0) {
                 return CommonResponse.badRequest('Nenhum dado fornecido para atualização');
             }
 
-            // Validação com Zod para dados de atualização
-            UsuarioUpdateSchema.parse(dadosUsuario);
+            // Se a senha estiver sendo atualizada, criptografe-a
+            if (dadosUsuario.senha) {
+                dadosUsuario.senha = await PasswordHelper.hash(dadosUsuario.senha);
+            }
 
-            console.log(`Usuário ${usuarioExiste.nome} encontrado, prosseguindo para atualizar!`);
+            UsuarioUpdateSchema.parse(dadosUsuario);
             
             const usuarioAtualizado = await this.repository.atualizar(id, dadosUsuario);
             if (!usuarioAtualizado) {
