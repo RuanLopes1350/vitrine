@@ -11,6 +11,7 @@ export interface Produto {
     preco: number;
     foto: string;
     usuarioId: string;
+    whatsapp?: string;
 }
 
 interface ProdutoBackend {
@@ -19,7 +20,10 @@ interface ProdutoBackend {
     descricao: string;
     preco: number;
     imagem?: string;
-    criador?: string;
+    criador?: string | {
+        _id: string;
+        whatsapp: string;
+    };
     mensagem: string;
     ativo: boolean;
 }
@@ -37,9 +41,9 @@ interface UseProdutosReturn {
     error: string | null;
     buscarProdutos: () => Promise<void>;
     buscarProdutosPorUsuario: () => Promise<void>;
-    adicionarProduto: (produto: Omit<Produto, '_id' | 'usuarioId'>, modoGerenciar?: boolean) => Promise<{ success: boolean; message: string }>;
-    editarProduto: (id: string, produto: Omit<Produto, '_id' | 'usuarioId'>, modoGerenciar?: boolean) => Promise<{ success: boolean; message: string }>;
-    deletarProduto: (id: string, modoGerenciar?: boolean) => Promise<{ success: boolean; message: string }>;
+    adicionarProduto: (produto: Omit<Produto, '_id' | 'usuarioId'>) => Promise<{ success: boolean; message: string }>;
+    editarProduto: (id: string, produto: Omit<Produto, '_id' | 'usuarioId'>) => Promise<{ success: boolean; message: string }>;
+    deletarProduto: (id: string) => Promise<{ success: boolean; message: string }>;
 }
 
 export function useProdutos(): UseProdutosReturn {
@@ -58,14 +62,18 @@ export function useProdutos(): UseProdutosReturn {
             if (response.data.code === 200 && Array.isArray(response.data.data)) {
                 const produtosMapeados = response.data.data
                     .filter(item => item.ativo && item._id)
-                    .map(item => ({
-                        _id: item._id!,
-                        titulo: item.nome_produto || '',
-                        descricao: item.descricao || '',
-                        preco: Number(item.preco) || 0,
-                        foto: item.imagem || '/placeholder-image.png',
-                        usuarioId: item.criador || '',
-                    }));
+                    .map(item => {
+                        const criadorObj = typeof item.criador === 'object' ? item.criador : null;
+                        return {
+                            _id: item._id!,
+                            titulo: item.nome_produto || '',
+                            descricao: item.descricao || '',
+                            preco: Number(item.preco) || 0,
+                            foto: item.imagem || '/placeholder-image.png',
+                            usuarioId: typeof item.criador === 'string' ? item.criador : item.criador?._id || '',
+                            whatsapp: criadorObj?.whatsapp
+                        };
+                    });
                 
                 setProdutos(produtosMapeados);
             } else {
@@ -96,15 +104,22 @@ export function useProdutos(): UseProdutosReturn {
             
             if (response.data.code === 200 && Array.isArray(response.data.data)) {
                 const produtosMapeados = response.data.data
-                    .filter(item => item.ativo && item.criador === user.id && item._id)
-                    .map(item => ({
-                        _id: item._id!,
-                        titulo: item.nome_produto || '',
-                        descricao: item.descricao || '',
-                        preco: Number(item.preco) || 0,
-                        foto: item.imagem || '/placeholder-image.png',
-                        usuarioId: item.criador || '',
-                    }));
+                    .filter(item => {
+                        const criadorId = typeof item.criador === 'string' ? item.criador : item.criador?._id;
+                        return item.ativo && criadorId === user.id && item._id;
+                    })
+                    .map(item => {
+                        const criadorObj = typeof item.criador === 'object' ? item.criador : null;
+                        return {
+                            _id: item._id!,
+                            titulo: item.nome_produto || '',
+                            descricao: item.descricao || '',
+                            preco: Number(item.preco) || 0,
+                            foto: item.imagem || '/placeholder-image.png',
+                            usuarioId: typeof item.criador === 'string' ? item.criador : item.criador?._id || '',
+                            whatsapp: criadorObj?.whatsapp
+                        };
+                    });
                 
                 setProdutos(produtosMapeados);
             } else {
@@ -120,7 +135,7 @@ export function useProdutos(): UseProdutosReturn {
         }
     }, [user?.id]);
 
-    const adicionarProduto = async (produto: Omit<Produto, '_id' | 'usuarioId'>, modoGerenciar: boolean = false) => {
+    const adicionarProduto = async (produto: Omit<Produto, '_id' | 'usuarioId'>) => {
         try {
             setLoading(true);
             setError(null);
@@ -140,16 +155,6 @@ export function useProdutos(): UseProdutosReturn {
             const response = await apiClient.post<ProdutoResponse>('/produtos', produtoBackend);
             
             if (response.data.code === 201) {
-                console.log('✅ Produto criado, forçando refresh...');
-                // Pequeno delay para garantir que o backend processou
-                setTimeout(async () => {
-                    if (modoGerenciar && user?.id) {
-                        await buscarProdutosPorUsuario();
-                    } else {
-                        await buscarProdutos();
-                    }
-                    console.log('✅ Lista atualizada após criação!');
-                }, 100);
                 return { success: true, message: 'Produto adicionado com sucesso!' };
             } else {
                 throw new Error(response.data.message || 'Erro ao adicionar produto');
@@ -163,7 +168,7 @@ export function useProdutos(): UseProdutosReturn {
         }
     };
 
-    const editarProduto = async (id: string, produto: Omit<Produto, '_id' | 'usuarioId'>, modoGerenciar: boolean = false) => {
+    const editarProduto = async (id: string, produto: Omit<Produto, '_id' | 'usuarioId'>) => {
         try {
             setLoading(true);
             setError(null);
@@ -183,16 +188,6 @@ export function useProdutos(): UseProdutosReturn {
             const response = await apiClient.patch<ProdutoResponse>(`/produtos/${id}`, produtoBackend);
             
             if (response.data.code === 200) {
-                console.log('✅ Produto editado, forçando refresh...');
-                // Pequeno delay para garantir que o backend processou
-                setTimeout(async () => {
-                    if (modoGerenciar && user?.id) {
-                        await buscarProdutosPorUsuario();
-                    } else {
-                        await buscarProdutos();
-                    }
-                    console.log('✅ Lista atualizada após edição!');
-                }, 100);
                 return { success: true, message: 'Produto atualizado com sucesso!' };
             } else {
                 throw new Error(response.data.message || 'Erro ao editar produto');
@@ -206,7 +201,7 @@ export function useProdutos(): UseProdutosReturn {
         }
     };
 
-    const deletarProduto = async (id: string, modoGerenciar: boolean = false) => {
+    const deletarProduto = async (id: string) => {
         try {
             setLoading(true);
             setError(null);
@@ -214,20 +209,20 @@ export function useProdutos(): UseProdutosReturn {
             const response = await apiClient.delete<ProdutoResponse>(`/produtos/${id}`);
             
             if (response.data.code === 200) {
-                console.log('✅ Produto deletado, forçando refresh...');
-                // Chamada direta da função apropriada
-                if (modoGerenciar && user?.id) {
-                    await buscarProdutosPorUsuario();
-                } else {
-                    await buscarProdutos();
-                }
-                console.log('✅ Lista atualizada após exclusão!');
+                setProdutos(prevProdutos => prevProdutos.filter(p => p._id !== id));
                 return { success: true, message: 'Produto excluído com sucesso!' };
             } else {
                 throw new Error(response.data.message || 'Erro ao excluir produto');
             }
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || error.message || 'Erro ao excluir produto';
+            
+            // Se o produto não foi encontrado (404/422), remove da lista mesmo assim
+            if (error.response?.status === 404 || error.response?.status === 422) {
+                setProdutos(prevProdutos => prevProdutos.filter(p => p._id !== id));
+                return { success: true, message: 'Produto removido da lista!' };
+            }
+            
             setError(errorMessage);
             return { success: false, message: errorMessage };
         } finally {

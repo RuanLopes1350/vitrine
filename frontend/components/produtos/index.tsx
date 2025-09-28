@@ -35,8 +35,6 @@ export default function Produtos({
   const handleEditProduct = (produto: Produto) => {
     if (onEditProduct) {
       onEditProduct(produto);
-    } else {
-      console.log('Editando produto:', produto);
     }
   };
 
@@ -44,10 +42,8 @@ export default function Produtos({
     if (onDeleteProduct) {
       onDeleteProduct(produtoId);
     } else {
-      const result = await deletarProduto(produtoId, modo === 'gerenciar');
-      if (result.success) {
-        console.log('Produto deletado com sucesso:', result.message);
-      } else {
+      const result = await deletarProduto(produtoId);
+      if (!result.success) {
         console.error('Erro ao deletar produto:', result.message);
       }
     }
@@ -56,8 +52,6 @@ export default function Produtos({
   const handleAddProduct = () => {
     if (onAddProduct) {
       onAddProduct();
-    } else {
-      console.log('Adicionando novo produto');
     }
   };
 
