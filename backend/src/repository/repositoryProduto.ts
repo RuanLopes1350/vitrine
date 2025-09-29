@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { typeProduto, typeProdutoEdicao } from '../types/typeProduto';
-import modelProduto from '../models/modelProduto';
+import { typeProduto, typeProdutoEdicao } from '../types/typeProduto.js';
+import modelProduto from '../models/modelProduto.js';
 
 class RepositoryProduto {
     private model: mongoose.Model<any>;
@@ -15,12 +15,12 @@ class RepositoryProduto {
     }
 
     async listar() {
-        const dados = await this.model.find();
+        const dados = await this.model.find().populate('criador', 'whatsapp');
         return dados;
     }
 
     async buscarPorId(id: string) {
-        const dados = await this.model.findById(id);
+        const dados = await this.model.findById(id).populate('criador', 'whatsapp');
         return dados;
     }
 

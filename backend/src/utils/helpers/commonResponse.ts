@@ -1,4 +1,4 @@
-import HttpStatusCodes from './httpStatusCodes';
+import HttpStatusCodes from './httpStatusCodes.js';
 
 export class CommonResponse {
     private mensagem: string;

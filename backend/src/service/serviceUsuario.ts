@@ -1,9 +1,8 @@
 import { z } from "zod";
-import RepositoryUsuario from "../repository/repositoryUsuario";
-import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuarioSchema.ts";
-import { typeUsuario } from "../types/typeUsuario";
-import { CommonResponse } from "../utils/helpers/commonResponse";
-import { PasswordHelper } from "../utils/helpers/passwordHelper";
+import RepositoryUsuario from "../repository/repositoryUsuario.js";
+import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuarioSchema.js";
+import { typeUsuario } from "../types/typeUsuario.js";
+import { CommonResponse } from "../utils/helpers/commonResponse.js";
 
 class ServiceUsuario {
     private repository: RepositoryUsuario

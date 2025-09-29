@@ -1,6 +1,14 @@
-import Image from "next/image";
-import { redirect } from "next/navigation";
+// vitrine/frontend/app/page.tsx
+"use client";
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  return (redirect('/login'));
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/inicio');
+  }, [router]);
+  return null;
 }

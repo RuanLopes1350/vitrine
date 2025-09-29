@@ -1,8 +1,7 @@
-import RepositoryUsuario from '../repository/repositoryUsuario';
-import geradorToken from '../utils/tokenUtil';
-import { RespostaLogin } from '../types/typeLogin';
-import { CommonResponse } from '../utils/helpers/commonResponse';
-import { PasswordHelper } from '../utils/helpers/passwordHelper';
+import RepositoryUsuario from '../repository/repositoryUsuario.js';
+import geradorToken from '../utils/tokenUtil.js';
+import { RespostaLogin } from '../types/typeLogin.js';
+import { CommonResponse } from '../utils/helpers/commonResponse.js';
 
 // Serviço de autenticação - versão simplificada
 class ServicoAuth {
@@ -36,7 +35,10 @@ class ServicoAuth {
       usuario: {
         id: usuario._id.toString(),
         nome: usuario.nome,
-        email: usuario.email
+        email: usuario.email,
+        nomeLoja: usuario.nomeLoja,
+        whatsapp: usuario.whatsapp,
+        ativo: usuario.ativo
       }
     };
 

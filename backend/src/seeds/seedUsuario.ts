@@ -1,25 +1,28 @@
-import modelUsuario from '../models/modelUsuario'
-import { typeUsuario } from '../types/typeUsuario'
+import modelUsuario from '../models/modelUsuario.js'
+import { typeUsuario } from '../types/typeUsuario.js'
 
-import { getGlobalFakeMapping } from './globalFakeMapping'
+import { getGlobalFakeMapping } from './globalFakeMapping.js'
 
 async function seedUsuarios() {
     await modelUsuario.deleteMany();
 
     const usuarioFixo: typeUsuario[] = [{
         nome: 'Ruan Lopes',
+        nomeLoja: 'Millennium',
         email: 'intel.spec.lopes@gmail.com',
         senha: 'SenhaSuperSegur@123',
         whatsapp: '556992468120',
         ativo: true
     },{
         nome: 'Silvio Huan',
+        nomeLoja: 'Millennium',
         email: 'silvio.huan@gmail.com',
         senha: 'SenhaSuperSegur@123',
         whatsapp: '556955667788',
         ativo: true
     },{
         nome: 'Luis Felipe',
+        nomeLoja: 'Millennium',
         email: 'luis.felipe@gmail.com',
         senha: 'SenhaSuperSegur@123',
         whatsapp: '556911223344',
@@ -38,6 +41,7 @@ async function seedUsuarios() {
         usuariosAleatorios.push(
             {
                 nome: mapping.usuario.nome(),
+                nomeLoja: mapping.usuario.nomeLoja(),
                 email: mapping.usuario.email(),
                 senha: mapping.usuario.senha(),
                 whatsapp: mapping.usuario.whatsapp(),

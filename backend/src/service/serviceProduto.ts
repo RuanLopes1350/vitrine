@@ -1,14 +1,25 @@
 import { z } from "zod";
-import RepositoryProduto from "../repository/repositoryProduto";
-import { typeProduto, typeProdutoEdicao } from "../types/typeProduto";
-import { ProdutoSchema, ProdutoEdicaoSchema } from "../utils/validations/produtoSchema";
-import { CommonResponse } from "../utils/helpers/commonResponse";
-import HttpStatusCodes from "../utils/helpers/httpStatusCodes";
+import RepositoryProduto from "../repository/repositoryProduto.js";
+import { typeProduto, typeProdutoEdicao } from "../types/typeProduto.js";
+import { ProdutoSchema, ProdutoEdicaoSchema } from "../utils/validations/produtoSchema.js";
+import { CommonResponse } from "../utils/helpers/commonResponse.js";
 
 class ServiceProduto {
     private repository: RepositoryProduto
+    
     constructor() {
         this.repository = new RepositoryProduto()
+    }
+
+    // Helper para extrair ID do criador (objeto ou string)
+    private getCriadorId(criador: any): string {
+        if (typeof criador === 'string') {
+            return criador;
+        }
+        if (criador && typeof criador === 'object' && criador._id) {
+            return criador._id.toString();
+        }
+        return '';
     }
 
     async cadastrar(dadosProduto: typeProduto): Promise<CommonResponse> {
@@ -69,12 +80,18 @@ class ServiceProduto {
         }
     }
 
-    async editar(id: string, dadosProduto: typeProdutoEdicao): Promise<CommonResponse> {
+    async editar(id: string, dadosProduto: typeProdutoEdicao, userId: string): Promise<CommonResponse> {
         try {
             // Verificar se o produto existe antes de editar
             const buscaResult = await this.repository.buscarPorId(id);
             if (!buscaResult) {
                 return CommonResponse.notFound('Produto não encontrado');
+            }
+
+            // Verificar se o produto pertence ao usuário (com helper)
+            const criadorId = this.getCriadorId(buscaResult.criador);
+            if (criadorId !== userId) {
+                return CommonResponse.forbidden('Você não tem permissão para editar este produto');
             }
 
             // Validar se pelo menos um campo foi enviado para atualização
@@ -110,13 +127,19 @@ class ServiceProduto {
         }
     }
 
-    async deletar(id: string): Promise<CommonResponse> {
+    async deletar(id: string, userId: string): Promise<CommonResponse> {
         try {
             // Verificar se o produto existe
             const produtoExiste = await this.repository.buscarPorId(id);
 
             if (!produtoExiste) {
                 return CommonResponse.notFound('Produto não encontrado para deletar');
+            }
+
+            // Verificar se o produto pertence ao usuário (com helper)
+            const criadorId = this.getCriadorId(produtoExiste.criador);
+            if (criadorId !== userId) {
+                return CommonResponse.forbidden('Você não tem permissão para deletar este produto');
             }
 
             console.log(`Produto ${produtoExiste.nome_produto} encontrado, prosseguindo para deletar!`);

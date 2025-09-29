@@ -6,7 +6,7 @@ class Produto {
 
     constructor() {
         const schema = new mongoose.Schema({
-            criador: mongoose.Schema.Types.ObjectId,
+            criador: { type: mongoose.Schema.Types.ObjectId, ref: 'usuarios' },
             nome_produto: {type: String, required: true},
             descricao: {type: String, required: true},
             preco: {type: Number, required: true},

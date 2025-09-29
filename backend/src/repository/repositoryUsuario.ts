@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
-import { typeUsuario } from '../types/typeUsuario';
-import modelUsuario from '../models/modelUsuario';
-import { error } from "console";
+import { typeUsuario } from '../types/typeUsuario.js';
+import modelUsuario from '../models/modelUsuario.js';
 
 class RepositoryUsuario {
     private model: mongoose.Model<any>;
@@ -41,15 +40,9 @@ class RepositoryUsuario {
         return await this.model.findByIdAndDelete(id);
     }
 
-    /**
-     * Busca um usuário por email, incluindo o campo 'senha' no resultado.
-     * Necessário para o processo de autenticação.
-     * @param email - O email do usuário a ser buscado.
-     * @returns O documento do usuário, incluindo o hash da senha, ou null se não for encontrado.
-     */
-    async buscarPorEmailComSenha(email: string): Promise<any> {
-        const data = await this.model.findOne({ email: email }).select('+senha');
-        return data;
+    async buscarPorEmail(email:string) {
+        const data = await this.model.findOne({email:email}, '+senha +nomeLoja +whatsapp +ativo' );
+        return data
     }
 
     async armazenarTokens(id: string, accesstoken: string, refreshtoken: string) {

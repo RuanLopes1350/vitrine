@@ -6,14 +6,14 @@ const objectIdSchema = z.string().regex(objectIdRegex, {
     message: "ID inválido. Deve ser um ObjectId válido do MongoDB!"
 })
 
-const nomeRegex = /^[a-zA-Z0-9\s\-_.()]+$/;
+const nomeRegex = /^[a-zA-Z0-9\s\-_.!ç()]+$/;
 
 export const ProdutoSchema = z.object({
     criador: objectIdSchema,
     nome_produto: z.string({message: 'Nome do produto é obrigatório!'})
         .min(3, 'Nome de produto deve ter no mínimo 3 caracteres!')
         .max(100, 'Nome de produto deve ter no máximo 100 caracteres!')
-        .regex(nomeRegex, 'Nome pode conter letras, números, espaços e caracteres: - _ . ( )'),
+        .regex(nomeRegex, 'Nome só pode conter letras, números, espaços e caracteres: - _ . ! ( )'),
     descricao: z.string()
         .nonempty('Descrição é obrigatória!')
         .min(10, 'Descrição deve conter no mínimo 10 caracteres!')
@@ -36,7 +36,7 @@ export const ProdutoEdicaoSchema = z.object({
     nome_produto: z.string()
         .min(3, 'Nome de produto deve ter no mínimo 3 caracteres!')
         .max(100, 'Nome de produto deve ter no máximo 100 caracteres!')
-        .regex(nomeRegex, 'Nome pode conter letras, números, espaços e caracteres: - _ . ( )')
+        .regex(nomeRegex, 'Nome pode conter letras, números, espaços e caracteres: - _ . ! ( )')
         .optional(),
     descricao: z.string()
         .min(10, 'Descrição deve conter no mínimo 10 caracteres!')

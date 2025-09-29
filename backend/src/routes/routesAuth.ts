@@ -1,6 +1,6 @@
 import express from 'express';
-import ControladorAuth from '../controller/controllerAuth';
-import authMiddleware from '../middlewares/authMiddleware';
+import ControladorAuth from '../controller/controllerAuth.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
 const roteador = express.Router();
 const controlador = new ControladorAuth();
