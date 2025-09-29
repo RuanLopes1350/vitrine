@@ -3,6 +3,7 @@ import RepositoryUsuario from "../repository/repositoryUsuario.js";
 import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuarioSchema.js";
 import { typeUsuario } from "../types/typeUsuario.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
+import { PasswordHelper } from "../utils/helpers/passwordHelper.js";
 
 class ServiceUsuario {
     private repository: RepositoryUsuario
