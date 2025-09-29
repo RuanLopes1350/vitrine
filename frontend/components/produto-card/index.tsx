@@ -23,23 +23,23 @@ interface ProdutoCardProps {
   onDelete?: (produtoId: string) => void;
 }
 
-export default function ProdutoCard({ 
-  produto, 
+export default function ProdutoCard({
+  produto,
   modo = 'visualizar',
   onEdit,
-  onDelete 
+  onDelete
 }: ProdutoCardProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const whatsAppRedirect = () => {
     const mensagem = `Olá! Tenho interesse no produto: "${produto.titulo}" no valor de R$ ${produto.preco?.toFixed(2).replace('.', ',')}. Poderia me dar mais informações?`;
     const numeroWhatsApp = produto.whatsapp;
-    
+
     if (!numeroWhatsApp) {
       alert('WhatsApp não disponível para este produto');
       return;
     }
-    
+
     const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
     window.open(url, '_blank');
   };
@@ -74,11 +74,11 @@ export default function ProdutoCard({
         <div className="absolute top-3 left-3 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium z-10">
           {isGerenciar ? 'R$' : '$'} {produto.preco?.toFixed(2).replace('.', ',')}
         </div>
-        
+
         {produto.foto ? (
-          <Image 
-            src={produto.foto} 
-            alt={produto.titulo} 
+          <Image
+            src={produto.foto}
+            alt={produto.titulo}
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -98,29 +98,30 @@ export default function ProdutoCard({
         <h3 className={`
           ${isGerenciar ? 'font-bold' : 'font-semibold'} 
           text-gray-900 text-base leading-tight mb-2 overflow-hidden
-        `} 
-            style={{
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              minHeight: '2.5rem'
-            }}>
+        `}
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            minHeight: '1.5rem'
+          }}>
           {produto.titulo}
         </h3>
-        <p className="text-gray-600 text-sm leading-relaxed overflow-hidden flex-grow"
-           style={{
-             display: '-webkit-box',
-             WebkitLineClamp: isGerenciar ? 2 : 3,
-             WebkitBoxOrient: 'vertical',
-             minHeight: isGerenciar ? '2.5rem' : '3.75rem'
-           }}>
-          {produto.descricao}
-        </p>
-        
+          <p className="text-gray-600 text-sm leading-relaxed overflow-y-auto"
+            style={{
+              display: '-webkit-box',
+              WebkitLineClamp: isGerenciar ? 2 : 3,
+              WebkitBoxOrient: 'vertical',
+              minHeight: isGerenciar ? '3.5rem' : '5.75rem',
+              scrollbarWidth: 'none'
+            }}>
+            {produto.descricao}
+          </p>
+
         <div className={`flex gap-2 mt-3 ${!isGerenciar ? 'pt-3 border-t border-gray-200' : ''} min-h-[2.5rem]`}>
           {isGerenciar ? (
             <>
-              <Button 
+              <Button
                 onClick={handleEdit}
                 variant="outline"
                 size="sm"
@@ -129,7 +130,7 @@ export default function ProdutoCard({
                 <Edit className="w-4 h-4 mr-1" />
                 Editar
               </Button>
-              <Button 
+              <Button
                 onClick={handleDeleteClick}
                 variant="outline"
                 size="sm"
@@ -140,7 +141,7 @@ export default function ProdutoCard({
               </Button>
             </>
           ) : (
-            <button 
+            <button
               onClick={whatsAppRedirect}
               className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors duration-200 flex items-center justify-center gap-1"
             >
