@@ -48,6 +48,13 @@ class ControllerUsuario {
                 });
             }
 
+            // VALIDAÇÃO DE SENHA ADICIONADA
+            if (!dadosUsuario.senha || dadosUsuario.senha.trim() === '') {
+                errosValidacao.push('Senha é obrigatória');
+            } else if (dadosUsuario.senha.length < 6) {
+                errosValidacao.push('A senha deve ter no mínimo 6 caracteres');
+            }
+
             if (errosValidacao.length > 0) {
                 const response = CommonResponse.validationError(
                     'Dados inválidos para cadastro',
