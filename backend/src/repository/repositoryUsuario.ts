@@ -44,6 +44,7 @@ class RepositoryUsuario {
         const data = await this.model.findOne({email:email}, '+senha +nomeLoja +whatsapp +ativo' );
         return data
     }
+
     async armazenarTokens(id: string, accesstoken: string, refreshtoken: string) {
         const documento = await this.model.findById(id);
         if (!documento) {
@@ -54,15 +55,14 @@ class RepositoryUsuario {
         const data = await documento.save();
         return data;
     }
-    async removeToken(id:string) {
-        // Criar objeto com os campos a serem atualizados
+
+    async removeToken(id: string) {
         const parsedData = {
             accessToken: null,
             refreshToken: null
         };
         const usuario = await this.model.findByIdAndUpdate(id, parsedData, { new: true }).exec();
 
-        // Validar se o usuário atualizado foi retornado
         if (!usuario) {
             throw new Error('Usuário não encontrado');
         }
