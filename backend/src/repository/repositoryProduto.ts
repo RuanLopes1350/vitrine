@@ -15,12 +15,12 @@ class RepositoryProduto {
     }
 
     async listar() {
-        const dados = await this.model.find();
+        const dados = await this.model.find().populate('criador', 'whatsapp');
         return dados;
     }
 
     async buscarPorId(id: string) {
-        const dados = await this.model.findById(id);
+        const dados = await this.model.findById(id).populate('criador', 'whatsapp');
         return dados;
     }
 

@@ -14,12 +14,40 @@ interface ModalProps {
     };
     isOpen: boolean;
     onClose: () => void;
+    defaultValues?: {
+        input1?: string;
+        input2?: string;
+        input3?: string;
+        input4?: string;
+    };
+    inputIds?: {
+        input1?: string;
+        input2?: string;
+        input3?: string;
+        input4?: string;
+    };
 }
 
-export default function Modal({ titulo, button1, button2, isOpen, onClose }: ModalProps) {
+export default function Modal({ 
+    titulo, 
+    button1, 
+    button2, 
+    isOpen, 
+    onClose, 
+    defaultValues,
+    inputIds 
+}: ModalProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
 
     const [imagePreview, setImagePreview] = useState('');
+
+    // IDs dos inputs (podem ser customizados para permitir múltiplos modais)
+    const ids = {
+        input1: inputIds?.input1 || 'input1',
+        input2: inputIds?.input2 || 'input2',
+        input3: inputIds?.input3 || 'input3',
+        input4: inputIds?.input4 || 'input4'
+    };
 
     useEffect(() => {
         const modalElement = dialogRef.current;
@@ -30,11 +58,39 @@ export default function Modal({ titulo, button1, button2, isOpen, onClose }: Mod
         if (isOpen) {
             // Abre o modal de forma nativa e centralizada
             modalElement.showModal();
+            
+            // Preenche os campos com valores padrão se fornecidos
+            if (defaultValues) {
+                const input1 = document.getElementById(ids.input1) as HTMLInputElement;
+                const input2 = document.getElementById(ids.input2) as HTMLTextAreaElement;
+                const input3 = document.getElementById(ids.input3) as HTMLInputElement;
+                const input4 = document.getElementById(ids.input4) as HTMLInputElement;
+                
+                if (input1 && defaultValues.input1) input1.value = defaultValues.input1;
+                if (input2 && defaultValues.input2) input2.value = defaultValues.input2;
+                if (input3 && defaultValues.input3) input3.value = defaultValues.input3;
+                if (input4 && defaultValues.input4) {
+                    input4.value = defaultValues.input4;
+                    setImagePreview(defaultValues.input4);
+                }
+            }
         } else {
             // Fecha o modal
             modalElement.close();
+            
+            // Limpa os campos quando o modal fecha
+            setImagePreview('');
+            const input1 = document.getElementById(ids.input1) as HTMLInputElement;
+            const input2 = document.getElementById(ids.input2) as HTMLTextAreaElement;
+            const input3 = document.getElementById(ids.input3) as HTMLInputElement;
+            const input4 = document.getElementById(ids.input4) as HTMLInputElement;
+            
+            if (input1) input1.value = '';
+            if (input2) input2.value = '';
+            if (input3) input3.value = '';
+            if (input4) input4.value = '';
         }
-    }, [isOpen]);
+    }, [isOpen, defaultValues, ids]);
 
 
     const handlePrimaryAction = () => {
@@ -66,12 +122,12 @@ export default function Modal({ titulo, button1, button2, isOpen, onClose }: Mod
                         <img src="/title.png" draggable={false} />
                         <h4 data-testid="modal-label-nome" className="text-[#374151] font-medium text-[11.9px]">Nome do Produto</h4>
                     </div>
-                    <input data-testid="modal-input-nome" type="text" id="input1" placeholder="Insira o nome do produto" className="ml-[24px] w-[400px] h-[50px] rounded-[8px] border border-gray-300 pl-1.5 translate-x-7.5" />
+                    <input data-testid="modal-input-nome" type="text" id={ids.input1} placeholder="Insira o nome do produto" className="ml-[24px] w-[400px] h-[50px] rounded-[8px] border border-gray-300 pl-1.5 translate-x-7.5" />
                     <div className="flex flex-row ml-[24px] gap-0.5 translate-x-7.5">
                         <img src="/description.png" draggable={false} />
                         <h4 data-testid="modal-label-descricao" className="text-[#374151] font-medium text-[11.9px]">Descrição</h4>
                     </div>
-                    <textarea data-testid="modal-input-descricao" id="input2" placeholder="Insira a descrição do produto"
+                    <textarea data-testid="modal-input-descricao" id={ids.input2} placeholder="Insira a descrição do produto"
                         className="ml-[24px] w-[400px] h-[122px] rounded-[8px] border border-gray-300 resize-none pl-1.5 translate-x-7.5"
                     ></textarea>
                     <div className="flex flex-row ml-[24px] gap-0.5 translate-x-7.5">
@@ -81,7 +137,7 @@ export default function Modal({ titulo, button1, button2, isOpen, onClose }: Mod
                     <input
                         data-testid="modal-input-preco"
                         type="number"
-                        id="input3"
+                        id={ids.input3}
                         placeholder="R$ 50.00"
                         className="ml-[24px] w-[400px] h-[50px] rounded-[8px] border border-gray-300 pl-1.5 translate-x-7.5
                         [-moz-appearance:textfield] /* Para Firefox */ 
@@ -95,7 +151,7 @@ export default function Modal({ titulo, button1, button2, isOpen, onClose }: Mod
                     <input
                         data-testid="modal-input-imagem"
                         type="text"
-                        id="input4"
+                        id={ids.input4}
                         placeholder="Insira a URL da imagem"
                         value={imagePreview}
                         onChange={(e) => setImagePreview(e.target.value)}

@@ -29,9 +29,14 @@ export default function Header() {
         // A principal mudança está aqui: adicionamos 'flex-shrink-0'
         <header data-testid="header" className="h-[64px] bg-gradient-to-r from-[#9333EA] to-[#4338CA] flex justify-between items-center px-4 flex-shrink-0">
             <Link data-testid="header-link-logo" href="/inicio">
-                <div className="flex flex-row items-center gap-2 pl-[102px]">
-                    <img data-testid="header-icone-vitrine" src="/VitrineIcon.png" />
-                    <span data-testid="header-titulo-vitrine" className="font-bold text-white">Vitrine</span>
+                <div className="flex flex-row items-center gap-3 pl-[102px]">
+                    <img 
+                        data-testid="header-icone-vitrine" 
+                        src="/VitrineIcon.png" 
+                        alt="Vitrine Icon"
+                        className="w-8 h-8 object-contain"
+                    />
+                    <span data-testid="header-titulo-vitrine" className="font-bold text-white text-lg">Vitrine</span>
                 </div>
             </Link>
             

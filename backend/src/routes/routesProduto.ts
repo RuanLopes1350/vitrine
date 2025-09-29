@@ -1,19 +1,20 @@
 import express from 'express';
 import ControllerProduto from '../controller/controllerProduto.js';
-import authMiddleware from '../middlewares/authMiddleware.js';
+import authMiddleware, { AuthenticatedRequest } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 const controller = new ControllerProduto();
 
 router
     .post('/', authMiddleware, async (req, res) => {
-        const response = await controller.cadastrar(req.body);
+        const userId = (req as AuthenticatedRequest).user_id;
+        const response = await controller.cadastrar(req.body, userId);
         return response.send(res);
     })
-    // .get('/produtos', async (req, res) => {
-    //     const response = await controller.listar();
-    //     return response.send(res);
-    // })
+    .get('/', async (req, res) => {
+        const response = await controller.listar();
+        return response.send(res);
+    })
     .get('/:id', async (req, res) => {
         // Validar se o ID é um ObjectId válido
         if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -52,7 +53,8 @@ router
             });
         }
 
-        const response = await controller.editar(req.params.id, req.body);
+        const userId = (req as AuthenticatedRequest).user_id;
+        const response = await controller.editar(req.params.id, req.body, userId);
         return response.send(res);
     })
     .delete('/:id', authMiddleware, async (req, res) => {
@@ -67,7 +69,8 @@ router
             });
         }
 
-        const response = await controller.deletar(req.params.id);
+        const userId = (req as AuthenticatedRequest).user_id;
+        const response = await controller.deletar(req.params.id, userId);
         return response.send(res);
     })
 
