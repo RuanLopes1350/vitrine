@@ -49,12 +49,13 @@ async function seedUsuarios() {
     for (let i = 0; i < 27; i++) {
         usuariosAleatorios.push(
             {
-                nome: mapping.usuario.nome(),
-                nomeLoja: mapping.usuario.nomeLoja(),
-                email: mapping.usuario.email(),
-                senha: mapping.usuario.senha(),
-                whatsapp: mapping.usuario.whatsapp(),
-                ativo: mapping.usuario.ativo()
+                nome: mapping.nome(),
+                nomeLoja: mapping.nomeLoja(),
+                email: mapping.email(),
+                senha: mapping.senha(),
+                whatsapp: mapping.whatsapp(),
+                ativo: mapping.ativo(),
+                accessToken: mapping.accessToken()
             }
         )
     }

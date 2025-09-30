@@ -5,6 +5,7 @@ export type typeUsuario = {
     email: string,
     senha: string,
     ativo: boolean,
+    accessToken?: string
 }
 
 export type typeUsuarioCompleto = typeUsuario & {
