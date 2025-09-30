@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker/locale/pt_BR'
 
-export async function getGlobalFakeMapping() {
+export default async function getGlobalFakeMapping() {
     return {
         usuario: {
             nome: () => faker.person.fullName(),

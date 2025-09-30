@@ -3,7 +3,7 @@ import modelUsuario from '../models/modelUsuario.js';
 import { typeProduto } from '../types/typeProduto.js'
 import { typeUsuario } from '../types/typeUsuario.js';
 
-import { getGlobalFakeMapping } from './globalFakeMapping.js'
+import getGlobalFakeMapping from './globalFakeMapping.js'
 
 async function seedProdutos(usuarios: typeUsuario[]) {
     await modelProduto.collection.deleteMany();
