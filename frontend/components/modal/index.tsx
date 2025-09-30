@@ -26,6 +26,9 @@ interface ModalProps {
         input3?: string;
         input4?: string;
     };
+    selectedFile?: File | null;
+    previewUrl?: string | null;
+    onFileSelect?: (file: File, previewUrl: string) => void;
 }
 
 export default function Modal({
@@ -35,7 +38,10 @@ export default function Modal({
     isOpen,
     onClose,
     defaultValues,
-    inputIds
+    inputIds,
+    selectedFile,
+    previewUrl,
+    onFileSelect
 }: ModalProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -124,22 +130,38 @@ export default function Modal({
                     />
                     <div className="flex flex-row ml-[24px] gap-0.5 translate-x-7.5">
                         <img src="/preview.png" draggable={false} />
-                        <h4 data-testid="modal-label-imagem" className="text-[#374151] font-medium text-[11.9px]">URL da Imagem</h4>
+                        <h4 data-testid="modal-label-imagem" className="text-[#374151] font-medium text-[11.9px]">Imagem do Produto</h4>
                     </div>
-                    <input
-                        data-testid="modal-input-imagem"
-                        type="text"
-                        id={ids.input4}
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        placeholder="Insira a URL da imagem"
-                        className="ml-[24px] w-[400px] h-[50px] rounded-[8px] border border-gray-300 pl-1.5 translate-x-7.5"
-                    />
-                    {imageUrl && (
-                        <div data-testid="modal-preview-imagem" className="border-1 h-[202px] w-[400px] overflow-hidden ml-[24px] translate-x-7.5 rounded-[8px]">
+                    <div className="ml-[24px] translate-x-7.5">
+                        <input
+                            data-testid="modal-input-file"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                                if (e.target.files && e.target.files[0] && onFileSelect) {
+                                    const file = e.target.files[0];
+                                    if (file.type.startsWith('image/')) {
+                                        const preview = URL.createObjectURL(file);
+                                        onFileSelect(file, preview);
+                                    } else {
+                                        alert('Por favor, selecione apenas arquivos de imagem.');
+                                    }
+                                }
+                            }}
+                            className="w-[400px] h-[50px] rounded-[8px] border border-gray-300 pl-1.5 pt-1.5 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                        />
+                        {selectedFile && (
+                            <div className="mt-2 text-sm text-gray-600">
+                                <p>Arquivo: {selectedFile.name}</p>
+                                <p>Tamanho: {(selectedFile.size / 1024).toFixed(2)} KB</p>
+                            </div>
+                        )}
+                    </div>
+                    {previewUrl && (
+                        <div data-testid="modal-preview-imagem" className="h-[202px] w-[400px] overflow-hidden ml-[24px] translate-x-7.5 rounded-[8px] border border-gray-300">
                             <img
                                 data-testid="modal-imagem-preview"
-                                src={imageUrl}
+                                src={previewUrl}
                                 alt="Preview do produto"
                                 className="h-full w-full object-cover"
                                 onError={(e) => {
