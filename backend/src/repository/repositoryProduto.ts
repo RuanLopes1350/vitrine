@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { typeProduto, typeProdutoEdicao } from '../types/typeProduto.js';
 import modelProduto from '../models/modelProduto.js';
+import { Request } from "express";
 
 class RepositoryProduto {
     private model: mongoose.Model<any>;
@@ -36,6 +37,10 @@ class RepositoryProduto {
     async deletar(id: string) {
         return await this.model.findByIdAndDelete(id)
 
+    }
+
+    async buscarTodosProdutosUsuario(req:Request,id:string){
+        return await this.model.find({criador:id})
     }
 }
 

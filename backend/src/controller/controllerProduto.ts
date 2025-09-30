@@ -1,6 +1,7 @@
 import ServiceProduto from "../service/serviceProduto.js";
 import { typeProduto, typeProdutoEdicao } from "../types/typeProduto.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
+import { Request } from "express";
 
 class ControllerProduto {
     private service: ServiceProduto
@@ -47,6 +48,11 @@ class ControllerProduto {
     async deletar(id: string, userId: string): Promise<CommonResponse> {
         console.log('Deletando produto:', id, 'para usuário:', userId);
         return await this.service.deletar(id, userId);
+    }
+
+    async buscarTodosProdutosUsuario(req:Request, id:string){
+        console.log('Buscando produtos por ID de Usuario', id)
+        return await this.service.buscarTodosProdutosUsuario(req, id);
     }
 }
 
