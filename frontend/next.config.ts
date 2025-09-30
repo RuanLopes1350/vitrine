@@ -107,6 +107,18 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'media.giphy.com',
       },
+      {
+        protocol: 'https',
+        hostname: '*.redd.it'
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.redd.it'
+      },
+      {
+        protocol: 'https',
+        hostname: 'preview.redd.it'
+      },
       
       // === WIKIMEDIA E WIKIPEDIA ===
       {
