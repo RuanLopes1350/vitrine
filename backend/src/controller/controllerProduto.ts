@@ -9,6 +9,16 @@ class ControllerProduto {
         this.service = new ServiceProduto();
     }
 
+    async validar(dadosProduto: typeProduto, userId: string): Promise<CommonResponse> {
+        console.log('Validando dados do produto para usuário:', userId);
+        // Adicionar o criador aos dados do produto para validação
+        const produtoComCriador = {
+            ...dadosProduto,
+            criador: userId
+        };
+        return await this.service.validar(produtoComCriador);
+    }
+
     async cadastrar(dadosProduto: typeProduto, userId: string): Promise<CommonResponse> {
         console.log('Cadastrando produto para usuário:', userId);
         // Adicionar o criador aos dados do produto
