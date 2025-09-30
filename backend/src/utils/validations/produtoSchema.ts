@@ -6,7 +6,7 @@ const objectIdSchema = z.string().regex(objectIdRegex, {
     message: "ID inválido. Deve ser um ObjectId válido do MongoDB!"
 })
 
-const nomeRegex = /^[a-zA-Z0-9\s\-_.!ç()]+$/;
+const nomeRegex = /^[\p{L}0-9\s\-_.!()]+$/u;
 
 export const ProdutoSchema = z.object({
     criador: objectIdSchema,
