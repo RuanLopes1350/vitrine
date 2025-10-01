@@ -1,13 +1,17 @@
-import mongoose from "mongoose";
+import mongoose, { PaginateModel } from "mongoose";
 import { typeProduto, typeProdutoEdicao } from '../types/typeProduto.js';
 import modelProduto from '../models/modelProduto.js';
 import { Request } from "express";
+import { Query } from "../types/typeQuery.js";
+import modelUsuario from "../models/modelUsuario.js";
 
 class RepositoryProduto {
-    private model: mongoose.Model<any>;
+    private model: PaginateModel<any>;
+    private usuarioModel: PaginateModel<any>
 
     constructor(model = modelProduto) {
-        this.model = model;
+        this.model = model as PaginateModel<any>;
+        this.usuarioModel = modelUsuario as PaginateModel<any>
     }
 
     async cadastrar(dadosProduto: typeProduto): Promise<any> {
@@ -39,8 +43,20 @@ class RepositoryProduto {
 
     }
 
-    async buscarTodosProdutosUsuario(req:Request,id:string){
-        return await this.model.find({criador:id})
+    async buscarTodosProdutosUsuario(req:Request<any, any, Query>,id:string){
+        const { page=1} = req.query
+        const limit = Math.min(parseInt(req.query.limit as string, 10) || 10, 1000)
+        const options = {
+            page: parseInt(page as string, 10),
+            limit: limit,
+            populate: {
+                path: 'criador',
+                select: 'nomeLoja whatsapp' // ✅ Incluindo nomeLoja do usuário
+            }
+        }
+
+        const dados = await this.model.paginate({criador: id}, options)
+        return dados
     }
 }
 
