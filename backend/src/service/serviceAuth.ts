@@ -2,6 +2,7 @@ import RepositoryUsuario from '../repository/repositoryUsuario.js';
 import geradorToken from '../utils/tokenUtil.js';
 import { RespostaLogin } from '../types/typeLogin.js';
 import { CommonResponse } from '../utils/helpers/commonResponse.js';
+import { PasswordHelper } from '../utils/helpers/passwordHelper.js';
 
 // Serviço de autenticação - versão simplificada
 class ServicoAuth {
@@ -20,8 +21,9 @@ class ServicoAuth {
       throw new Error('CREDENCIAIS_INVALIDAS');
     }
 
-    // 2. Verificar senha (em produção, use bcrypt para hash)
-    if (usuario.senha !== senha) {
+    // 2. Verificar senha usando bcrypt.compare
+    const senhaValida = await PasswordHelper.compare(senha, usuario.senha);
+    if (!senhaValida) {
       throw new Error('CREDENCIAIS_INVALIDAS');
     }
 

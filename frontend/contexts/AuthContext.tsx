@@ -65,9 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Função de Login
     const login = async (email: string, senha: string) => {
         try {
-            console.log(`Enviando para API: ${email}, senha!`);
             const response = await apiClient.post<LoginResponse>('/login', { email, senha });
-            console.log('Resposta da API:', response.data);
 
             if (response.data.code === 200) {
                 const { token: newToken, usuario } = response.data.data;
@@ -119,9 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const cadastro = async (nome: string, nomeLoja: string, whatsapp: string, email: string, senha: string) => {
         try {
-            console.log(`Enviando para API: ${nome}, ${nomeLoja}, ${whatsapp}, ${email}, senha`);
             const response = await apiClient.post('/usuarios', { nome, nomeLoja, whatsapp, email, senha });
-            console.log('Resposta da API:', response.data);
 
             const data = response.data as { code: number; mensagem?: string; erros?: any[] };
             if (data.code !== 200 && data.code !== 201) {

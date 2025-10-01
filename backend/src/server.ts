@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(cors({
-  origin: true, // Aceita qualquer origem (só para teste!)
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
