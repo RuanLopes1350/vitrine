@@ -18,7 +18,7 @@ async function seedUsuarios() {
         nomeLoja: 'Millennium',
         email: 'silvio.huan@gmail.com',
         senha: 'SenhaSuperSegur@123',
-        whatsapp: '556955667788',
+        whatsapp: '55695566778',
         ativo: true
     },{
         nome: 'Luis Felipe',
