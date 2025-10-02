@@ -1,30 +1,53 @@
 "use client"
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
-import { useProdutosLoja } from "@/hooks/useLoja";
+import { Docs, useProdutosLoja } from "@/hooks/useLoja";
 import { usePathname } from "next/navigation";
 import { ShoppingBag, Loader2, Store, MessageCircle } from "lucide-react";
 import ProdutoCardLoja from "@/components/produto-card-loja";
 
-export default function PageLoja(){
-    const {produtos, getProdutos} = useProdutosLoja();
+export default function PageLoja() {
+    const { produtos, getProdutos } = useProdutosLoja();
     const [loading, setLoading] = useState(true);
     const local = usePathname();
+    const [itemsPerPage, setIsItemsPerPage] = useState<number>(2)
+    const [currentPage, setCurrentPage] = useState<number>(0)
+    
+    // ✅ CORRETO: Calcular valores derivados sem estado
+    const startIndex = currentPage * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentItems = produtos?.data.docs.slice(startIndex, endIndex) || [];
+    const totalPages = produtos?.data.docs ? Math.ceil(produtos.data.docs.length / itemsPerPage) : 0;
 
     useEffect(() => {
         async function carregarProdutos() {
             setLoading(true);
             const id = local.match(/[0-9a-fA-F]{24}/)?.[0] as string;
-            
+
             if (id) {
                 await getProdutos(id);
             }
             setLoading(false);
         }
-        
+
         carregarProdutos();
     }, [local]);
-
+    
+    function nextPage() {
+        if (currentPage < totalPages - 1) {
+            setCurrentPage(prev => prev + 1)
+        }
+    }
+    
+    function prevPage() {
+        if (currentPage > 0) {
+            setCurrentPage(prev => prev - 1)
+        }
+    }
+    
+    function goToPage(page: number) {
+        setCurrentPage(page);
+    }
     // Loading state
     if (loading) {
         return (
@@ -70,7 +93,7 @@ export default function PageLoja(){
                         <div>
                             <h1 className="text-3xl font-bold text-[#111827]">{nomeLoja}</h1>
                             <p className="text-gray-600 mt-1">
-                                {temProdutos 
+                                {temProdutos
                                     ? `${produtos.data.docs.length} produto${produtos.data.docs.length !== 1 ? 's' : ''} disponível${produtos.data.docs.length !== 1 ? 'eis' : ''}`
                                     : "Nenhum produto encontrado"
                                 }
@@ -80,14 +103,62 @@ export default function PageLoja(){
 
                     {/* Grid de produtos */}
                     {temProdutos ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                            {produtos.data.docs.map((produto) => (
-                                <ProdutoCardLoja 
-                                    key={produto._id} 
-                                    produto={produto}
-                                />
-                            ))}
-                        </div>
+                        <>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                                {currentItems.map((produto) => (
+                                    <ProdutoCardLoja
+                                        key={produto._id}
+                                        produto={produto}
+                                    />
+                                ))}
+                            </div>
+
+                            {/* Paginação */}
+                            {totalPages > 1 && (
+                                <div className="flex items-center justify-center space-x-2 mt-8">
+                                    {/* Botão Anterior */}
+                                    <button 
+                                        onClick={prevPage} 
+                                        disabled={currentPage === 0}
+                                        className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                    >
+                                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                        Anterior
+                                    </button>
+
+                                    {/* Números das páginas */}
+                                    <div className="flex space-x-1">
+                                        {Array.from({ length: totalPages }, (_, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => goToPage(index)}
+                                                className={`px-3 py-2 text-sm font-medium rounded-md ${
+                                                    currentPage === index
+                                                        ? 'text-white bg-[#9333EA]'
+                                                        : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 cursor-pointer'
+                                                }`}
+                                            >
+                                                {index + 1}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    {/* Botão Próximo */}
+                                    <button 
+                                        onClick={nextPage} 
+                                        disabled={currentPage === totalPages - 1}
+                                        className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                    >
+                                        Próximo
+                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         /* Estado vazio */
                         <div className="text-center py-16">
@@ -116,7 +187,7 @@ export default function PageLoja(){
                                     </h3>
                                 </div>
                                 <p className="text-gray-600 leading-relaxed">
-                                    Clique no botão "WhatsApp" em qualquer produto para entrar 
+                                    Clique no botão "WhatsApp" em qualquer produto para entrar
                                     em contato direto com <strong>{nomeLoja}</strong> e tirar suas dúvidas.
                                 </p>
                             </div>
