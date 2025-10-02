@@ -28,7 +28,7 @@ export default function ProdutoCardLoja({ produto }: ProdutoCardLojaProps) {
       : `55${produto.criador.whatsapp}`;
     
     const mensagem = encodeURIComponent(
-      `Olá! Tenho interesse no produto "${produto.nome_produto}" por R$ ${produto.preco.toFixed(2).replace('.', ',')}. ${produto.mensagem || ''}`
+      `Olá! Tenho interesse no produto "${produto.nome_produto}" por R$ ${produto.preco.toFixed(2).replace('.', ',')}. Poderia me dar mais informações?`
     );
     
     const url = `https://wa.me/${whatsapp}?text=${mensagem}`;
