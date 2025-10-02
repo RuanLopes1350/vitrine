@@ -1,6 +1,7 @@
 'use client';
 
 import { ShoppingBag } from "lucide-react";
+import { getURL } from "next/dist/shared/lib/utils";
 import Image from 'next/image';
 
 interface CardSessaoProps {
@@ -8,21 +9,23 @@ interface CardSessaoProps {
   nomeUsuario?: string;
   nomeLoja?: string;
   fotoUsuario?: string;
+  id?:string;
 }
 
 export default function CardSessao({ 
   modo = 'visitante',
   nomeUsuario = '',
   nomeLoja = '',
-  fotoUsuario 
+  fotoUsuario,
+  id 
 }: CardSessaoProps) {
   const getInitials = (name: string) => {
     return name.charAt(0).toUpperCase();
   };
-
+  const urlCompleta = origin
   if (modo === 'logado') {
     return (
-      <div className="bg-gradient-to-r from-[#9333EA] to-[#7C3AED] rounded-xl p-8 mb-8 text-white shadow-md">
+      <div className="bg-gradient-to-r from-[#9333EA] to-[#7C3AED] rounded-xl p-8 mb-8 text-white shadow-md flex justify-between items-center">
         <div className="flex items-center space-x-6">
           <div className="relative w-16 h-16 rounded-full overflow-hidden bg-white bg-opacity-20 flex items-center justify-center ring-4 ring-white ring-opacity-20">
             {fotoUsuario ? (
@@ -45,6 +48,7 @@ export default function CardSessao({
             <p className="text-purple-100 text-sm">Sua loja digital está pronta para brilhar!</p>
           </div>
         </div>
+        <div>{urlCompleta+"/"+(nomeLoja).toLocaleLowerCase()+"-"+id}</div>
       </div>
     );
   }
