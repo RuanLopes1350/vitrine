@@ -210,7 +210,7 @@ export default function PerfilPage() {
                             <span className="text-[12px] text-[#6B7280]">Whatsapp</span>
                         </div>
                         <div>
-                            <span className={"font-medium " + isInterable}>55</span>
+                            <span className={"font-medium text-[#6B7280]"}>+55 </span>
                             <input
                                 ref={whatsappRef}
                                 type="text"
