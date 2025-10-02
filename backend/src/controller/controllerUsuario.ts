@@ -3,9 +3,7 @@ import ServiceUsuario from "../service/serviceUsuario.js";
 import { typeUsuario } from "../types/typeUsuario.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
 import HttpStatusCodes from "../utils/helpers/httpStatusCodes.js";
-
-// Regex para validar ObjectId do MongoDB
-const objectIdRegex = /^[a-fA-F0-9]{24}$/;
+import objectIdSchema from '../utils/validations/objectIdSchema.js';
 
 class ControllerUsuario {
     private service: ServiceUsuario;
@@ -95,7 +93,8 @@ class ControllerUsuario {
             }
 
             // Validação de ObjectId
-            if (!objectIdRegex.test(id)) {
+            const objectIdValidation = objectIdSchema.safeParse(id);
+            if (!objectIdValidation.success) {
                 const response = CommonResponse.badRequest(
                     'ID inválido',
                     ['O ID fornecido não é um ObjectId válido']
@@ -126,7 +125,8 @@ class ControllerUsuario {
             }
 
             // Validação de ObjectId
-            if (!objectIdRegex.test(id)) {
+            const objectIdValidation = objectIdSchema.safeParse(id);
+            if (!objectIdValidation.success) {
                 const response = CommonResponse.badRequest(
                     'ID inválido',
                     ['O ID fornecido não é um ObjectId válido']
@@ -156,7 +156,8 @@ class ControllerUsuario {
             }
 
             // Validação de ObjectId
-            if (!objectIdRegex.test(id)) {
+            const objectIdValidation = objectIdSchema.safeParse(id);
+            if (!objectIdValidation.success) {
                 const response = CommonResponse.badRequest(
                     'ID inválido',
                     ['O ID fornecido não é um ObjectId válido']
