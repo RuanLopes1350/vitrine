@@ -4,6 +4,7 @@ import RepositoryProduto from "../repository/repositoryProduto.js";
 import { typeProduto, typeProdutoEdicao } from "../types/typeProduto.js";
 import { ProdutoSchema, ProdutoEdicaoSchema } from "../utils/validations/produtoSchema.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
+import { Request } from "express";
 
 // Configurar Cloudinary
 cloudinary.config({
@@ -256,6 +257,18 @@ class ServiceProduto {
         } catch (erro) {
             console.error('[Service] Erro ao deletar produto:', erro);
             return CommonResponse.error('Falha ao deletar produto');
+        }
+    }
+    async buscarTodosProdutosUsuario(req:Request, id:string){
+        try{
+            const produtosUsuario = await this.repository.buscarTodosProdutosUsuario(req, id);
+            if(!produtosUsuario){
+                return CommonResponse.notFound("Nenhum produto encontrado")
+            }
+            return CommonResponse.success("Produtos encontrados com sucesso!", produtosUsuario, 200)
+        }catch(erro){
+            console.error("Falha ao buscar produtos do usuário")
+            return CommonResponse.error(`Falha ao buscar produtos do usuario ${id}`,[],500)
         }
     }
 }
