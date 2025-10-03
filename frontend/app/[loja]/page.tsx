@@ -72,22 +72,22 @@ export default function PageLoja() {
     const nomeLoja = temProdutos ? produtos.data.docs[0].criador.nomeLoja : "Loja não encontrada";
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header da vitrine */}
-                <section className="bg-white rounded-xl shadow-md p-8 mb-8">
+                <section className="bg-white rounded-xl shadow-md p-4 sm:p-8 mb-4 sm:mb-8">
                     <div className="flex flex-col items-center">
-                        <div className="h-[64px] w-[64px] bg-[#F3E8FF] rounded-full flex justify-center items-center mb-[10px]">
-                            <img src="Vitrine.svg" alt="" />
+                        <div className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] bg-[#F3E8FF] rounded-full flex justify-center items-center mb-[10px]">
+                            <img src="Vitrine.svg" alt="" className="w-6 sm:w-auto" />
                         </div>
-                        <h1 className="text-[26px] font-bold">Bem-vindo a Vitrine</h1>
-                        <p className="text-[#4B5563] text-center">A maneira mais fácil de mostrar seus produtos e se conectar com clientes diretamente pelo WhatsApp.</p>
-                        <p className="text-[#4B5563] text-center">Crie sua loja hoje mesmo e comece a vender em minutos!</p>
+                        <h1 className="text-[20px] sm:text-[26px] font-bold text-center">Bem-vindo a Vitrine</h1>
+                        <p className="text-[#4B5563] text-center text-sm sm:text-base px-2">A maneira mais fácil de mostrar seus produtos e se conectar com clientes diretamente pelo WhatsApp.</p>
+                        <p className="text-[#4B5563] text-center text-sm sm:text-base px-2">Crie sua loja hoje mesmo e comece a vender em minutos!</p>
                     </div>
                 </section>
 
                 {/* Seção da loja */}
-                <section className="bg-white rounded-xl shadow-md p-8">
+                <section className="bg-white rounded-xl shadow-md p-4 sm:p-8">
                     {/* Header da loja */}
                     <div className="flex items-center space-x-3 mb-8">
                         <div className="bg-[#F3E8FF] p-3 rounded-lg border border-[#E9D5FF]">

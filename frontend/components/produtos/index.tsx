@@ -69,10 +69,10 @@ export default function Produtos({
 
   if (loading) {
     return (
-      <section className="bg-white rounded-xl shadow-md p-8">
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-[#9333EA]" />
-          <span className="ml-3 text-gray-600">Carregando produtos...</span>
+      <section className="bg-white rounded-xl shadow-md p-4 sm:p-6 md:p-8">
+        <div className="flex items-center justify-center py-8 sm:py-12">
+          <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-[#9333EA]" />
+          <span className="ml-3 text-sm sm:text-base text-gray-600">Carregando produtos...</span>
         </div>
       </section>
     );
@@ -80,17 +80,18 @@ export default function Produtos({
 
   if (error) {
     return (
-      <section className="bg-white rounded-xl shadow-md p-8">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-xl mx-auto mb-4 flex items-center justify-center">
-              <ShoppingBag className="w-8 h-8 text-red-400" />
+      <section className="bg-white rounded-xl shadow-md p-4 sm:p-6 md:p-8">
+        <div className="flex items-center justify-center py-8 sm:py-12">
+          <div className="text-center px-4">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-xl mx-auto mb-3 sm:mb-4 flex items-center justify-center">
+              <ShoppingBag className="w-6 h-6 sm:w-8 sm:h-8 text-red-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Erro ao carregar produtos</h3>
-            <p className="text-red-500 mb-4">{error}</p>
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">Erro ao carregar produtos</h3>
+            <p className="text-sm sm:text-base text-red-500 mb-3 sm:mb-4">{error}</p>
             <Button 
               onClick={() => modo === 'gerenciar' && user ? buscarProdutosPorUsuario() : buscarProdutos()}
               variant="outline"
+              className="w-full sm:w-auto text-sm sm:text-base"
             >
               Tentar novamente
             </Button>
@@ -101,18 +102,18 @@ export default function Produtos({
   }
 
   return (
-    <section className="bg-white rounded-xl shadow-md p-8">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-3">
-          <div className="bg-[#F3E8FF] p-2 rounded-lg border border-[#E9D5FF]">
-            <ShoppingBag className="h-5 w-5 text-[#9333EA]" />
+    <section className="bg-white rounded-xl shadow-md p-4 sm:p-6 md:p-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-3 sm:gap-0">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="bg-[#F3E8FF] p-1.5 sm:p-2 rounded-lg border border-[#E9D5FF]">
+            <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5 text-[#9333EA]" />
           </div>
-          <h2 className="text-2xl font-bold text-[#111827]">{titulo}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-[#111827]">{titulo}</h2>
         </div>
         {isGerenciar && (
           <Button 
             onClick={handleAddProduct}
-            className="bg-[#9333EA] hover:bg-[#7C3AED] text-white"
+            className="bg-[#9333EA] hover:bg-[#7C3AED] text-white w-full sm:w-auto text-sm sm:text-base"
           >
             <Plus className="w-4 h-4 mr-2" />
             Adicionar Produto
@@ -134,19 +135,19 @@ export default function Produtos({
         </div>
       ) : (
         isGerenciar && (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-xl mx-auto mb-4 flex items-center justify-center">
-              <ShoppingBag className="w-8 h-8 text-gray-400" />
+          <div className="text-center py-8 sm:py-12 px-4">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-xl mx-auto mb-3 sm:mb-4 flex items-center justify-center">
+              <ShoppingBag className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
               Nenhum produto encontrado
             </h3>
-            <p className="text-gray-500 mb-6">
+            <p className="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">
               Comece adicionando seu primeiro produto à vitrine.
             </p>
             <Button 
               onClick={handleAddProduct}
-              className="bg-[#9333EA] hover:bg-[#7C3AED] text-white"
+              className="bg-[#9333EA] hover:bg-[#7C3AED] text-white w-full sm:w-auto text-sm sm:text-base"
             >
               <Plus className="w-4 h-4 mr-2" />
               Adicionar Primeiro Produto
