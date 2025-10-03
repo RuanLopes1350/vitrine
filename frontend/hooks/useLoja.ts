@@ -56,7 +56,7 @@ export function useProdutosLoja(): LojaProdutoReturn {
 
     async function getProdutos(criador: string): Promise<void> {
         try {
-            const resposta = await apiClient<ProdutoResponsePaginate>(`/produtos/usuario/${criador}`,)
+            const resposta = await apiClient<ProdutoResponsePaginate>({ url: `/produtos/usuario/${criador}` })
             if (resposta.status === 200) {
                 setProdutos(resposta.data as ProdutoResponsePaginate)
             }
