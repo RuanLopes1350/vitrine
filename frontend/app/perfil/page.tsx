@@ -7,6 +7,20 @@ import { useRequireAuth } from "@/hooks/useAuth";
 import apiClient from "@/apiClient";
 import { useState, useRef, useEffect, use } from "react";
 
+interface ErrorResponse {
+    response?: {
+        erro?: boolean,
+        code?: number,
+        mensagem?: string,
+        status?: number,
+        errors?: string[] | {
+            campo: string,
+            mensagem: string
+        }[]
+    },
+    message?: string,
+    name?: string
+}
 
 export default function PerfilPage() {
     // Hook que protege a rota - redireciona para login se não autenticado
@@ -24,18 +38,52 @@ export default function PerfilPage() {
     const [whatsapp, setWhatsapp] = useState<string>("")
     const [aviso, setAviso] = useState<string>("Erro de validação")
 
+    // Função para formatar WhatsApp com () e -
+    const formatWhatsApp = (value: string): string => {
+        // Remove tudo que não for número
+        const numbersOnly = value.replace(/\D/g, '');
+
+        if (numbersOnly.length <= 2) {
+            return `(${numbersOnly}`;
+        } else if (numbersOnly.length <= 6) {
+            return `(${numbersOnly.slice(0, 2)}) ${numbersOnly.slice(2)}`;
+        } else if (numbersOnly.length <= 10) {
+            return `(${numbersOnly.slice(0, 2)}) ${numbersOnly.slice(2, 6)}-${numbersOnly.slice(6)}`;
+        } else {
+            return `(${numbersOnly.slice(0, 2)}) ${numbersOnly.slice(2, 7)}-${numbersOnly.slice(7, 11)}`;
+        }
+    };
+
+    // Função para converter WhatsApp formatado de volta para apenas números
+    const unformatWhatsApp = (value: string): string => {
+        return value.replace(/\D/g, '');
+    };
+
+    // Função para formatar WhatsApp vindo da API
+    const formatWhatsAppFromAPI = (whatsapp: string): string => {
+        if (!whatsapp) return '';
+
+        // Remove o prefixo 55 se existir
+        const whatsappSemPrefixo = whatsapp.startsWith('55') ? whatsapp.slice(2) : whatsapp;
+
+        // Aplica a formatação
+        return formatWhatsApp(whatsappSemPrefixo);
+    };
+
+    // Função para aplicar máscara em tempo real
+    const handleWhatsAppChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatWhatsApp(event.target.value);
+        event.target.value = formatted;
+        setWhatsapp(formatted);
+    };
+
     // Carregar dados do usuário logado
     useEffect(() => {
         if (user) {
-            // Não mute o objeto user diretamente, apenas extraia os valores
-            const whatsappSemPrefixo = user.whatsapp.startsWith('55') 
-                ? user.whatsapp.slice(2) 
-                : user.whatsapp;
-                
             setNome(user.nome || "");
             setNomeLoja(user.nomeLoja || "");
             setEmail(user.email || "");
-            setWhatsapp(whatsappSemPrefixo || "");
+            setWhatsapp(formatWhatsAppFromAPI(user.whatsapp || ""));
         }
     }, [user]);
 
@@ -46,9 +94,10 @@ export default function PerfilPage() {
         try {
             const dados = {
                 nomeLoja: nomeLoja,
-                whatsapp:"55"+whatsapp
+                whatsapp: "55" + unformatWhatsApp(whatsapp)
 
             }
+            console.log(dados.whatsapp)
 
             // Usar o apiClient que já tem o token configurado automaticamente
             const resposta = await apiClient.patch(`/usuarios/${user?.id}`, dados);
@@ -62,7 +111,7 @@ export default function PerfilPage() {
                 // ✅ Atualizar o user no contexto corretamente
                 updateUser({
                     nomeLoja: nomeLoja,
-                    whatsapp: "55" + whatsapp // com prefixo para manter consistência no contexto
+                    whatsapp: "55" + unformatWhatsApp(whatsapp) // com prefixo para manter consistência no contexto
                 });
 
                 // Atualizar estados locais
@@ -77,18 +126,42 @@ export default function PerfilPage() {
             setIsDescError(`Não foi possivel salvar as alterações, erro ${resposta.status}`)
             setIsErrorModalOpen(true)
 
-        } catch (erro: any) {
-            // O apiClient já trata 401/403 automaticamente fazendo logout
-            if (erro.response?.status === 403 || erro.response?.status === 401) {
-                logout();
-                return
+        } catch (erro: unknown) {
+            // Type guard para verificar se é um erro do Axios
+            const isAxiosError = (error: unknown): error is ErrorResponse => {
+                return typeof error === 'object' && 
+                       error !== null && 
+                       'response' in error;
+            };
+            
+            if (isAxiosError(erro)) {
+                const statusCode = erro.response?.code || erro.response?.status;
+                
+                if(statusCode === 422){
+                restaurarDados();
+                setInterable("pointer-events-none select-none");
+                setAviso(erro.response?.mensagem as string);
+                setIsDescError(`Não foi possivel salvar as alterações, erro ${statusCode || 'desconhecido'}`)
+                }
+                // O apiClient já trata 401/403 automaticamente fazendo logout
+                if (statusCode === 403 || statusCode === 401) {
+                    logout();
+                    return;
+                }
+                
+                restaurarDados();
+                setInterable("pointer-events-none select-none");
+                setAviso("Erro desconhecido");
+                setIsDescError(`Não foi possivel salvar as alterações, erro ${statusCode || 'desconhecido'}`);
+            } else {
+                // Erro genérico (rede, etc.)
+                restaurarDados();
+                setInterable("pointer-events-none select-none");
+                setAviso("Erro de conexão");
+                setIsDescError("Não foi possível conectar ao servidor. Verifique sua conexão.");
             }
-
-            restaurarDados()
-            setInterable("pointer-events-none select-none")
-            setAviso("Erro desconhecido")
-            setIsDescError(`Não foi possivel salvar as alterações, erro ${erro.response?.status || 'desconhecido'}`)
-            setIsErrorModalOpen(true)
+            
+            setIsErrorModalOpen(true);
         }
     }
     function restaurarDados() {
@@ -96,10 +169,10 @@ export default function PerfilPage() {
             nomeRefLoja.current.value = user.nomeLoja
         }
         if (whatsappRef.current && user?.whatsapp) {
-            const whatsappSemPrefixo = user.whatsapp.startsWith('55') 
-                ? user.whatsapp.slice(2) 
+            const whatsappSemPrefixo = user.whatsapp.startsWith('55')
+                ? user.whatsapp.slice(2)
                 : user.whatsapp;
-            whatsappRef.current.value = whatsappSemPrefixo
+            whatsappRef.current.value = formatWhatsApp(whatsappSemPrefixo);
         }
         setVisible(true)
     }
@@ -108,7 +181,7 @@ export default function PerfilPage() {
         const whatsappRegex = /^\d+$/
         const nomeRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9 ]+$/
         const nomeLoja = nomeRefLoja.current?.value.trim() as string
-        const whatsapp = whatsappRef.current?.value.trim() as string
+        const whatsapp = unformatWhatsApp(whatsappRef.current?.value.trim() as string)
 
         if (whatsapp?.length < 10 || whatsapp?.length > 11) {
 
@@ -134,7 +207,7 @@ export default function PerfilPage() {
             return
         }
 
-        await postDados(nomeLoja, whatsapp)
+        await postDados(nomeLoja, formatWhatsApp(whatsapp))
     }
 
     // Mostrar loading enquanto verifica autenticação
@@ -210,12 +283,13 @@ export default function PerfilPage() {
                             <span className="text-[12px] text-[#6B7280]">Whatsapp</span>
                         </div>
                         <div>
-                            <span className={"font-medium " + isInterable}>55</span>
+                            <span className={"font-medium text-[#6B7280]"}>+55 </span>
                             <input
                                 ref={whatsappRef}
                                 type="text"
+                                onChange={handleWhatsAppChange}
                                 className={"font-medium border-none focus:outline-none dados " + isInterable}
-                                defaultValue={whatsapp || user?.whatsapp.slice(2)}
+                                defaultValue={whatsapp || formatWhatsAppFromAPI(user?.whatsapp || "")}
                             />
                         </div>
                     </div>

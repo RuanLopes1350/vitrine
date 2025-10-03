@@ -2,7 +2,8 @@ import { z } from "zod";
 import { v2 as cloudinary } from 'cloudinary';
 import RepositoryProduto from "../repository/repositoryProduto.js";
 import { typeProduto, typeProdutoEdicao } from "../types/typeProduto.js";
-import { ProdutoSchema, ProdutoEdicaoSchema } from "../utils/validations/produtoSchema.js";
+import { ProdutoSchema, ProdutoUpdateSchema } from "../utils/validations/produtoSchema.js";
+import { Query } from "../types/typeQuery.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
 import { Request } from "express";
 
@@ -123,7 +124,7 @@ class ServiceProduto {
             const produto = await this.repository.cadastrar(dadosProduto);
 
             return CommonResponse.created('Produto cadastrado com sucesso!', produto);
-        } catch (erro) {
+        } catch (erro: any) {
             if (erro instanceof z.ZodError) {
                 const mensagensErro = erro.issues.map(err => {
                     const campo = err.path.length > 0 ? err.path.join('.') : 'campo';
@@ -137,8 +138,7 @@ class ServiceProduto {
                 return CommonResponse.validationError('Dados inválidos para cadastro', mensagensErro);
             }
 
-            console.error('[Service] Erro ao cadastrar produto:', erro);
-            return CommonResponse.error('Falha interna ao cadastrar produto');
+            throw erro;
         }
     }
 
@@ -192,7 +192,7 @@ class ServiceProduto {
             }
 
             // Validação com Zod para dados de edição
-            ProdutoEdicaoSchema.parse(dadosProduto);
+            ProdutoUpdateSchema.parse(dadosProduto);
 
             // Se uma nova imagem está sendo enviada, deletar a anterior
             if (dadosProduto.imagem && buscaResult.imagem && dadosProduto.imagem !== buscaResult.imagem) {
@@ -259,16 +259,16 @@ class ServiceProduto {
             return CommonResponse.error('Falha ao deletar produto');
         }
     }
-    async buscarTodosProdutosUsuario(req:Request, id:string){
+    async buscarTodosProdutosUsuario(req: Request<any, any, Query>, id:string){
         try{
             const produtosUsuario = await this.repository.buscarTodosProdutosUsuario(req, id);
             if(!produtosUsuario){
                 return CommonResponse.notFound("Nenhum produto encontrado")
             }
-            return CommonResponse.success("Produtos encontrados com sucesso!", produtosUsuario, 200)
+            return CommonResponse.success("Produtos encontrados com sucesso!", produtosUsuario)
         }catch(erro){
-            console.error("Falha ao buscar produtos do usuário")
-            return CommonResponse.error(`Falha ao buscar produtos do usuario ${id}`,[],500)
+            console.error("[Service] Falha ao buscar produtos do usuário:", erro)
+            return CommonResponse.error(`Falha ao buscar produtos do usuario: ${id}`)
         }
     }
 }
