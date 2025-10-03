@@ -51,7 +51,7 @@ class RepositoryProduto {
             limit: limit,
             populate: {
                 path: 'criador',
-                select: 'nomeLoja whatsapp'
+                select: 'nomeLoja whatsapp mensagem fotoPerfil'
             }
         }
 
