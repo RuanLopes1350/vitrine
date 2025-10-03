@@ -102,18 +102,18 @@ export default function Produtos({
   }
 
   return (
-    <section className="bg-white rounded-xl shadow-md p-4 sm:p-6 md:p-8">
+    <section className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 md:p-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-3 sm:gap-0">
         <div className="flex items-center space-x-2 sm:space-x-3">
-          <div className="bg-[#F3E8FF] p-1.5 sm:p-2 rounded-lg border border-[#E9D5FF]">
-            <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5 text-[#9333EA]" />
+          <div className="bg-[#F3E8FF] dark:bg-purple-900/30 p-1.5 sm:p-2 rounded-lg border border-[#E9D5FF] dark:border-purple-700">
+            <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5 text-[#9333EA] dark:text-purple-400" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#111827]">{titulo}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-gray-100">{titulo}</h2>
         </div>
         {isGerenciar && (
           <Button 
             onClick={handleAddProduct}
-            className="bg-[#9333EA] hover:bg-[#7C3AED] text-white w-full sm:w-auto text-sm sm:text-base"
+            className="bg-[#9333EA] hover:bg-[#7C3AED] dark:bg-purple-600 dark:hover:bg-purple-700 text-white w-full sm:w-auto text-sm sm:text-base"
           >
             <Plus className="w-4 h-4 mr-2" />
             Adicionar Produto
