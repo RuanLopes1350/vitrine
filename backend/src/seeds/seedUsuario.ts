@@ -28,6 +28,7 @@ async function seedUsuarios() {
         email: 'silvio.huan@gmail.com',
         senha: hashedPassword,
         whatsapp: '556955667788',
+
         ativo: true
     },{
         nome: 'Luis Felipe',
@@ -54,6 +55,8 @@ async function seedUsuarios() {
                 email: mapping.usuario.email(),
                 senha: mapping.usuario.senha(),
                 whatsapp: mapping.usuario.whatsapp(),
+                fotoPerfil: mapping.usuario.fotoPerfil(),
+                mensagem: mapping.usuario.mensagem(),
                 ativo: mapping.usuario.ativo()
             }
         )

@@ -8,6 +8,8 @@ export async function getGlobalFakeMapping() {
             email: () => faker.internet.email(),
             senha: () => faker.internet.password(),
             whatsapp: () => faker.phone.number(),
+            fotoPerfil: () => faker.image.avatar(),
+            mensagem: () => faker.lorem.sentence(),
             ativo: () => faker.datatype.boolean()
         },
         produto: {
@@ -16,8 +18,7 @@ export async function getGlobalFakeMapping() {
             descricao: () => faker.lorem.lines(3),
             preco: () => faker.commerce.price(),
             imagem: () => faker.image.urlPicsumPhotos(),
-            ativo: () => faker.datatype.boolean(),
-            mensagem: () => faker.lorem.lines(1)
+            ativo: () => faker.datatype.boolean()
         }
     }
 }
