@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Header() {
     const pathname = usePathname();
     // A lógica para ocultar os botões de login/cadastro nas próprias páginas de auth
     const rotasParaOcultarBotoes = ["/login", "/cadastro", "/esqueci-minha-senha-a", "/esqueci-minha-senha-b", "/esqueci-minha-senha-c"];
     const { isAuthenticated, user, logout, isLoading } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     
     const nomeLojaExibir =  user?.nomeLoja || user?.nome;
 
@@ -41,6 +43,7 @@ export default function Header() {
             
             {isAuthenticated ? (
                 <div className="flex flex-row items-center gap-3 sm:gap-6 sm:pr-20 pr-0">
+                    
                     <Link data-testid="header-link-inicio" href="/inicio">
                         <img data-testid="header-icone-inicio" src="/home.png" className="w-6 h-6 sm:w-auto sm:h-auto" />
                     </Link>
@@ -58,7 +61,8 @@ export default function Header() {
                     </div>
                 </div>
             ) : (!rotasParaOcultarBotoes.includes(pathname) && (
-                <div className="flex gap-3 sm:gap-0 sm:pr-20 pr-0">
+                <div className="flex gap-3 sm:gap-0 sm:pr-20 pr-0 items-center">
+                    
                     <Link data-testid="header-link-login" href="/login" className="sm:pr-8 pr-0 text-white text-sm sm:text-base">Login</Link>
                     <Link data-testid="header-link-cadastro" href="/cadastro" className="text-[#7E22CE] bg-white rounded-[24px] h-[32px] sm:h-[38px] px-3 sm:px-4 flex items-center justify-center text-sm sm:text-base">Cadastrar</Link>
                 </div>

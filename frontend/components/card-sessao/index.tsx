@@ -97,21 +97,21 @@ export default function CardSessao({
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 md:mb-8">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 md:mb-8">
       <div className="text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-[#F3E8FF] rounded-xl mb-4 sm:mb-6 border border-[#E9D5FF]">
-          <ShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-[#9333EA]" />
+        <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-[#F3E8FF] dark:bg-purple-900/30 rounded-xl mb-4 sm:mb-6 border border-[#E9D5FF] dark:border-purple-700">
+          <ShoppingBag className="h-6 w-6 sm:h-8 sm:w-8 text-[#9333EA] dark:text-purple-400" />
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#111827] mb-3 sm:mb-4 px-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#111827] dark:text-gray-100 mb-3 sm:mb-4 px-2">
           Bem-vindo à Vitrine!
         </h1>
 
         <div className="max-w-2xl mx-auto space-y-2 px-4">
-          <p className="text-[#4B5563] text-base sm:text-lg leading-relaxed">
+          <p className="text-[#4B5563] dark:text-gray-400 text-base sm:text-lg leading-relaxed">
             A maneira mais fácil de mostrar seus produtos e se conectar com os clientes diretamente pelo WhatsApp.
           </p>
-          <p className="text-[#4B5563] text-base sm:text-lg">
+          <p className="text-[#4B5563] dark:text-gray-400 text-base sm:text-lg">
             Crie sua loja hoje e comece a vender em minutos!
           </p>
         </div>

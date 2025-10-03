@@ -258,10 +258,10 @@ export default function InicioPage() {
   // Loading state enquanto verifica autenticação
   if (isLoading) {
     return (
-      <div className="bg-[#F9FAFB] min-h-screen flex items-center justify-center">
+      <div className="bg-[#F9FAFB] dark:bg-gray-900 min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9333EA] mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9333EA] dark:border-purple-400 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Carregando...</p>
         </div>
       </div>
     );
@@ -269,7 +269,7 @@ export default function InicioPage() {
 
   return (
     <>
-      <div className="bg-[#F9FAFB] min-h-full">
+      <div className="bg-[#F9FAFB] dark:bg-gray-900 min-h-full">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 md:py-8 max-w-7xl">
           {isAuthenticated && user ? (
             <>
