@@ -36,13 +36,13 @@ export default function PerfilPage() {
     // ✅ Função utilitária para mostrar erros da API
     const showApiError = (erro: ErrorResponse, defaultMessage: string = "Erro inesperado") => {
         const data = erro.response?.data;
-        
+
         const mensagem = data?.mensagem || defaultMessage;
-        
+
         // Se há erros específicos (422), verificar o tipo
         if (data?.code === 422 && Array.isArray(data.erros) && data.erros.length > 0) {
             const primeiroErro = data.erros[0];
-            
+
             // Verificar se é string ou objeto
             if (typeof primeiroErro === 'string') {
                 // Lista de strings: ["Campo whatsapp é obrigatório", "Email inválido"]
@@ -54,7 +54,7 @@ export default function PerfilPage() {
             }
             return;
         }
-        
+
         showError(mensagem);
     };
 
@@ -65,6 +65,7 @@ export default function PerfilPage() {
     const [nome, setNome] = useState<string>("")
     const [email, setEmail] = useState<string>("")
     const [whatsapp, setWhatsapp] = useState<string>("")
+    const [desc, setDesc] = useState<string>("")
 
     // Função para formatar WhatsApp com () e -
     const formatWhatsApp = (value: string): string => {
@@ -112,20 +113,22 @@ export default function PerfilPage() {
             setNomeLoja(user.nomeLoja || "");
             setEmail(user.email || "");
             setWhatsapp(formatWhatsAppFromAPI(user.whatsapp || ""));
+            setDesc(user.mensagem)
         }
     }, [user]);
 
     const nomeRefLoja = useRef<HTMLInputElement>(null)
     const whatsappRef = useRef<HTMLInputElement>(null)
+    const descRef = useRef<HTMLTextAreaElement>(null)
 
-    async function postDados(nomeLoja: string, whatsapp: string) {
+    async function postDados(nomeLoja: string, whatsapp: string, descricao: string) {
         try {
             const dados = {
                 nomeLoja: nomeLoja,
-                whatsapp: "55" + unformatWhatsApp(whatsapp)
+                whatsapp: "55" + unformatWhatsApp(whatsapp),
+                mensagem: descricao
 
             }
-            console.log(dados.whatsapp)
 
             // Usar o apiClient que já tem o token configurado automaticamente
             const resposta = await apiClient.patch(`/usuarios/${user?.id}`, dados);
@@ -139,12 +142,14 @@ export default function PerfilPage() {
                 // ✅ Atualizar o user no contexto corretamente
                 updateUser({
                     nomeLoja: nomeLoja,
-                    whatsapp: "55" + unformatWhatsApp(whatsapp) // com prefixo para manter consistência no contexto
+                    whatsapp: "55" + unformatWhatsApp(whatsapp), // com prefixo para manter consistência no contexto
+                    mensagem: descricao
                 });
 
                 // Atualizar estados locais
                 setNomeLoja(nomeLoja)
                 setWhatsapp(whatsapp) // sem prefixo para display
+                setDesc(descricao)
                 setVisible(true)
                 setInterable("pointer-events-none select-none")
 
@@ -207,6 +212,12 @@ export default function PerfilPage() {
                 : user.whatsapp;
             whatsappRef.current.value = formatWhatsApp(whatsappSemPrefixo);
         }
+        if(descRef.current && user?.mensagem){
+           descRef.current.value = user.mensagem 
+        } else if(descRef.current){
+            descRef.current.value = ""
+        }
+        autoResize()
         setVisible(true)
     }
     async function validarDados() {
@@ -215,6 +226,7 @@ export default function PerfilPage() {
         const nomeRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9 ]+$/
         const nomeLoja = nomeRefLoja.current?.value.trim() as string
         const whatsapp = unformatWhatsApp(whatsappRef.current?.value.trim() as string)
+        const desc = descRef.current?.value.trim() as string
 
         if (whatsapp?.length < 10 || whatsapp?.length > 11) {
             // ✅ Toast para erro de WhatsApp
@@ -233,8 +245,18 @@ export default function PerfilPage() {
             showError("O nome deve conter somente números e letras, sem caracteres especiais!");
             return
         }
+        if(desc?.length > 500){
+            showError("A descrição não pode passar de 500 caracteres!")
+            return
+        }
 
-        await postDados(nomeLoja, formatWhatsApp(whatsapp))
+        await postDados(nomeLoja, formatWhatsApp(whatsapp), desc)
+    }
+    function autoResize(){
+        if(descRef.current){
+            descRef.current.style.height = 'auto'
+            descRef.current.style.height= descRef.current.scrollHeight + 'px'
+        }
     }
 
     // Mostrar loading enquanto verifica autenticação
@@ -258,10 +280,10 @@ export default function PerfilPage() {
             </div>
         );
     }
-
+// bg-[#F9FAFB]
     return (
-        <div className="w-full h-full flex justify-center bg-[#F9FAFB] px-4 py-4 sm:py-0">
-            <div className="max-h-[750px] w-full max-w-[869px] rounded-[16px] mt-0 sm:mt-[32px]">
+        <div className="w-full h-full  flex justify-center bg-[#F9FAFB] px-4 py-4 sm:py-0">
+            <div className="grow min-h-[750px] w-full max-w-[869px] rounded-[16px] mt-0 sm:mt-[32px] mb-[20px]">
                 <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] min-h-[120px] sm:h-[144px] w-full flex p-[16px] sm:p-[20px] items-center rounded-t-[16px]">
                     <div className="flex justify-center items-center gap-[12px] sm:gap-[20px] text-[#fff]">
                         <div className="shadow-md h-[60px] w-[60px] sm:h-[80px] sm:w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[28px] sm:text-[36px] font-bold text-[#9333EA]">
@@ -303,15 +325,31 @@ export default function PerfilPage() {
                             <img src="whatsapp.svg" alt="" className="w-5 h-5 sm:w-auto sm:h-auto" />
                             <span className="text-[12px] text-[#6B7280]">Whatsapp</span>
                         </div>
-                        <div>
+                        <div className="flex gap-[5px]">
                             <span className={"font-medium text-[#6B7280] text-sm sm:text-base"}>+55 </span>
                             <input
                                 ref={whatsappRef}
                                 type="text"
                                 onChange={handleWhatsAppChange}
-                                className={"font-medium border-none focus:outline-none dados text-sm sm:text-base " + isInterable}
+                                className={"w-[100%] font-medium border-none focus:outline-none dados text-sm sm:text-base " + isInterable}
                                 defaultValue={whatsapp || formatWhatsAppFromAPI(user?.whatsapp || "")}
                             />
+                        </div>
+                    </div>
+                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
+                        <div className="flex gap-[10px] items-center">
+                            <img src="info.svg" alt="" className="w-5 h-5 sm:w-auto sm:h-auto" />
+                            <span className="text-[12px] text-[#6B7280]">Descrição da loja</span>
+                        </div>
+                        <div className="w-[100%]">
+                            <textarea
+                            onInput={autoResize} 
+                            name="" 
+                            id=""
+                            ref={descRef}
+                            className={"resize-none overflow-hidden w-[100%] font-medium border-none focus:outline-none dados text-sm sm:text-base " + isInterable}
+                            defaultValue={desc || user?.mensagem}
+                            ></textarea>
                         </div>
                     </div>
                     <button onClick={() => { setVisible(false); setInterable("bg-[#fff]") }} className={"bg-[#9333EA] font-medium hover:bg-[#7E22CE] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-[#fff] text-sm sm:text-base " + (isVisible ? "" : "hidden")}>Editar</button>
