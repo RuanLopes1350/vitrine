@@ -13,6 +13,8 @@ class Usuario {
                 senha: { type: String, required: true, select: false },
                 whatsapp: { type: String, required: true },
                 ativo: { type: Boolean, default: false },
+                fotoPerfil: {type: String, required: false},
+                mensagem: {type: String, required: false},
                 accessToken:{type: String, required: false, select: false}
             },
             {
