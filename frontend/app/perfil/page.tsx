@@ -5,14 +5,14 @@ import ModalError from "@/components/modalError";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRequireAuth } from "@/hooks/useAuth";
 import apiClient from "@/apiClient";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, use } from "react";
 
 
 export default function PerfilPage() {
     // Hook que protege a rota - redireciona para login se não autenticado
     const { isAuthenticated, isLoading } = useRequireAuth();
     // Context de autenticação
-    const { user, logout } = useAuth();
+    const { user, logout, updateUser } = useAuth();
 
     const [descError, setIsDescError] = useState<string>("")
     const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false)
@@ -27,21 +27,27 @@ export default function PerfilPage() {
     // Carregar dados do usuário logado
     useEffect(() => {
         if (user) {
+            // Não mute o objeto user diretamente, apenas extraia os valores
+            const whatsappSemPrefixo = user.whatsapp.startsWith('55') 
+                ? user.whatsapp.slice(2) 
+                : user.whatsapp;
+                
             setNome(user.nome || "");
             setNomeLoja(user.nomeLoja || "");
             setEmail(user.email || "");
-            setWhatsapp(user.whatsapp || "");
+            setWhatsapp(whatsappSemPrefixo || "");
         }
     }, [user]);
 
     const nomeRefLoja = useRef<HTMLInputElement>(null)
     const whatsappRef = useRef<HTMLInputElement>(null)
-    
+
     async function postDados(nomeLoja: string, whatsapp: string) {
         try {
             const dados = {
                 nomeLoja: nomeLoja,
-                whatsapp: whatsapp
+                whatsapp:"55"+whatsapp
+
             }
 
             // Usar o apiClient que já tem o token configurado automaticamente
@@ -53,21 +59,23 @@ export default function PerfilPage() {
                     whatsappRef.current.value = whatsapp
                 }
 
+                // ✅ Atualizar o user no contexto corretamente
+                updateUser({
+                    nomeLoja: nomeLoja,
+                    whatsapp: "55" + whatsapp // com prefixo para manter consistência no contexto
+                });
+
                 // Atualizar estados locais
                 setNomeLoja(nomeLoja)
-                setWhatsapp(whatsapp)
-                if(user){
-                    user.nomeLoja = nomeLoja
-                    user.whatsapp = whatsapp
-                }
+                setWhatsapp(whatsapp) // sem prefixo para display
                 setVisible(true)
                 setInterable("pointer-events-none select-none")
 
                 return
-            } 
+            }
             setAviso("Erro ao salvar alterações!")
             setIsDescError(`Não foi possivel salvar as alterações, erro ${resposta.status}`)
-            setIsErrorModalOpen(true) 
+            setIsErrorModalOpen(true)
 
         } catch (erro: any) {
             // O apiClient já trata 401/403 automaticamente fazendo logout
@@ -75,7 +83,7 @@ export default function PerfilPage() {
                 logout();
                 return
             }
-            
+
             restaurarDados()
             setInterable("pointer-events-none select-none")
             setAviso("Erro desconhecido")
@@ -88,7 +96,10 @@ export default function PerfilPage() {
             nomeRefLoja.current.value = user.nomeLoja
         }
         if (whatsappRef.current && user?.whatsapp) {
-            whatsappRef.current.value = user.whatsapp
+            const whatsappSemPrefixo = user.whatsapp.startsWith('55') 
+                ? user.whatsapp.slice(2) 
+                : user.whatsapp;
+            whatsappRef.current.value = whatsappSemPrefixo
         }
         setVisible(true)
     }
@@ -149,14 +160,14 @@ export default function PerfilPage() {
     }
 
     return (
-        <div className="w-[100%] h-[100%] flex justify-center items-center bg-[#F9FAFB]">
+        <div className="w-[100%] h-[100%] flex justify-center bg-[#F9FAFB]">
             <ModalError
                 tipoErro={aviso}
                 descricao={descError}
                 isOpen={isErrorModalOpen}
                 onClose={() => setIsErrorModalOpen(false)}
             />
-            <div className="h-[750px] w-[869px] rounded-[16px]">
+            <div className="h-[750px] w-[869px] rounded-[16px] mt-[32px]">
                 <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] h-[144px] w-[100%] flex p-[20px] items-center rounded-t-[16px]">
                     <div className="flex justify-center items-center gap-[20px] text-[#fff]">
                         <div className="shadow-md h-[80px] w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[36px] font-bold text-[#9333EA]">
@@ -174,11 +185,11 @@ export default function PerfilPage() {
                             <img src="empresa.svg" alt="" />
                             <span className="text-[12px] text-[#6B7280]">Nome da Empresa</span>
                         </div>
-                        <input 
-                            ref={nomeRefLoja} 
-                            type="text" 
-                            className={"font-medium border-none focus:outline-none dados " + isInterable} 
-                            defaultValue={nomeLoja || user?.nomeLoja} 
+                        <input
+                            ref={nomeRefLoja}
+                            type="text"
+                            className={"font-medium border-none focus:outline-none dados " + isInterable}
+                            defaultValue={nomeLoja || user?.nomeLoja}
                         />
                     </div>
                     <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
@@ -186,11 +197,11 @@ export default function PerfilPage() {
                             <img src="email.svg" alt="" />
                             <span className="text-[12px] text-[#6B7280]">E-mail</span>
                         </div>
-                        <input 
-                            type="text" 
-                            className="font-medium border-none focus:outline-none dados pointer-events-none select-none" 
-                            readOnly 
-                            defaultValue={email || user?.email} 
+                        <input
+                            type="text"
+                            className="font-medium border-none focus:outline-none dados pointer-events-none select-none"
+                            readOnly
+                            defaultValue={email || user?.email}
                         />
                     </div>
                     <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
@@ -198,12 +209,15 @@ export default function PerfilPage() {
                             <img src="whatsapp.svg" alt="" />
                             <span className="text-[12px] text-[#6B7280]">Whatsapp</span>
                         </div>
-                        <input 
-                            ref={whatsappRef} 
-                            type="text" 
-                            className={"font-medium border-none focus:outline-none dados " + isInterable} 
-                            defaultValue={whatsapp || user?.whatsapp} 
-                        />
+                        <div>
+                            <span className={"font-medium " + isInterable}>55</span>
+                            <input
+                                ref={whatsappRef}
+                                type="text"
+                                className={"font-medium border-none focus:outline-none dados " + isInterable}
+                                defaultValue={whatsapp || user?.whatsapp.slice(2)}
+                            />
+                        </div>
                     </div>
                     <button onClick={() => { setVisible(false); setInterable("bg-[#fff]") }} className={"bg-[#9333EA] font-medium hover:bg-[#7E22CE] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-[#fff] " + (isVisible ? "" : "hidden")}>Editar</button>
                     <div className={"flex mx-auto gap-[20px] " + (!isVisible ? "" : "hidden")}>

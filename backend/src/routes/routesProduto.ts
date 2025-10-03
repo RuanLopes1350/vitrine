@@ -6,6 +6,22 @@ const router = express.Router();
 const controller = new ControllerProduto();
 
 router
+    .post('/validate', authMiddleware, async (req, res) => {
+        // Endpoint apenas para validar os dados sem salvar
+        const userId = (req as AuthenticatedRequest).user_id;
+        try {
+            const response = await controller.validar(req.body, userId);
+            return response.send(res);
+        } catch (error) {
+            return res.status(500).json({
+                erro: true,
+                code: 500,
+                mensagem: 'Erro interno no servidor',
+                data: null,
+                erros: []
+            });
+        }
+    })
     .post('/', authMiddleware, async (req, res) => {
         const userId = (req as AuthenticatedRequest).user_id;
         const response = await controller.cadastrar(req.body, userId);
@@ -73,5 +89,19 @@ router
         const response = await controller.deletar(req.params.id, userId);
         return response.send(res);
     })
-
+    .get('/usuario/:id', async (req, res) => {
+        const {id} = req.params || {}
+        console.log(id)
+        if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.status(400).json({
+                erro: true,
+                code: 400,
+                mensagem: 'ID inválido. Deve ser um ObjectId válido do MongoDB.',
+                data: null,
+                erros: []
+            });
+        }
+        const response = await controller.buscarTodosProdutosUsuario(req, id)
+        return response.send(res)
+    })
 export default router;

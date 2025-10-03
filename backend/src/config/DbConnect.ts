@@ -6,7 +6,16 @@ dotenv.config();
 class DbConnect {
     static async conectar() {
         try {
-            const mongoUri = process.env.DB_URL;
+            let environment = process.env.NODE_ENV
+            console.log(`Rodando em ambiente: ${environment}`)
+            let mongoUri
+            if (environment === 'development') {
+                console.log('Conectando ao banco de dados de desenvolvimento...')
+                mongoUri = process.env.DB_URL_TEST;
+            } else {
+                console.log('Conectando ao banco de dados de produção...')
+                mongoUri = process.env.DB_URL;
+            }
             console.log(mongoUri)
             if (!mongoUri) {
                 throw new Error("A variável de ambiente DB_URL não está definida.")

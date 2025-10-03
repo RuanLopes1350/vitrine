@@ -6,25 +6,34 @@ import { getGlobalFakeMapping } from './globalFakeMapping.js'
 async function seedUsuarios() {
     await modelUsuario.deleteMany();
 
+    let senhaPadrao = 'SenhaSuperSegur@123';
+
+    // Hash da senha padrão
+    const hashedPassword = await import('../utils/helpers/passwordHelper.js').then(module => 
+        module.PasswordHelper.hash(senhaPadrao)
+    );
+
+    // Usuários fixos para garantir acesso inicial
+
     const usuarioFixo: typeUsuario[] = [{
         nome: 'Ruan Lopes',
         nomeLoja: 'Millennium',
         email: 'intel.spec.lopes@gmail.com',
-        senha: 'SenhaSuperSegur@123',
+        senha: hashedPassword,
         whatsapp: '556992468120',
         ativo: true
     },{
         nome: 'Silvio Huan',
         nomeLoja: 'Millennium',
         email: 'silvio.huan@gmail.com',
-        senha: 'SenhaSuperSegur@123',
+        senha: hashedPassword,
         whatsapp: '556955667788',
         ativo: true
     },{
         nome: 'Luis Felipe',
         nomeLoja: 'Millennium',
         email: 'luis.felipe@gmail.com',
-        senha: 'SenhaSuperSegur@123',
+        senha: hashedPassword,
         whatsapp: '556911223344',
         ativo: true
     }

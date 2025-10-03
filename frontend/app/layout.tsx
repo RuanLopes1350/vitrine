@@ -2,6 +2,17 @@ import Header from "@/components/header";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ClientLayout from "@/components/ClientLayout.tsx";
+import { Metadata } from "next";
+import Head from "next/head";
+
+export const metadata: Metadata = {
+  title: 'Vitrine',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/favicon.ico',
+  },
+}
 
 export default function RootLayout({
   children,
