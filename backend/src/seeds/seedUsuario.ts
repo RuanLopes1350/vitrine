@@ -28,6 +28,7 @@ async function seedUsuarios() {
         email: 'silvio.huan@gmail.com',
         senha: hashedPassword,
         whatsapp: '556955667788',
+
         ativo: true
     },{
         nome: 'Luis Felipe',
