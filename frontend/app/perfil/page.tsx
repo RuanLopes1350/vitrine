@@ -1,22 +1,25 @@
 
 "use client"
 
-import ModalError from "@/components/modalError";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRequireAuth } from "@/hooks/useAuth";
 import apiClient from "@/apiClient";
-import { useState, useRef, useEffect, use } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useToast, ToastContainer } from "@/components/ui/toast";
 
 interface ErrorResponse {
     response?: {
-        erro?: boolean,
-        code?: number,
-        mensagem?: string,
+        data?: {
+            erro?: boolean,
+            code?: number,
+            mensagem?: string,
+            erros?: string[] | {
+                campo: string,
+                mensagem: string
+            }[]
+        },
         status?: number,
-        errors?: string[] | {
-            campo: string,
-            mensagem: string
-        }[]
+        statusText?: string
     },
     message?: string,
     name?: string
@@ -27,16 +30,41 @@ export default function PerfilPage() {
     const { isAuthenticated, isLoading } = useRequireAuth();
     // Context de autenticação
     const { user, logout, updateUser } = useAuth();
+    // Hook do toast para mensagens
+    const { toasts, showSuccess, showError, removeToast } = useToast();
 
-    const [descError, setIsDescError] = useState<string>("")
-    const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false)
+    // ✅ Função utilitária para mostrar erros da API
+    const showApiError = (erro: ErrorResponse, defaultMessage: string = "Erro inesperado") => {
+        const data = erro.response?.data;
+        
+        const mensagem = data?.mensagem || defaultMessage;
+        
+        // Se há erros específicos (422), verificar o tipo
+        if (data?.code === 422 && Array.isArray(data.erros) && data.erros.length > 0) {
+            const primeiroErro = data.erros[0];
+            
+            // Verificar se é string ou objeto
+            if (typeof primeiroErro === 'string') {
+                // Lista de strings: ["Campo whatsapp é obrigatório", "Email inválido"]
+                showError(primeiroErro);
+            } else {
+                // Lista de objetos: [{campo: "whatsapp", mensagem: "..."}]
+                const mensagemEspecifica = `${primeiroErro.campo}: ${primeiroErro.mensagem}`;
+                showError(mensagemEspecifica);
+            }
+            return;
+        }
+        
+        showError(mensagem);
+    };
+
+    // Estados que ainda são necessários para o funcionamento do componente
     const [isVisible, setVisible] = useState<boolean>(true)
     const [isInterable, setInterable] = useState<string>("pointer-events-none select-none")
     const [nomeLoja, setNomeLoja] = useState<string>("")
     const [nome, setNome] = useState<string>("")
     const [email, setEmail] = useState<string>("")
     const [whatsapp, setWhatsapp] = useState<string>("")
-    const [aviso, setAviso] = useState<string>("Erro de validação")
 
     // Função para formatar WhatsApp com () e -
     const formatWhatsApp = (value: string): string => {
@@ -120,48 +148,53 @@ export default function PerfilPage() {
                 setVisible(true)
                 setInterable("pointer-events-none select-none")
 
+                // ✅ Toast de sucesso
+                showSuccess("Dados salvos com sucesso!");
                 return
             }
-            setAviso("Erro ao salvar alterações!")
-            setIsDescError(`Não foi possivel salvar as alterações, erro ${resposta.status}`)
-            setIsErrorModalOpen(true)
+
+            // ✅ Toast de erro para falha na resposta
+            showError(`Erro ao salvar alterações: ${resposta.status}`);
 
         } catch (erro: unknown) {
             // Type guard para verificar se é um erro do Axios
             const isAxiosError = (error: unknown): error is ErrorResponse => {
-                return typeof error === 'object' && 
-                       error !== null && 
-                       'response' in error;
+                return typeof error === 'object' &&
+                    error !== null &&
+                    'response' in error;
             };
-            
+
             if (isAxiosError(erro)) {
-                const statusCode = erro.response?.code || erro.response?.status;
-                
-                if(statusCode === 422){
-                restaurarDados();
-                setInterable("pointer-events-none select-none");
-                setAviso(erro.response?.mensagem as string);
-                setIsDescError(`Não foi possivel salvar as alterações, erro ${statusCode || 'desconhecido'}`)
+                const data = erro.response?.data;
+                const statusCode = data?.code || erro.response?.status;
+
+                // Erro de validação (422)
+                if (statusCode === 422) {
+                    restaurarDados();
+                    setInterable("pointer-events-none select-none");
+                    // ✅ Usar função utilitária para mostrar erro personalizado
+                    showApiError(erro, "Erro de validação nos dados enviados");
+                    return;
                 }
+
                 // O apiClient já trata 401/403 automaticamente fazendo logout
                 if (statusCode === 403 || statusCode === 401) {
                     logout();
                     return;
                 }
-                
+
                 restaurarDados();
                 setInterable("pointer-events-none select-none");
-                setAviso("Erro desconhecido");
-                setIsDescError(`Não foi possivel salvar as alterações, erro ${statusCode || 'desconhecido'}`);
+                // ✅ Usar função utilitária para mostrar erro personalizado
+                showApiError(erro, `Erro ao salvar alterações (${statusCode})`);
+
             } else {
                 // Erro genérico (rede, etc.)
                 restaurarDados();
                 setInterable("pointer-events-none select-none");
-                setAviso("Erro de conexão");
-                setIsDescError("Não foi possível conectar ao servidor. Verifique sua conexão.");
+                // ✅ Toast para erro de conexão
+                showError("Erro de conexão. Verifique sua internet e tente novamente.");
             }
-            
-            setIsErrorModalOpen(true);
         }
     }
     function restaurarDados() {
@@ -184,26 +217,20 @@ export default function PerfilPage() {
         const whatsapp = unformatWhatsApp(whatsappRef.current?.value.trim() as string)
 
         if (whatsapp?.length < 10 || whatsapp?.length > 11) {
-
-            setAviso("Erro de Validação!")
-            setIsDescError(`O número de whatsapp deve ter entre 10 e 11 digitos! Exemplo: 99 9999-9999 ou 99 99999-9999 sem espaçamentos ou hífen.`)
-            setIsErrorModalOpen(true)
+            // ✅ Toast para erro de WhatsApp
+            showError("O número de WhatsApp deve ter entre 10 e 11 dígitos! Exemplo: 99 9999-9999 ou 99 99999-9999");
             return
         }
 
         if (!whatsappRegex.test(whatsapp)) {
-
-            setAviso("Erro de Validação!")
-            setIsDescError("O whatsapp deve conter somente números e sem espaços!")
-            setIsErrorModalOpen(true)
+            // ✅ Toast para erro de formato do WhatsApp
+            showError("O WhatsApp deve conter somente números, sem espaços!");
             return
         }
 
         if (!nomeRegex.test(nomeLoja)) {
-
-            setAviso("Erro de Validação!")
-            setIsDescError("O nome deve conter somente numeros e letras, sem caracteres especiais!")
-            setIsErrorModalOpen(true)
+            // ✅ Toast para erro do nome da loja
+            showError("O nome deve conter somente números e letras, sem caracteres especiais!");
             return
         }
 
@@ -234,12 +261,6 @@ export default function PerfilPage() {
 
     return (
         <div className="w-[100%] h-[100%] flex justify-center bg-[#F9FAFB]">
-            <ModalError
-                tipoErro={aviso}
-                descricao={descError}
-                isOpen={isErrorModalOpen}
-                onClose={() => setIsErrorModalOpen(false)}
-            />
             <div className="h-[750px] w-[869px] rounded-[16px] mt-[32px]">
                 <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] h-[144px] w-[100%] flex p-[20px] items-center rounded-t-[16px]">
                     <div className="flex justify-center items-center gap-[20px] text-[#fff]">
@@ -300,6 +321,8 @@ export default function PerfilPage() {
                     </div>
                 </div>
             </div>
+            {/* ✅ Container para toasts */}
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
         </div>
     );
 }
