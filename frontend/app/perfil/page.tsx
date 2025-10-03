@@ -7,6 +7,20 @@ import { useRequireAuth } from "@/hooks/useAuth";
 import apiClient from "@/apiClient";
 import { useState, useRef, useEffect, use } from "react";
 
+interface ErrorResponse {
+    response?: {
+        erro?: boolean,
+        code?: number,
+        mensagem?: string,
+        status?: number,
+        errors?: string[] | {
+            campo: string,
+            mensagem: string
+        }[]
+    },
+    message?: string,
+    name?: string
+}
 
 export default function PerfilPage() {
     // Hook que protege a rota - redireciona para login se não autenticado
@@ -28,7 +42,7 @@ export default function PerfilPage() {
     const formatWhatsApp = (value: string): string => {
         // Remove tudo que não for número
         const numbersOnly = value.replace(/\D/g, '');
-        
+
         if (numbersOnly.length <= 2) {
             return `(${numbersOnly}`;
         } else if (numbersOnly.length <= 6) {
@@ -48,10 +62,10 @@ export default function PerfilPage() {
     // Função para formatar WhatsApp vindo da API
     const formatWhatsAppFromAPI = (whatsapp: string): string => {
         if (!whatsapp) return '';
-        
+
         // Remove o prefixo 55 se existir
         const whatsappSemPrefixo = whatsapp.startsWith('55') ? whatsapp.slice(2) : whatsapp;
-        
+
         // Aplica a formatação
         return formatWhatsApp(whatsappSemPrefixo);
     };
@@ -112,18 +126,42 @@ export default function PerfilPage() {
             setIsDescError(`Não foi possivel salvar as alterações, erro ${resposta.status}`)
             setIsErrorModalOpen(true)
 
-        } catch (erro: any) {
-            // O apiClient já trata 401/403 automaticamente fazendo logout
-            if (erro.response?.status === 403 || erro.response?.status === 401) {
-                logout();
-                return
+        } catch (erro: unknown) {
+            // Type guard para verificar se é um erro do Axios
+            const isAxiosError = (error: unknown): error is ErrorResponse => {
+                return typeof error === 'object' && 
+                       error !== null && 
+                       'response' in error;
+            };
+            
+            if (isAxiosError(erro)) {
+                const statusCode = erro.response?.code || erro.response?.status;
+                
+                if(statusCode === 422){
+                restaurarDados();
+                setInterable("pointer-events-none select-none");
+                setAviso(erro.response?.mensagem as string);
+                setIsDescError(`Não foi possivel salvar as alterações, erro ${statusCode || 'desconhecido'}`)
+                }
+                // O apiClient já trata 401/403 automaticamente fazendo logout
+                if (statusCode === 403 || statusCode === 401) {
+                    logout();
+                    return;
+                }
+                
+                restaurarDados();
+                setInterable("pointer-events-none select-none");
+                setAviso("Erro desconhecido");
+                setIsDescError(`Não foi possivel salvar as alterações, erro ${statusCode || 'desconhecido'}`);
+            } else {
+                // Erro genérico (rede, etc.)
+                restaurarDados();
+                setInterable("pointer-events-none select-none");
+                setAviso("Erro de conexão");
+                setIsDescError("Não foi possível conectar ao servidor. Verifique sua conexão.");
             }
-
-            restaurarDados()
-            setInterable("pointer-events-none select-none")
-            setAviso("Erro desconhecido")
-            setIsDescError(`Não foi possivel salvar as alterações, erro ${erro.response?.status || 'desconhecido'}`)
-            setIsErrorModalOpen(true)
+            
+            setIsErrorModalOpen(true);
         }
     }
     function restaurarDados() {
