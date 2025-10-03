@@ -15,7 +15,7 @@ async function seedProdutos(usuarios: typeUsuario[]) {
 
     const mapping = await getGlobalFakeMapping();
 
-    let quantidade: number = 15;
+    let quantidade: number = 45;
 
     for(let criados: number = 0; criados < quantidade; criados++){
         const produtoAleatorio: typeProduto = {

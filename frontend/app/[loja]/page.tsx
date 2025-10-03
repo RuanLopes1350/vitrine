@@ -5,6 +5,10 @@ import { usePathname } from "next/navigation";
 import { ShoppingBag, Loader2, Store, MessageCircle } from "lucide-react";
 import ProdutoCardLoja from "@/components/produto-card-loja";
 
+// Configuração para permitir rotas dinâmicas não pré-renderizadas
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
 export default function PageLoja() {
     const { produtos, getProdutos } = useProdutosLoja();
     const [loading, setLoading] = useState(true);
