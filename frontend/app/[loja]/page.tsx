@@ -1,7 +1,6 @@
 "use client"
-import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
-import { Docs, useProdutosLoja } from "@/hooks/useLoja";
+import { useProdutosLoja } from "@/hooks/useLoja";
 import { usePathname } from "next/navigation";
 import { ShoppingBag, Loader2, Store, MessageCircle } from "lucide-react";
 import ProdutoCardLoja from "@/components/produto-card-loja";
@@ -10,7 +9,7 @@ export default function PageLoja() {
     const { produtos, getProdutos } = useProdutosLoja();
     const [loading, setLoading] = useState(true);
     const local = usePathname();
-    const [itemsPerPage, setIsItemsPerPage] = useState<number>(2)
+    const [itemsPerPage, setIsItemsPerPage] = useState<number>(20)
     const [currentPage, setCurrentPage] = useState<number>(0)
     
     // ✅ CORRETO: Calcular valores derivados sem estado

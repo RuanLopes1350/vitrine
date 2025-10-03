@@ -1,7 +1,7 @@
 'use client';
 
-import { ShoppingBag } from "lucide-react";
-import { getURL } from "next/dist/shared/lib/utils";
+import { useState, useMemo, useCallback } from "react";
+import { ShoppingBag} from "lucide-react";
 import Image from 'next/image';
 
 interface CardSessaoProps {
@@ -19,10 +19,41 @@ export default function CardSessao({
   fotoUsuario,
   id 
 }: CardSessaoProps) {
+  const [copiado, setCopiado] = useState(false);
+  
   const getInitials = (name: string) => {
     return name.charAt(0).toUpperCase();
   };
-  const urlCompleta = origin
+  
+  // ✅ Memoizar cálculos derivados
+  const linkCompleto = useMemo(() => {
+    return origin + "/" + nomeLoja.toLowerCase() + "-" + id;
+  }, [nomeLoja, id]);
+  
+  const linkTruncado = useMemo(() => {
+    const maxLength = Math.floor(linkCompleto.length * 0.5);
+    return linkCompleto.length > maxLength ? linkCompleto.slice(0, maxLength) + '...' : linkCompleto;
+  }, [linkCompleto]);
+  
+  // ✅ Memoizar função de cópia
+  const copiarLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(linkCompleto);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2000);
+    } catch (err) {
+      console.error('Erro ao copiar link:', err);
+      // Fallback para navegadores mais antigos
+      const textArea = document.createElement('textarea');
+      textArea.value = linkCompleto;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 2000);
+    }
+  }, [linkCompleto]);
   if (modo === 'logado') {
     return (
       <div className="bg-gradient-to-r from-[#9333EA] to-[#7C3AED] rounded-xl p-8 mb-8 text-white shadow-md flex justify-between items-center">
@@ -48,7 +79,19 @@ export default function CardSessao({
             <p className="text-purple-100 text-sm">Sua loja digital está pronta para brilhar!</p>
           </div>
         </div>
-        <div>{urlCompleta+"/"+(nomeLoja).toLocaleLowerCase()+"-"+id}</div>
+        <div onClick={copiarLink} className="flex flex-col">
+          <span className="p-[2px] font-bold">Link da Loja:</span>
+          <span 
+            title={copiado ? "Link Copiado!" : "Copiar link da loja"} 
+            className={`transition-all duration-300 ease-in-out text-white p-[2px] rounded cursor-pointer ${
+              copiado 
+                ? 'bg-green-500 bg-opacity-30' 
+                : 'hover:bg-[rgba(0,0,0,0.2)]'
+            }`}
+          >
+            {copiado ? "✓ Copiado!" : linkTruncado}
+          </span>
+        </div>
       </div>
     );
   }
