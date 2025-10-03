@@ -3,7 +3,7 @@ import apiClient from "@/apiClient"
 import { useRouter } from "next/navigation" // ✅ Corrigir para next/navigation (App Router)
 import {useEffect, useState } from "react"
 
-interface Docs {
+export interface Docs {
     _id: string,
     criador: {
         _id: string,
