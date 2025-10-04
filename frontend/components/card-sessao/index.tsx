@@ -79,17 +79,18 @@ export default function CardSessao({
             <p className="text-purple-100 text-xs sm:text-sm">Sua loja digital está pronta para brilhar!</p>
           </div>
         </div>
-        <div onClick={copiarLink} className="flex flex-col w-full sm:w-auto">
+        <div className="flex flex-col w-full sm:w-auto">
           <span className="p-[2px] font-bold text-sm sm:text-base">Link da Loja:</span>
-          <span 
+          <span
             title={copiado ? "Link Copiado!" : "Copiar link da loja"} 
-            className={`transition-all duration-300 ease-in-out text-white p-[2px] rounded cursor-pointer text-xs sm:text-sm break-all sm:break-normal ${
+            className={` flex items-center justify-center gap-[2px] transition-all duration-300 ease-in-out text-white p-[2px] rounded text-xs sm:text-sm break-all sm:break-normal ${
               copiado 
                 ? 'bg-green-500 bg-opacity-30' 
-                : 'hover:bg-[rgba(0,0,0,0.2)]'
+                : ''
             }`}
           >
             {copiado ? "✓ Copiado!" : linkTruncado}
+            <img src="copy.svg" alt="" className={`h-[24px] rounded-[4px] cursor-pointer p-[3px] ${+ copiado ?  'hidden':'hover:bg-[rgba(0,0,0,0.2)]'}`} onClick={copiarLink} />
           </span>
         </div>
       </div>

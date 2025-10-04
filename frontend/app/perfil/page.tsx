@@ -359,7 +359,7 @@ export default function PerfilPage() {
                     </div>
                 </div>
             </div>
-            {/* ✅ Container para toasts */}
+            {/* Container para toasts */}
             <ToastContainer toasts={toasts} onRemove={removeToast} />
         </div>
     );
