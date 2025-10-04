@@ -26,6 +26,72 @@ const produtoSchemas: Record<string, JSONSchema> = {
       preco: produtoJsonSchema.properties?.preco ?? { type: "number" },
     },
   },
+  ProdutoPaginado: {
+    type: "object",
+    properties: {
+      docs: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: produtoJsonSchema.properties,
+          description: "Produto com dados do criador populado"
+        },
+        description: "Array de produtos"
+      },
+      totalDocs: {
+        type: "integer",
+        description: "Total de documentos encontrados",
+        example: 25
+      },
+      limit: {
+        type: "integer",
+        description: "Limite de produtos por página",
+        example: 10
+      },
+      totalPages: {
+        type: "integer",
+        description: "Total de páginas disponíveis",
+        example: 3
+      },
+      page: {
+        type: "integer",
+        description: "Página atual",
+        example: 1
+      },
+      pagingCounter: {
+        type: "integer",
+        description: "Contador de paginação",
+        example: 1
+      },
+      hasPrevPage: {
+        type: "boolean",
+        description: "Indica se há página anterior",
+        example: false
+      },
+      hasNextPage: {
+        type: "boolean",
+        description: "Indica se há próxima página",
+        example: true
+      },
+      prevPage: {
+        oneOf: [
+          { type: "integer" },
+          { type: "null" }
+        ],
+        description: "Número da página anterior ou null",
+        example: null
+      },
+      nextPage: {
+        oneOf: [
+          { type: "integer" },
+          { type: "null" }
+        ],
+        description: "Número da próxima página ou null",
+        example: 2
+      }
+    },
+    description: "Schema para resposta paginada de produtos de um usuário"
+  },
   ProdutoListagem: {
     ...deepCopy(produtoJsonSchema),
     description: "Schema para listagem de produtos",
@@ -66,6 +132,7 @@ const removalMapping: Record<string, string[]> = {
   ProdutoDetalhes: ["__v"],
   ProdutoPost: ["__v", "_id"],
   ProdutoPatch: ["__v", "_id"],
+  ProdutoPaginado: ["__v"],
 };
 
 // Aplica remoção de campos
