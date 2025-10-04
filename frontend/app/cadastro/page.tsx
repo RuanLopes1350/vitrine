@@ -87,27 +87,27 @@ export default function CadastroPage() {
         setIsLoading(false);
     }
     return (
-        <div className="bg-[#F9FAFB] h-full flex flex-col justify-center items-center pb-50">
-            <div className="w-[448px] h-[301px] text-[#111827]">
-                <h1 className="text-[25.5px] pl-8">Crie sua conta Vitrine</h1>
-                <p className="text-[#4B5563] pl-34 pb-14">Ou <Link href="/login" className="text-[#2563EB]">já possui uma conta? Fazer login</Link></p>
-                <div className="flex flex-col gap-8">
+        <div className="bg-[#F9FAFB] h-full flex flex-col justify-center items-center py-8 px-4">
+            <div className="w-full max-w-[448px] text-[#111827]">
+                <h1 className="text-[25.5px] sm:pl-8 pl-0">Crie sua conta Vitrine</h1>
+                <p className="text-[#4B5563] sm:pl-34 pl-0 pb-8 sm:pb-14">Ou <Link href="/login" className="text-[#2563EB]">já possui uma conta? Fazer login</Link></p>
+                <div className="flex flex-col gap-6 sm:gap-8">
                     <div className="border-2 border-[#D1D5DB] rounded-md gap-0 overflow-hidden">
                         <Input
                             type="text"
                             placeholder="Nome completo"
                             onChange={(e) => setNome(e.target.value)}
-                            className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                            className="w-full h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
                         <Input
                             type="text"
                             placeholder="Nome Fantasia"
                             onChange={(e) => setNomeFantasia(e.target.value)}
-                            className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                            className="w-full h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
                         <Input
                             type="text"
                             placeholder="WhatsApp Ex: 2199999999"
                             onChange={(e) => setWhatsapp(e.target.value)}
-                            className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0
+                            className="w-full h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0
                             [-moz-appearance:textfield] /* Para Firefox */ 
                             [&::-webkit-outer-spin-button]:appearance-none /* Para WebKit */ 
                             [&::-webkit-inner-spin-button]:appearance-none /* Para WebKit */" />
@@ -115,21 +115,21 @@ export default function CadastroPage() {
                             type="email"
                             placeholder="Email"
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                            className="w-full h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
                         <Input
                             type="password"
                             placeholder="Senha"
                             onChange={(e) => setSenha(e.target.value)}
-                            className="w-[448px] h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
+                            className="w-full h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0" />
                     </div>
                     <Button
-                        className="w-[448px] h-[38px] bg-[#2563EB] text-white cursor-pointer"
+                        className="w-full h-[38px] bg-[#2563EB] text-white cursor-pointer"
                         onClick={handleCadastro}
                         disabled={isLoading}>{isLoading ? 'Carregando...' : 'Cadastrar'}</Button>
                     {success === true ? (
                         <span className="text-green-600 text-sm">Cadastro realizado com sucesso! Redirecionando...</span>
                     ) : errorMessage.length > 0 && (
-                        <div className="text-red-600 text-sm h-28 overflow-hidden">
+                        <div className="text-red-600 text-sm max-h-28 overflow-y-auto">
                             {errorMessage.join(' • ')}
                         </div>
                     )}

@@ -1,6 +1,10 @@
+import { Request, Response, NextFunction } from "express";
+import { AuthenticatedRequest } from "../middlewares/authMiddleware.js";
 import ServiceProduto from "../service/serviceProduto.js";
 import { typeProduto, typeProdutoEdicao } from "../types/typeProduto.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
+import HttpStatusCodes from "../utils/helpers/httpStatusCodes.js";
+import objectIdSchema from "../utils/validations/objectIdSchema.js";
 
 class ControllerProduto {
     private service: ServiceProduto
@@ -9,44 +13,143 @@ class ControllerProduto {
         this.service = new ServiceProduto();
     }
 
-    async validar(dadosProduto: typeProduto, userId: string): Promise<CommonResponse> {
+    async validar(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const dadosProduto: typeProduto = req.body;
+        const userId = (req as AuthenticatedRequest).user_id;
+
         console.log('Validando dados do produto para usuário:', userId);
-        // Adicionar o criador aos dados do produto para validação
-        const produtoComCriador = {
-            ...dadosProduto,
-            criador: userId
-        };
-        return await this.service.validar(produtoComCriador);
+        try {
+            // Adicionar o criador aos dados do produto para validação
+            const produtoComCriador = {
+                ...dadosProduto,
+                criador: userId
+            };
+
+            const response = CommonResponse.success(
+                HttpStatusCodes.OK.message,
+                produtoComCriador
+            );
+            await this.service.validar(produtoComCriador);
+            return response.send(res);
+        } catch (erro: any) {
+            next(erro);
+        }
     }
 
-    async cadastrar(dadosProduto: typeProduto, userId: string): Promise<CommonResponse> {
+    async cadastrar(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const dadosProduto: typeProduto = req.body;
+        const userId = (req as AuthenticatedRequest).user_id;
+
         console.log('Cadastrando produto para usuário:', userId);
-        // Adicionar o criador aos dados do produto
-        const produtoComCriador = {
-            ...dadosProduto,
-            criador: userId
-        };
-        return await this.service.cadastrar(produtoComCriador);
+        try {
+            // Adicionar o criador aos dados do produto
+            const produtoComCriador = {
+                ...dadosProduto,
+                criador: userId
+            };
+
+            const produto = await this.service.cadastrar(produtoComCriador);
+            return produto.send(res);
+        } catch (erro: any) {
+            next(erro);
+        }
     }
 
-    async listar(): Promise<CommonResponse> {
+    async listar(req: Request, res: Response, next: NextFunction): Promise<void> {
         console.log('Listando produtos');
-        return await this.service.listar();
+        try {
+            const produtos = await this.service.listar();
+            return produtos.send(res);
+        } catch (erro: any) {
+            next(erro);
+        }
     }
 
-    async buscarPorId(id: string): Promise<CommonResponse> {
+    async buscarPorId(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { id } = req.params;
         console.log('Buscando produto por ID:', id);
-        return await this.service.buscarPorId(id);
+
+        try {
+            if(!id) {
+                const response = CommonResponse.badRequest(
+                    HttpStatusCodes.BAD_REQUEST.message,
+                    ['ID do produto não fornecido']
+                );
+                return response.send(res);
+            }
+
+            const validacao = objectIdSchema.parse(id);
+            const produto = await this.service.buscarPorId(validacao);
+            return produto.send(res);
+        } catch (erro: any) {
+            next(erro);
+        }
     }
 
-    async editar(id: string, dadosProduto: typeProdutoEdicao, userId: string): Promise<CommonResponse> {
+    async editar(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { id } = req.params;
+        const dadosProduto: typeProdutoEdicao = req.body;
+        const userId = (req as AuthenticatedRequest).user_id;
+
         console.log('Editando produto:', id, 'para usuário:', userId);
-        return await this.service.editar(id, dadosProduto, userId);
+        try {
+            if(!id) {
+                const response = CommonResponse.badRequest(
+                    HttpStatusCodes.BAD_REQUEST.message,
+                    ['ID do produto não fornecido']
+                );
+                return response.send(res);
+            }
+
+            const validacao = objectIdSchema.parse(id);
+            const produtoAtualizado = await this.service.editar(validacao, dadosProduto, userId);
+            return produtoAtualizado.send(res);
+        } catch (erro: any) {
+            next(erro);
+        }
     }
 
-    async deletar(id: string, userId: string): Promise<CommonResponse> {
+    async deletar(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { id } = req.params;
+        const userId = (req as AuthenticatedRequest).user_id;
+
         console.log('Deletando produto:', id, 'para usuário:', userId);
-        return await this.service.deletar(id, userId);
+        try {
+            if(!id) {
+                const response = CommonResponse.badRequest(
+                    HttpStatusCodes.BAD_REQUEST.message,
+                    ['ID do produto não fornecido']
+                );
+                return response.send(res);
+            }
+
+            const validacao = objectIdSchema.parse(id);
+            const resultado = await this.service.deletar(validacao, userId);
+            return resultado.send(res);
+        } catch (erro: any) {
+            next(erro);
+        }
+    }
+
+    async buscarTodosProdutosUsuario(req:Request, res:Response, next:NextFunction):Promise<void> {
+        const { id } = req.params || {};
+
+        console.log('Buscando produtos por ID de Usuario', id);
+        try {
+            if(!id) {
+                const response = CommonResponse.badRequest(
+                    HttpStatusCodes.BAD_REQUEST.message,
+                    ['ID do usuário não fornecido']
+                );
+                return response.send(res);
+            }
+            
+            const validacao = objectIdSchema.parse(id);
+            const produtos = await this.service.buscarTodosProdutosUsuario(req, validacao);
+            return produtos.send(res);
+        } catch (erro: any) {
+            next(erro);
+        }
     }
 }
 

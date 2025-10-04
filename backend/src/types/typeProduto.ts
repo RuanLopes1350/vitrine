@@ -4,8 +4,7 @@ export type typeProduto = {
     descricao: string,
     preco: Number,
     imagem: string,
-    ativo: boolean,
-    mensagem: string
+    ativo: boolean
 }
 
 export type typeProdutoEdicao = Partial<typeProduto>;

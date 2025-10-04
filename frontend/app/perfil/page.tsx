@@ -7,6 +7,20 @@ import { useRequireAuth } from "@/hooks/useAuth";
 import apiClient from "@/apiClient";
 import { useState, useRef, useEffect, use } from "react";
 
+interface ErrorResponse {
+    response?: {
+        erro?: boolean,
+        code?: number,
+        mensagem?: string,
+        status?: number,
+        errors?: string[] | {
+            campo: string,
+            mensagem: string
+        }[]
+    },
+    message?: string,
+    name?: string
+}
 
 export default function PerfilPage() {
     // Hook que protege a rota - redireciona para login se não autenticado
@@ -24,18 +38,52 @@ export default function PerfilPage() {
     const [whatsapp, setWhatsapp] = useState<string>("")
     const [aviso, setAviso] = useState<string>("Erro de validação")
 
+    // Função para formatar WhatsApp com () e -
+    const formatWhatsApp = (value: string): string => {
+        // Remove tudo que não for número
+        const numbersOnly = value.replace(/\D/g, '');
+
+        if (numbersOnly.length <= 2) {
+            return `(${numbersOnly}`;
+        } else if (numbersOnly.length <= 6) {
+            return `(${numbersOnly.slice(0, 2)}) ${numbersOnly.slice(2)}`;
+        } else if (numbersOnly.length <= 10) {
+            return `(${numbersOnly.slice(0, 2)}) ${numbersOnly.slice(2, 6)}-${numbersOnly.slice(6)}`;
+        } else {
+            return `(${numbersOnly.slice(0, 2)}) ${numbersOnly.slice(2, 7)}-${numbersOnly.slice(7, 11)}`;
+        }
+    };
+
+    // Função para converter WhatsApp formatado de volta para apenas números
+    const unformatWhatsApp = (value: string): string => {
+        return value.replace(/\D/g, '');
+    };
+
+    // Função para formatar WhatsApp vindo da API
+    const formatWhatsAppFromAPI = (whatsapp: string): string => {
+        if (!whatsapp) return '';
+
+        // Remove o prefixo 55 se existir
+        const whatsappSemPrefixo = whatsapp.startsWith('55') ? whatsapp.slice(2) : whatsapp;
+
+        // Aplica a formatação
+        return formatWhatsApp(whatsappSemPrefixo);
+    };
+
+    // Função para aplicar máscara em tempo real
+    const handleWhatsAppChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatWhatsApp(event.target.value);
+        event.target.value = formatted;
+        setWhatsapp(formatted);
+    };
+
     // Carregar dados do usuário logado
     useEffect(() => {
         if (user) {
-            // Não mute o objeto user diretamente, apenas extraia os valores
-            const whatsappSemPrefixo = user.whatsapp.startsWith('55') 
-                ? user.whatsapp.slice(2) 
-                : user.whatsapp;
-                
             setNome(user.nome || "");
             setNomeLoja(user.nomeLoja || "");
             setEmail(user.email || "");
-            setWhatsapp(whatsappSemPrefixo || "");
+            setWhatsapp(formatWhatsAppFromAPI(user.whatsapp || ""));
         }
     }, [user]);
 
@@ -46,9 +94,10 @@ export default function PerfilPage() {
         try {
             const dados = {
                 nomeLoja: nomeLoja,
-                whatsapp:"55"+whatsapp
+                whatsapp: "55" + unformatWhatsApp(whatsapp)
 
             }
+            console.log(dados.whatsapp)
 
             // Usar o apiClient que já tem o token configurado automaticamente
             const resposta = await apiClient.patch(`/usuarios/${user?.id}`, dados);
@@ -62,7 +111,7 @@ export default function PerfilPage() {
                 // ✅ Atualizar o user no contexto corretamente
                 updateUser({
                     nomeLoja: nomeLoja,
-                    whatsapp: "55" + whatsapp // com prefixo para manter consistência no contexto
+                    whatsapp: "55" + unformatWhatsApp(whatsapp) // com prefixo para manter consistência no contexto
                 });
 
                 // Atualizar estados locais
@@ -77,18 +126,42 @@ export default function PerfilPage() {
             setIsDescError(`Não foi possivel salvar as alterações, erro ${resposta.status}`)
             setIsErrorModalOpen(true)
 
-        } catch (erro: any) {
-            // O apiClient já trata 401/403 automaticamente fazendo logout
-            if (erro.response?.status === 403 || erro.response?.status === 401) {
-                logout();
-                return
+        } catch (erro: unknown) {
+            // Type guard para verificar se é um erro do Axios
+            const isAxiosError = (error: unknown): error is ErrorResponse => {
+                return typeof error === 'object' && 
+                       error !== null && 
+                       'response' in error;
+            };
+            
+            if (isAxiosError(erro)) {
+                const statusCode = erro.response?.code || erro.response?.status;
+                
+                if(statusCode === 422){
+                restaurarDados();
+                setInterable("pointer-events-none select-none");
+                setAviso(erro.response?.mensagem as string);
+                setIsDescError(`Não foi possivel salvar as alterações, erro ${statusCode || 'desconhecido'}`)
+                }
+                // O apiClient já trata 401/403 automaticamente fazendo logout
+                if (statusCode === 403 || statusCode === 401) {
+                    logout();
+                    return;
+                }
+                
+                restaurarDados();
+                setInterable("pointer-events-none select-none");
+                setAviso("Erro desconhecido");
+                setIsDescError(`Não foi possivel salvar as alterações, erro ${statusCode || 'desconhecido'}`);
+            } else {
+                // Erro genérico (rede, etc.)
+                restaurarDados();
+                setInterable("pointer-events-none select-none");
+                setAviso("Erro de conexão");
+                setIsDescError("Não foi possível conectar ao servidor. Verifique sua conexão.");
             }
-
-            restaurarDados()
-            setInterable("pointer-events-none select-none")
-            setAviso("Erro desconhecido")
-            setIsDescError(`Não foi possivel salvar as alterações, erro ${erro.response?.status || 'desconhecido'}`)
-            setIsErrorModalOpen(true)
+            
+            setIsErrorModalOpen(true);
         }
     }
     function restaurarDados() {
@@ -96,10 +169,10 @@ export default function PerfilPage() {
             nomeRefLoja.current.value = user.nomeLoja
         }
         if (whatsappRef.current && user?.whatsapp) {
-            const whatsappSemPrefixo = user.whatsapp.startsWith('55') 
-                ? user.whatsapp.slice(2) 
+            const whatsappSemPrefixo = user.whatsapp.startsWith('55')
+                ? user.whatsapp.slice(2)
                 : user.whatsapp;
-            whatsappRef.current.value = whatsappSemPrefixo
+            whatsappRef.current.value = formatWhatsApp(whatsappSemPrefixo);
         }
         setVisible(true)
     }
@@ -108,7 +181,7 @@ export default function PerfilPage() {
         const whatsappRegex = /^\d+$/
         const nomeRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9 ]+$/
         const nomeLoja = nomeRefLoja.current?.value.trim() as string
-        const whatsapp = whatsappRef.current?.value.trim() as string
+        const whatsapp = unformatWhatsApp(whatsappRef.current?.value.trim() as string)
 
         if (whatsapp?.length < 10 || whatsapp?.length > 11) {
 
@@ -134,7 +207,7 @@ export default function PerfilPage() {
             return
         }
 
-        await postDados(nomeLoja, whatsapp)
+        await postDados(nomeLoja, formatWhatsApp(whatsapp))
     }
 
     // Mostrar loading enquanto verifica autenticação
@@ -160,69 +233,70 @@ export default function PerfilPage() {
     }
 
     return (
-        <div className="w-[100%] h-[100%] flex justify-center bg-[#F9FAFB]">
+        <div className="w-full h-full flex justify-center bg-[#F9FAFB] px-4 py-4 sm:py-0">
             <ModalError
                 tipoErro={aviso}
                 descricao={descError}
                 isOpen={isErrorModalOpen}
                 onClose={() => setIsErrorModalOpen(false)}
             />
-            <div className="h-[750px] w-[869px] rounded-[16px] mt-[32px]">
-                <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] h-[144px] w-[100%] flex p-[20px] items-center rounded-t-[16px]">
-                    <div className="flex justify-center items-center gap-[20px] text-[#fff]">
-                        <div className="shadow-md h-[80px] w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[36px] font-bold text-[#9333EA]">
+            <div className="max-h-[750px] w-full max-w-[869px] rounded-[16px] mt-0 sm:mt-[32px]">
+                <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] min-h-[120px] sm:h-[144px] w-full flex p-[16px] sm:p-[20px] items-center rounded-t-[16px]">
+                    <div className="flex justify-center items-center gap-[12px] sm:gap-[20px] text-[#fff]">
+                        <div className="shadow-md h-[60px] w-[60px] sm:h-[80px] sm:w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[28px] sm:text-[36px] font-bold text-[#9333EA]">
                             {nome ? nome[0].toUpperCase() : "U"}
                         </div>
                         <div>
-                            <div className="text-[20px] font-bold">{nome || user?.nome}</div>
-                            <p>Gerencie o perfil da sua loja</p>
+                            <div className="text-[18px] sm:text-[20px] font-bold">{nome || user?.nome}</div>
+                            <p className="text-sm sm:text-base">Gerencie o perfil da sua loja</p>
                         </div>
                     </div>
                 </div>
-                <div className="w-[100%] bg-[#fff] p-[20px] gap-[20px] flex flex-col rounded-b-[16px]">
-                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
+                <div className="w-full bg-[#fff] p-[16px] sm:p-[20px] gap-[16px] sm:gap-[20px] flex flex-col rounded-b-[16px]">
+                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
                         <div className="flex gap-[10px] items-center">
-                            <img src="empresa.svg" alt="" />
+                            <img src="empresa.svg" alt="" className="w-5 h-5 sm:w-auto sm:h-auto" />
                             <span className="text-[12px] text-[#6B7280]">Nome da Empresa</span>
                         </div>
                         <input
                             ref={nomeRefLoja}
                             type="text"
-                            className={"font-medium border-none focus:outline-none dados " + isInterable}
+                            className={"font-medium border-none focus:outline-none dados text-sm sm:text-base " + isInterable}
                             defaultValue={nomeLoja || user?.nomeLoja}
                         />
                     </div>
-                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
+                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
                         <div className="flex gap-[10px] items-center">
-                            <img src="email.svg" alt="" />
+                            <img src="email.svg" alt="" className="w-5 h-5 sm:w-auto sm:h-auto" />
                             <span className="text-[12px] text-[#6B7280]">E-mail</span>
                         </div>
                         <input
                             type="text"
-                            className="font-medium border-none focus:outline-none dados pointer-events-none select-none"
+                            className="font-medium border-none focus:outline-none dados pointer-events-none select-none text-sm sm:text-base"
                             readOnly
                             defaultValue={email || user?.email}
                         />
                     </div>
-                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[20px] rounded-[12px]">
+                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
                         <div className="flex gap-[10px] items-center">
-                            <img src="whatsapp.svg" alt="" />
+                            <img src="whatsapp.svg" alt="" className="w-5 h-5 sm:w-auto sm:h-auto" />
                             <span className="text-[12px] text-[#6B7280]">Whatsapp</span>
                         </div>
                         <div>
-                            <span className={"font-medium " + isInterable}>55</span>
+                            <span className={"font-medium text-[#6B7280] text-sm sm:text-base"}>+55 </span>
                             <input
                                 ref={whatsappRef}
                                 type="text"
-                                className={"font-medium border-none focus:outline-none dados " + isInterable}
-                                defaultValue={whatsapp || user?.whatsapp.slice(2)}
+                                onChange={handleWhatsAppChange}
+                                className={"font-medium border-none focus:outline-none dados text-sm sm:text-base " + isInterable}
+                                defaultValue={whatsapp || formatWhatsAppFromAPI(user?.whatsapp || "")}
                             />
                         </div>
                     </div>
-                    <button onClick={() => { setVisible(false); setInterable("bg-[#fff]") }} className={"bg-[#9333EA] font-medium hover:bg-[#7E22CE] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-[#fff] " + (isVisible ? "" : "hidden")}>Editar</button>
-                    <div className={"flex mx-auto gap-[20px] " + (!isVisible ? "" : "hidden")}>
-                        <button onClick={() => { setInterable("pointer-events-none select-none"); restaurarDados() }} className={"bg-[#CD5C5C] text-[#fff] font-medium hover:bg-[#B22222] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer "}>Cancelar</button>
-                        <button onClick={() => { validarDados(); }} id="salvar" className="font-medium bg-green-600 text-[#fff] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer hover:bg-green-700 ">Salvar</button>
+                    <button onClick={() => { setVisible(false); setInterable("bg-[#fff]") }} className={"bg-[#9333EA] font-medium hover:bg-[#7E22CE] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-[#fff] text-sm sm:text-base " + (isVisible ? "" : "hidden")}>Editar</button>
+                    <div className={"flex mx-auto gap-[16px] sm:gap-[20px] " + (!isVisible ? "" : "hidden")}>
+                        <button onClick={() => { setInterable("pointer-events-none select-none"); restaurarDados() }} className={"bg-[#CD5C5C] text-[#fff] font-medium hover:bg-[#B22222] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-sm sm:text-base "}>Cancelar</button>
+                        <button onClick={() => { validarDados(); }} id="salvar" className="font-medium bg-green-600 text-[#fff] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer hover:bg-green-700 text-sm sm:text-base ">Salvar</button>
                     </div>
                 </div>
             </div>

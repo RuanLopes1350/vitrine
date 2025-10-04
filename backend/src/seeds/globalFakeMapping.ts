@@ -16,6 +16,8 @@ const fakeMappings: Record<string, any> = {
         email: () => faker.internet.email(),
         senha: () => faker.internet.password(),
         whatsapp: () => faker.phone.number(),
+        fotoPerfil: () => faker.image.avatar(),
+        mensagem: () => faker.lorem.sentence(),
         accessToken: () => faker.string.alphanumeric(32),
     },
     modelProduto: {

@@ -15,16 +15,15 @@ async function seedProdutos(usuarios: typeUsuario[]) {
 
     const mapping = await getGlobalFakeMapping();
 
-    let quantidade: number = 15;
+    let quantidade: number = 45;
 
     for(let criados: number = 0; criados < quantidade; criados++){
         const produtoAleatorio: typeProduto = {
             criador: usuarioFixo._id,
             nome_produto: mapping.nome_produto(),
             descricao: mapping.descricao(),
-            mensagem: mapping.mensagem(),
-            imagem: mapping.imagem(),
             preco: Number(mapping.preco()),
+            imagem: mapping.imagem(),
             ativo: mapping.ativo(),
         };
         await modelProduto.collection.insertOne(produtoAleatorio);
@@ -34,9 +33,8 @@ async function seedProdutos(usuarios: typeUsuario[]) {
         criador: usuarioFixo._id,
         nome_produto: 'Produto de Teste',
         descricao: 'Lorem ipsum dolor sit amet, consectetur adipisci elit, sed eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur. Quis aute iure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-        mensagem: `Olá, me interessei pelo produto X...`,
-        imagem: 'https://cdn.pixabay.com/photo/2021/05/25/21/29/pampas-grass-6283622_960_720.jpg',
         preco: 123.45,
+        imagem: 'https://cdn.pixabay.com/photo/2021/05/25/21/29/pampas-grass-6283622_960_720.jpg',
         ativo: true
     }
 
@@ -51,9 +49,8 @@ async function seedProdutos(usuarios: typeUsuario[]) {
                 criador: mapping.criador(),
                 nome_produto: mapping.nome_produto(),
                 descricao: mapping.descricao(),
-                mensagem: mapping.mensagem(),
-                imagem: mapping.imagem(),
                 preco: Number(mapping.preco()),
+                imagem: mapping.imagem(),
                 ativo: mapping.ativo(),
             }
         )
