@@ -96,8 +96,8 @@ export default function PageLoja() {
                             <img src="Vitrine.svg" alt="" className="w-6 sm:w-auto" />
                         </div>  }
                         
-                        <h1 className="text-[20px] sm:text-[26px] font-bold text-center">Bem-vindo a {isNomeLoja} </h1>
-                        <p className="text-[#4B5563] text-center text-sm sm:text-base px-2">{isMensagemLoja}</p>
+                        <h1 className="text-[20px] sm:text-[26px] font-bold text-center max-w-full break-words">Bem-vindo a {isNomeLoja} </h1>
+                        <p className="max-w-full overflow-hidden text-[#4B5563] text-center text-sm sm:text-base px-2 break-words">{isMensagemLoja}</p>
                         {/* <p className="text-[#4B5563] text-center text-sm sm:text-base px-2">Crie sua loja hoje mesmo e comece a vender em minutos!</p> */}
                     </div>
                 </section>
