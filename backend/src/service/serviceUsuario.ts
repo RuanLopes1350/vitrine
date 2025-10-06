@@ -4,11 +4,15 @@ import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuario
 import { typeUsuario } from "../types/typeUsuario.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
 import { PasswordHelper } from "../utils/helpers/passwordHelper.js";
+import ServiceEmail from "./serviceEmail.js";
 
 class ServiceUsuario {
-    private repository: RepositoryUsuario
+    private repository: RepositoryUsuario;
+    private serviceEmail: ServiceEmail;
+
     constructor() {
-        this.repository = new RepositoryUsuario
+        this.repository = new RepositoryUsuario();
+        this.serviceEmail = new ServiceEmail();
     }
 
     async cadastrar(dadosUsuario: typeUsuario): Promise<CommonResponse> {
@@ -20,6 +24,14 @@ class ServiceUsuario {
             dadosUsuario.senha = senhaCriptografada;
 
             const usuario = await this.repository.cadastrar(dadosUsuario);
+            
+            // Enviar email de boas-vindas (não bloqueia o cadastro se falhar)
+            try {
+                await this.serviceEmail.enviarEmailBoasVindas(dadosUsuario.nome, dadosUsuario.email);
+            } catch (error) {
+                console.error('Erro ao enviar email de boas-vindas, mas cadastro foi realizado:', error);
+            }
+
             return CommonResponse.created('Usuário cadastrado com sucesso!', usuario);
         } catch (erro: any) {
             if (erro instanceof z.ZodError) {
