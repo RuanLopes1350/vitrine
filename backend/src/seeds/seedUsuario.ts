@@ -21,6 +21,7 @@ async function seedUsuarios() {
         email: 'intel.spec.lopes@gmail.com',
         senha: hashedPassword,
         whatsapp: '556992468120',
+        fotoPerfil: '',
         ativo: true
     },{
         nome: 'Silvio Huan',
@@ -28,7 +29,7 @@ async function seedUsuarios() {
         email: 'silvio.huan@gmail.com',
         senha: hashedPassword,
         whatsapp: '556955667788',
-
+        fotoPerfil: '',
         ativo: true
     },{
         nome: 'Luis Felipe',
@@ -36,6 +37,7 @@ async function seedUsuarios() {
         email: 'luis.felipe@gmail.com',
         senha: hashedPassword,
         whatsapp: '556911223344',
+        fotoPerfil: '',
         ativo: true
     }
 ]
