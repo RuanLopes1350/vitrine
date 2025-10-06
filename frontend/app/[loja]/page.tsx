@@ -19,7 +19,7 @@ export default function PageLoja() {
     const [itemsPerPage, setIsItemsPerPage] = useState<number>(20)
     const [currentPage, setCurrentPage] = useState<number>(0)
 
-    // ✅ CORRETO: Calcular valores derivados sem estado
+    // CORRETO: Calcular valores derivados sem estado
     const startIndex = currentPage * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentItems = produtos?.data.docs.slice(startIndex, endIndex) || [];
@@ -96,7 +96,7 @@ export default function PageLoja() {
                             <img
                                 src={isFotoPerfil}
                                 alt="Logo da loja"
-                                className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] rounded-full object-cover border-2 border-[#9333EA]"
+                                className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] rounded-full object-cover border-2 border-[#9333EA] mb-[10px]"
                             />
                         ) : (
                             <div className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] bg-[#F3E8FF] rounded-full flex justify-center items-center mb-[10px]">
@@ -104,7 +104,7 @@ export default function PageLoja() {
                             </div>
                         )}
 
-                        <h1 className="text-[20px] sm:text-[26px] font-bold text-center max-w-full break-words">Bem-vindo a {isNomeLoja} </h1>
+                        <h1 className="text-[20px] sm:text-[26px] font-bold text-center max-w-full break-words mt-2">Bem-vindo a {isNomeLoja} </h1>
                         <p className="max-w-full overflow-hidden text-[#4B5563] text-center text-sm sm:text-base px-2 break-words">{isMensagemLoja}</p>
                         {/* <p className="text-[#4B5563] text-center text-sm sm:text-base px-2">Crie sua loja hoje mesmo e comece a vender em minutos!</p> */}
                     </div>

@@ -8,7 +8,6 @@ interface CardSessaoProps {
   modo?: 'visitante' | 'logado';
   nomeUsuario?: string;
   nomeLoja?: string;
-  fotoPerfil?: string;
   fotoUsuario?: string;
   id?:string;
 }
@@ -17,7 +16,6 @@ export default function CardSessao({
   modo = 'visitante',
   nomeUsuario = '',
   nomeLoja = '',
-  fotoPerfil = ``,
   fotoUsuario,
   id 
 }: CardSessaoProps) {
