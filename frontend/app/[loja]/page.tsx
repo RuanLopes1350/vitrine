@@ -96,10 +96,11 @@ export default function PageLoja() {
                             <img
                                 src={isFotoPerfil}
                                 alt="Logo da loja"
-                                className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] rounded-full object-cover border-2 border-[#9333EA] mb-[10px]"
+                                draggable='false'
+                                className="h-[96px] w-[96px] sm:h-[128px] sm:w-[128px] rounded-full object-cover border-2 border-[#9333EA] mb-[10px]"
                             />
                         ) : (
-                            <div className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] bg-[#F3E8FF] rounded-full flex justify-center items-center mb-[10px]">
+                            <div className="h-[48px] w-[48px] sm:h-[128px] sm:w-[128px] bg-[#F3E8FF] rounded-full flex justify-center items-center mb-[10px]">
                                 <img src="/Vitrine.svg" alt="" className="w-6 sm:w-auto" />
                             </div>
                         )}

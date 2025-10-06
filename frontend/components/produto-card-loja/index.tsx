@@ -69,7 +69,11 @@ export default function ProdutoCardLoja({ produto }: ProdutoCardLojaProps) {
           </h3>
 
           {/* Descrição */}
-          <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
+          <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed overflow-y-auto"
+          style={{
+            scrollbarWidth: 'none'
+          }}
+          >
             {produto.descricao}
           </p>
 
