@@ -65,7 +65,7 @@ export default function ProdutoCardLoja({ produto }: ProdutoCardLojaProps) {
       {/* Conteúdo do card */}
       <div className="p-4 flex flex-col flex-grow">
         {/* Título - altura fixa para alinhamento */}
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg leading-tight mb-2 overflow-hidden line-clamp-2 group-hover:text-[#9333EA] dark:group-hover:text-purple-400 transition-colors h-[3.5rem]">
+        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg leading-tight mb-2 overflow-hidden line-clamp-2 group-hover:text-[#9333EA] dark:group-hover:text-purple-400 transition-colors h-[4.2rem]">
           {produto.nome_produto}
         </h3>
 
