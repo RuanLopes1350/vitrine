@@ -7,6 +7,7 @@ import apiClient from "@/apiClient";
 import { useState, useRef, useEffect } from "react";
 import { useToast, ToastContainer } from "@/components/ui/toast";
 import { useCloudinaryUpload } from "@/hooks/useCloudinary";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ErrorResponse {
     response?: {
@@ -33,6 +34,7 @@ export default function PerfilPage() {
     const [previewProfileUrl, setPreviewProfileUrl] = useState<string | null>(null);
     const [uploadingProfile, setUploadingProfile] = useState(false);
     const { uploadImage } = useCloudinaryUpload();
+    const { theme } = useTheme();
 
     // Hook que protege a rota - redireciona para login se não autenticado
     const { isAuthenticated, isLoading } = useRequireAuth();
@@ -317,9 +319,9 @@ export default function PerfilPage() {
     // Mostrar loading enquanto verifica autenticação
     if (isLoading) {
         return (
-            <div className="w-full h-full flex justify-center items-center bg-[#F9FAFB]">
+            <div className="w-full h-full flex justify-center items-center bg-[#F9FAFB] dark:bg-gray-900">
                 <div className="text-center">
-                    <div className="text-lg font-medium text-gray-700">Carregando...</div>
+                    <div className="text-lg font-medium text-gray-700 dark:text-gray-300">Carregando...</div>
                 </div>
             </div>
         );
@@ -328,18 +330,18 @@ export default function PerfilPage() {
     // Se não estiver autenticado, o hook já redirecionará
     if (!isAuthenticated) {
         return (
-            <div className="w-full h-full flex justify-center items-center bg-[#F9FAFB]">
+            <div className="w-full h-full flex justify-center items-center bg-[#F9FAFB] dark:bg-gray-900">
                 <div className="text-center">
-                    <div className="text-lg font-medium text-gray-700">Redirecionando...</div>
+                    <div className="text-lg font-medium text-gray-700 dark:text-gray-300">Redirecionando...</div>
                 </div>
             </div>
         );
     }
     // bg-[#F9FAFB]
     return (
-        <div className="w-full h-full  flex justify-center bg-[#F9FAFB] px-4 py-4 sm:py-0">
+        <div className="w-full h-full  flex justify-center bg-[#F9FAFB] dark:bg-gray-900 px-4 py-4 sm:py-0">
             <div className="grow min-h-[750px] w-full max-w-[869px] rounded-[16px] mt-0 sm:mt-[32px] mb-[20px]">
-                <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] min-h-[120px] sm:h-[144px] w-full flex p-[16px] sm:p-[20px] items-center rounded-t-[16px]">
+                <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] dark:from-purple-600 dark:to-purple-800 min-h-[120px] sm:h-[144px] w-full flex p-[16px] sm:p-[20px] items-center rounded-t-[16px]">
                     <div className="flex justify-center items-center gap-[12px] sm:gap-[20px] text-[#fff]">
                         <div className="relative shadow-md h-[60px] w-[60px] sm:h-[80px] sm:w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[28px] sm:text-[36px] font-bold text-[#9333EA] overflow-hidden">
                             {(previewProfileUrl || user?.fotoPerfil) ? (
@@ -358,51 +360,51 @@ export default function PerfilPage() {
                         </div>
                     </div>
                 </div>
-                <div className="w-full bg-[#fff] p-[16px] sm:p-[20px] gap-[16px] sm:gap-[20px] flex flex-col rounded-b-[16px]">
-                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
+                <div className="w-full bg-[#fff] dark:bg-gray-800 p-[16px] sm:p-[20px] gap-[16px] sm:gap-[20px] flex flex-col rounded-b-[16px]">
+                    <div className="bg-[#FAF5FF] dark:bg-purple-900/30 flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
                         <div className="flex gap-[10px] items-center">
                             <img src="empresa.svg" alt="" className="w-5 h-5 sm:w-auto sm:h-auto" />
-                            <span className="text-[12px] text-[#6B7280]">Nome da Empresa</span>
+                            <span className="text-[12px] text-[#6B7280] dark:text-gray-400">Nome da Empresa</span>
                         </div>
                         <input
                             ref={nomeRefLoja}
                             type="text"
-                            className={"font-medium border-none focus:outline-none dados text-sm sm:text-base " + isInterable}
+                            className={"font-medium border-none focus:outline-none dados text-sm sm:text-base dark:bg-transparent dark:text-gray-100 " + isInterable}
                             defaultValue={nomeLoja || user?.nomeLoja}
                         />
                     </div>
-                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
+                    <div className="bg-[#FAF5FF] dark:bg-purple-900/30 flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
                         <div className="flex gap-[10px] items-center">
                             <img src="email.svg" alt="" className="w-5 h-5 sm:w-auto sm:h-auto" />
-                            <span className="text-[12px] text-[#6B7280]">E-mail</span>
+                            <span className="text-[12px] text-[#6B7280] dark:text-gray-400">E-mail</span>
                         </div>
                         <input
                             type="text"
-                            className="font-medium border-none focus:outline-none dados pointer-events-none select-none text-sm sm:text-base"
+                            className="font-medium border-none focus:outline-none dados pointer-events-none select-none text-sm sm:text-base dark:bg-transparent dark:text-gray-100"
                             readOnly
                             defaultValue={email || user?.email}
                         />
                     </div>
-                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
+                    <div className="bg-[#FAF5FF] dark:bg-purple-900/30 flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
                         <div className="flex gap-[10px] items-center">
                             <img src="whatsapp.svg" alt="" className="w-5 h-5 sm:w-auto sm:h-auto" />
-                            <span className="text-[12px] text-[#6B7280]">Whatsapp</span>
+                            <span className="text-[12px] text-[#6B7280] dark:text-gray-400">Whatsapp</span>
                         </div>
                         <div className="flex gap-[5px]">
-                            <span className={"font-medium text-[#6B7280] text-sm sm:text-base"}>+55 </span>
+                            <span className={"font-medium text-[#6B7280] dark:text-gray-400 text-sm sm:text-base"}>+55 </span>
                             <input
                                 ref={whatsappRef}
                                 type="text"
                                 onChange={handleWhatsAppChange}
-                                className={"w-[100%] font-medium border-none focus:outline-none dados text-sm sm:text-base " + isInterable}
+                                className={"w-[100%] font-medium border-none focus:outline-none dados text-sm sm:text-base dark:bg-transparent dark:text-gray-100 " + isInterable}
                                 defaultValue={whatsapp || formatWhatsAppFromAPI(user?.whatsapp || "")}
                             />
                         </div>
                     </div>
-                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
+                    <div className="bg-[#FAF5FF] dark:bg-purple-900/30 flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
                         <div className="flex gap-[10px] items-center">
                             <img src="info.svg" alt="" className="w-5 h-5 sm:w-auto sm:h-auto" />
-                            <span className="text-[12px] text-[#6B7280]">Descrição da loja</span>
+                            <span className="text-[12px] text-[#6B7280] dark:text-gray-400">Descrição da loja</span>
                         </div>
                         <div className="w-[100%]">
                             <textarea
@@ -410,21 +412,21 @@ export default function PerfilPage() {
                                 name=""
                                 id=""
                                 ref={descRef}
-                                className={"resize-none overflow-hidden w-[100%] font-medium border-none focus:outline-none dados text-sm sm:text-base " + isInterable}
+                                className={"resize-none overflow-hidden w-[100%] font-medium border-none focus:outline-none dados text-sm sm:text-base dark:bg-transparent dark:text-gray-100 " + isInterable}
                                 defaultValue={desc || user?.mensagem}
                             ></textarea>
                         </div>
                     </div>
                     {/* Seção de Foto de Perfil */}
-                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
+                    <div className="bg-[#FAF5FF] dark:bg-purple-900/30 flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
                         <div className="flex gap-[10px] items-center">
                             <img src="self.png" alt="" className="w-5 h-5 sm:w-auto sm:h-auto" />
-                            <span className="text-[12px] text-[#6B7280]">Foto de Perfil</span>
+                            <span className="text-[12px] text-[#6B7280] dark:text-gray-400">Foto de Perfil</span>
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-center gap-[12px]">
                             {/* Preview da foto */}
-                            <div className="w-[80px] h-[80px] rounded-full bg-gradient-to-r from-[#9333EA] to-[#4338CA] flex justify-center items-center overflow-hidden">
+                            <div className="w-[80px] h-[80px] rounded-full bg-gradient-to-r from-[#9333EA] to-[#4338CA] dark:from-purple-600 dark:to-purple-800 flex justify-center items-center overflow-hidden">
                                 {(previewProfileUrl || user?.fotoPerfil) ? (
                                     <img
                                         src={previewProfileUrl || user?.fotoPerfil}
@@ -445,20 +447,20 @@ export default function PerfilPage() {
                                     accept="image/*"
                                     onChange={handleProfileFileSelect}
                                     disabled={isInterable === "pointer-events-none select-none"}
-                                    className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#9333EA] file:text-white hover:file:bg-[#7E22CE] file:cursor-pointer disabled:opacity-50"
+                                    className="text-sm text-gray-500 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#9333EA] dark:file:bg-purple-600 file:text-white hover:file:bg-[#7E22CE] dark:hover:file:bg-purple-700 file:cursor-pointer disabled:opacity-50"
                                 />
                                 {selectedProfileFile && (
-                                    <p className="text-xs text-[#6B7280]">
+                                    <p className="text-xs text-[#6B7280] dark:text-gray-400">
                                         {selectedProfileFile.name} ({(selectedProfileFile.size / 1024).toFixed(2)} KB)
                                     </p>
                                 )}
                             </div>
                         </div>
                     </div>
-                    <button onClick={() => { setVisible(false); setInterable("bg-[#fff]") }} className={"bg-[#9333EA] font-medium hover:bg-[#7E22CE] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-[#fff] text-sm sm:text-base " + (isVisible ? "" : "hidden")}>Editar</button>
+                    <button onClick={() => { setVisible(false); setInterable("bg-[#fff]") }} className={"bg-[#9333EA] dark:bg-purple-600 font-medium hover:bg-[#7E22CE] dark:hover:bg-purple-700 w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-[#fff] text-sm sm:text-base " + (isVisible ? "" : "hidden")}>Editar</button>
                     <div className={"flex mx-auto gap-[16px] sm:gap-[20px] " + (!isVisible ? "" : "hidden")}>
-                        <button onClick={() => { setInterable("pointer-events-none select-none"); restaurarDados() }} className={"bg-[#CD5C5C] text-[#fff] font-medium hover:bg-[#B22222] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-sm sm:text-base "}>Cancelar</button>
-                        <button onClick={() => { validarDados(); }} id="salvar" className="font-medium bg-green-600 text-[#fff] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer hover:bg-green-700 text-sm sm:text-base ">Salvar</button>
+                        <button onClick={() => { setInterable("pointer-events-none select-none"); restaurarDados() }} className={"bg-[#CD5C5C] dark:bg-red-600 text-[#fff] font-medium hover:bg-[#B22222] dark:hover:bg-red-700 w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-sm sm:text-base "}>Cancelar</button>
+                        <button onClick={() => { validarDados(); }} id="salvar" className="font-medium bg-green-600 dark:bg-green-700 text-[#fff] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer hover:bg-green-700 dark:hover:bg-green-800 text-sm sm:text-base ">Salvar</button>
                     </div>
                 </div>
             </div>
