@@ -8,7 +8,9 @@ export interface Docs {
     criador: {
         _id: string,
         nomeLoja: string,
-        whatsapp: string
+        whatsapp: string,
+        mensagem:string,
+        fotoPerfil:string
     },
     nome_produto: string,
     descricao: string,
@@ -49,10 +51,9 @@ export function useProdutosLoja(): LojaProdutoReturn {
     
     useEffect(() => {
         if(link){
-            // ✅ CORRETO: usar a variável router definida no nível superior
             router.replace(link)
         }
-    }, [link, router]) // ✅ Adicionar dependências
+    }, [link, router])
 
     async function getProdutos(criador: string): Promise<void> {
         try {

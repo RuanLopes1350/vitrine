@@ -1,7 +1,7 @@
 import modelUsuario from '../models/modelUsuario.js'
 import { typeUsuario } from '../types/typeUsuario.js'
 
-import { getGlobalFakeMapping } from './globalFakeMapping.js'
+import getGlobalFakeMapping from './globalFakeMapping.js'
 
 async function seedUsuarios() {
     await modelUsuario.deleteMany();
@@ -50,12 +50,14 @@ async function seedUsuarios() {
     for (let i = 0; i < 27; i++) {
         usuariosAleatorios.push(
             {
-                nome: mapping.usuario.nome(),
-                nomeLoja: mapping.usuario.nomeLoja(),
-                email: mapping.usuario.email(),
-                senha: mapping.usuario.senha(),
-                whatsapp: mapping.usuario.whatsapp(),
-                ativo: mapping.usuario.ativo()
+                nome: mapping.nome(),
+                nomeLoja: mapping.nomeLoja(),
+                email: mapping.email(),
+                senha: mapping.senha(),
+                whatsapp: mapping.whatsapp(),
+                fotoPerfil: mapping.fotoPerfil(),
+                ativo: mapping.ativo(),
+                accessToken: mapping.accessToken()
             }
         )
     }

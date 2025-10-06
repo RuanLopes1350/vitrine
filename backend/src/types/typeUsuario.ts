@@ -4,7 +4,10 @@ export type typeUsuario = {
     whatsapp: string,
     email: string,
     senha: string,
+    fotoPerfil?: string,
+    mensagem?: string,
     ativo: boolean,
+    accessToken?: string
 }
 
 export type typeUsuarioCompleto = typeUsuario & {

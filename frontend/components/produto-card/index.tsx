@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { MessageCircle, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ConfirmModal from '@/components/confirm-modal';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface Produto {
   _id: string;
@@ -30,6 +31,7 @@ export default function ProdutoCard({
   onDelete
 }: ProdutoCardProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { theme } = useTheme();
 
   const whatsAppRedirect = () => {
     const mensagem = `Olá! Tenho interesse no produto: "${produto.titulo}" no valor de R$ ${produto.preco?.toFixed(2).replace('.', ',')}. Poderia me dar mais informações?`;
@@ -64,14 +66,14 @@ export default function ProdutoCard({
 
   return (
     <div className={`
-      ${isGerenciar ? 'bg-white border border-gray-100' : 'bg-gray-50'} 
+      ${isGerenciar ? 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700' : 'bg-gray-50 dark:bg-gray-800'} 
       rounded-xl overflow-hidden shadow-sm 
       ${isGerenciar ? 'hover:shadow-md' : 'hover:shadow-lg'} 
       transition-shadow duration-300 
       flex flex-col h-full
     `}>
-      <div className="relative h-48 bg-gray-200 flex-shrink-0">
-        <div className="absolute top-3 left-3 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium z-10">
+      <div className="relative h-48 bg-gray-200 dark:bg-gray-700 flex-shrink-0">
+        <div className="absolute top-3 left-3 bg-purple-600 dark:bg-purple-700 text-white px-3 py-1 rounded-full text-sm font-medium z-10">
           {isGerenciar ? 'R$' : '$'} {produto.preco?.toFixed(2).replace('.', ',')}
         </div>
 
@@ -85,9 +87,9 @@ export default function ProdutoCard({
             draggable={false}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
+          <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gray-300 rounded-lg mx-auto mb-2"></div>
+              <div className="w-16 h-16 bg-gray-300 dark:bg-gray-600 rounded-lg mx-auto mb-2"></div>
               <span className="text-sm">Produto Imagem</span>
             </div>
           </div>
@@ -95,37 +97,40 @@ export default function ProdutoCard({
       </div>
 
       <div className="p-4 flex flex-col flex-grow">
-        <h3 className={`
-          ${isGerenciar ? 'font-bold' : 'font-semibold'} 
-          text-gray-900 text-base leading-tight mb-2 overflow-hidden
-        `}
+        {/* Título */}
+        <h3 
+          className={`
+            ${isGerenciar ? 'font-bold' : 'font-semibold'} 
+            text-gray-900 dark:text-gray-100 text-base leading-tight mb-2 overflow-hidden line-clamp-2
+          `}
           style={{
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            minHeight: '1.5rem'
-          }}>
+            height: '2.55rem'
+          }}
+        >
           {produto.titulo}
         </h3>
-          <p className="text-gray-600 text-sm leading-relaxed overflow-y-auto"
-            style={{
-              display: '-webkit-box',
-              WebkitLineClamp: isGerenciar ? 2 : 3,
-              WebkitBoxOrient: 'vertical',
-              minHeight: isGerenciar ? '3.5rem' : '5.75rem',
-              scrollbarWidth: 'none'
-            }}>
-            {produto.descricao}
-          </p>
 
-        <div className={`flex gap-2 mt-3 ${!isGerenciar ? 'pt-3 border-t border-gray-200' : ''} min-h-[2.5rem]`}>
+        {/* Descrição */}
+        <div 
+          className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-3 overflow-y-auto pr-1"
+          style={{
+            height: isGerenciar ? '3.5rem' : '5.75rem',
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#E5E7EB transparent'
+          }}
+        >
+          {produto.descricao}
+        </div>
+
+        {/* Botões */}
+        <div className={`flex gap-2 mt-auto ${!isGerenciar ? 'pt-3 border-t border-gray-200 dark:border-gray-700' : ''}`}>
           {isGerenciar ? (
             <>
               <Button
                 onClick={handleEdit}
                 variant="outline"
                 size="sm"
-                className="flex-1 border-[#9333EA] text-[#9333EA] hover:bg-[#9333EA] hover:text-white"
+                className="flex-1 border-[#9333EA] dark:border-purple-400 text-[#9333EA] dark:text-purple-400 hover:bg-[#9333EA] dark:hover:bg-purple-600 hover:text-white"
               >
                 <Edit className="w-4 h-4 mr-1" />
                 Editar
@@ -134,7 +139,7 @@ export default function ProdutoCard({
                 onClick={handleDeleteClick}
                 variant="outline"
                 size="sm"
-                className="flex-1 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                className="flex-1 border-red-500 dark:border-red-400 text-red-500 dark:text-red-400 hover:bg-red-500 dark:hover:bg-red-600 hover:text-white"
               >
                 <Trash2 className="w-4 h-4 mr-1" />
                 Excluir
@@ -143,7 +148,7 @@ export default function ProdutoCard({
           ) : (
             <button
               onClick={whatsAppRedirect}
-              className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors duration-200 flex items-center justify-center gap-1"
+              className="flex-1 bg-green-500 dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-700 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors duration-200 flex items-center justify-center gap-1"
             >
               <MessageCircle size={14} />
               WhatsApp

@@ -11,6 +11,8 @@ interface User {
     whatsapp: string;
     email: string;
     ativo: boolean;
+    fotoPerfil:string;
+    mensagem:string;
 }
 
 interface LoginResponse {
