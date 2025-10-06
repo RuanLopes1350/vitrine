@@ -1,1 +1,65 @@
 @import "tailwindcss";
+
+/* Variáveis de tema claro (padrão) */
+:root {
+  --color-background: #F9FAFB;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #111827;
+  --color-text-secondary: #4B5563;
+  --color-text-tertiary: #6B7280;
+  --color-border: #D1D5DB;
+  --color-border-light: #E9D5FF;
+  --color-purple-bg: #F3E8FF;
+  --color-purple-primary: #9333EA;
+  --color-purple-hover: #7C3AED;
+  --color-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* Variáveis de tema escuro */
+.dark {
+  --color-background: #111827;
+  --color-surface: #1F2937;
+  --color-text-primary: #F9FAFB;
+  --color-text-secondary: #D1D5DB;
+  --color-text-tertiary: #9CA3AF;
+  --color-border: #374151;
+  --color-border-light: #4B5563;
+  --color-purple-bg: #312E81;
+  --color-purple-primary: #A855F7;
+  --color-purple-hover: #9333EA;
+  --color-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* Classes utilitárias para tema */
+.bg-app {
+  background-color: var(--color-background);
+}
+
+.bg-surface {
+  background-color: var(--color-surface);
+}
+
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-tertiary {
+  color: var(--color-text-tertiary);
+}
+
+.border-default {
+  border-color: var(--color-border);
+}
+
+.bg-purple-light {
+  background-color: var(--color-purple-bg);
+}
+
+/* Transições suaves */
+* {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
