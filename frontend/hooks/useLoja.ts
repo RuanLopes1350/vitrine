@@ -8,7 +8,9 @@ export interface Docs {
     criador: {
         _id: string,
         nomeLoja: string,
-        whatsapp: string
+        whatsapp: string,
+        mensagem:string,
+        fotoPerfil:string
     },
     nome_produto: string,
     descricao: string,
