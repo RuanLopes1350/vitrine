@@ -7,6 +7,7 @@ export type typeUsuario = {
     fotoPerfil?: string,
     mensagem?: string,
     ativo: boolean,
+    accessToken?: string
 }
 
 export type typeUsuarioCompleto = typeUsuario & {
