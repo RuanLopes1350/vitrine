@@ -9,8 +9,20 @@ export default function TestesPage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
+    const [formValues, setFormValues] = useState({
+        nome: '',
+        descricao: '',
+        preco: ''
+    });
 
     const { uploadImage, uploading, error } = useCloudinaryUpload();
+
+    const handleFormChange = (campo: 'nome' | 'descricao' | 'preco', valor: string) => {
+        setFormValues(prev => ({
+            ...prev,
+            [campo]: valor
+        }));
+    };
 
     const handleSave = async () => {
         if (!selectedFile) {
@@ -65,6 +77,8 @@ export default function TestesPage() {
                 }}
                 isOpen={isOpen}
                 onClose={handleModalClose}
+                formValues={formValues}
+                onFormChange={handleFormChange}
                 selectedFile={selectedFile}
                 previewUrl={previewUrl}
                 onFileSelect={handleFileSelect}
