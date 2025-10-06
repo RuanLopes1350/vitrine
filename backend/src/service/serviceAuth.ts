@@ -39,7 +39,8 @@ class ServicoAuth {
         email: usuario.email,
         nomeLoja: usuario.nomeLoja,
         whatsapp: usuario.whatsapp,
-        ativo: usuario.ativo
+        ativo: usuario.ativo,
+        fotoPerfil: usuario.fotoPerfil
       }
     };
 
