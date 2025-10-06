@@ -6,7 +6,7 @@ export const getDocsRouter = () => {
     const router = express.Router();
 
     router.get("/",(req, res) => {
-        res.status(200).redirect("/reference/"); // redirecionando para documentação
+        res.status(200).redirect("/reference");
 	});
 
     router.get("/reference/openapi.json", async (req, res) => {

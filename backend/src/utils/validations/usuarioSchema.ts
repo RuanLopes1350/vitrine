@@ -8,6 +8,7 @@ const UsuarioSchema = z.object({
     whatsapp: z.string({message: 'Campo whatsapp é obrigatório.'}).min(12, 'Campo whatsapp deve conter pelo menos 12 caracteres.').max(13, 'Campo whatsapp deve conter no máximo 13 caracteres.'),
     email: z.string({message: 'Campo email é obrigatório.'}).email('Formato de email inválido.'),
     senha: z.string({message: 'A senha deve ter pelo menos 8 caracteres.'}).min(8, 'A senha deve ter pelo menos 8 caracteres.').regex(senhaRegex, 'A senha deve conter pelo menos 1 letra maiúscula, 1 letra minúscula, 1 número e no mínimo 8 caracteres.'),
+    fotoPerfil: z.string().url('URL da foto de perfil inválida').optional(),
     ativo: z.boolean().optional(),
 })
 

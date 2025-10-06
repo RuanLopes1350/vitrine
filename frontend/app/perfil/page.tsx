@@ -6,6 +6,7 @@ import { useRequireAuth } from "@/hooks/useAuth";
 import apiClient from "@/apiClient";
 import { useState, useRef, useEffect } from "react";
 import { useToast, ToastContainer } from "@/components/ui/toast";
+import { useCloudinaryUpload } from "@/hooks/useCloudinary";
 
 interface ErrorResponse {
     response?: {
@@ -26,6 +27,13 @@ interface ErrorResponse {
 }
 
 export default function PerfilPage() {
+
+    // Estados para upload de foto de perfil
+    const [selectedProfileFile, setSelectedProfileFile] = useState<File | null>(null);
+    const [previewProfileUrl, setPreviewProfileUrl] = useState<string | null>(null);
+    const [uploadingProfile, setUploadingProfile] = useState(false);
+    const { uploadImage } = useCloudinaryUpload();
+
     // Hook que protege a rota - redireciona para login se não autenticado
     const { isAuthenticated, isLoading } = useRequireAuth();
     // Context de autenticação
@@ -33,7 +41,7 @@ export default function PerfilPage() {
     // Hook do toast para mensagens
     const { toasts, showSuccess, showError, removeToast } = useToast();
 
-    // ✅ Função utilitária para mostrar erros da API
+    // Função utilitária para mostrar erros da API
     const showApiError = (erro: ErrorResponse, defaultMessage: string = "Erro inesperado") => {
         const data = erro.response?.data;
 
@@ -56,6 +64,24 @@ export default function PerfilPage() {
         }
 
         showError(mensagem);
+    };
+
+    // Função para quando usuário seleciona uma foto
+    const handleProfileFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+
+            // Verifica se é imagem
+            if (!file.type.startsWith('image/')) {
+                showError('Por favor, selecione apenas arquivos de imagem');
+                return;
+            }
+
+            // Cria URL temporária para preview
+            const preview = URL.createObjectURL(file);
+            setSelectedProfileFile(file);
+            setPreviewProfileUrl(preview);
+        }
     };
 
     // Estados que ainda são necessários para o funcionamento do componente
@@ -121,12 +147,13 @@ export default function PerfilPage() {
     const whatsappRef = useRef<HTMLInputElement>(null)
     const descRef = useRef<HTMLTextAreaElement>(null)
 
-    async function postDados(nomeLoja: string, whatsapp: string, descricao: string) {
+    async function postDados(nomeLoja: string, whatsapp: string, descricao: string, fotoPerfil?: string) {
         try {
             const dados = {
                 nomeLoja: nomeLoja,
                 whatsapp: "55" + unformatWhatsApp(whatsapp),
-                mensagem: descricao
+                mensagem: descricao,
+                ...(fotoPerfil && { fotoPerfil })
 
             }
 
@@ -139,11 +166,12 @@ export default function PerfilPage() {
                     whatsappRef.current.value = whatsapp
                 }
 
-                // ✅ Atualizar o user no contexto corretamente
+                // Atualizar o user no contexto corretamente
                 updateUser({
                     nomeLoja: nomeLoja,
-                    whatsapp: "55" + unformatWhatsApp(whatsapp), // com prefixo para manter consistência no contexto
-                    mensagem: descricao
+                    whatsapp: "55" + unformatWhatsApp(whatsapp),
+                    mensagem: descricao,
+                    ...(fotoPerfil && { fotoPerfil })
                 });
 
                 // Atualizar estados locais
@@ -153,12 +181,12 @@ export default function PerfilPage() {
                 setVisible(true)
                 setInterable("pointer-events-none select-none")
 
-                // ✅ Toast de sucesso
+                // Toast de sucesso
                 showSuccess("Dados salvos com sucesso!");
                 return
             }
 
-            // ✅ Toast de erro para falha na resposta
+            // Toast de erro para falha na resposta
             showError(`Erro ao salvar alterações: ${resposta.status}`);
 
         } catch (erro: unknown) {
@@ -177,7 +205,7 @@ export default function PerfilPage() {
                 if (statusCode === 422) {
                     restaurarDados();
                     setInterable("pointer-events-none select-none");
-                    // ✅ Usar função utilitária para mostrar erro personalizado
+                    // Usar função utilitária para mostrar erro personalizado
                     showApiError(erro, "Erro de validação nos dados enviados");
                     return;
                 }
@@ -190,14 +218,14 @@ export default function PerfilPage() {
 
                 restaurarDados();
                 setInterable("pointer-events-none select-none");
-                // ✅ Usar função utilitária para mostrar erro personalizado
+                // Usar função utilitária para mostrar erro personalizado
                 showApiError(erro, `Erro ao salvar alterações (${statusCode})`);
 
             } else {
                 // Erro genérico (rede, etc.)
                 restaurarDados();
                 setInterable("pointer-events-none select-none");
-                // ✅ Toast para erro de conexão
+                // Toast para erro de conexão
                 showError("Erro de conexão. Verifique sua internet e tente novamente.");
             }
         }
@@ -212,9 +240,9 @@ export default function PerfilPage() {
                 : user.whatsapp;
             whatsappRef.current.value = formatWhatsApp(whatsappSemPrefixo);
         }
-        if(descRef.current && user?.mensagem){
-           descRef.current.value = user.mensagem 
-        } else if(descRef.current){
+        if (descRef.current && user?.mensagem) {
+            descRef.current.value = user.mensagem
+        } else if (descRef.current) {
             descRef.current.value = ""
         }
         autoResize()
@@ -229,33 +257,60 @@ export default function PerfilPage() {
         const desc = descRef.current?.value.trim() as string
 
         if (whatsapp?.length < 10 || whatsapp?.length > 11) {
-            // ✅ Toast para erro de WhatsApp
+            // Toast para erro de WhatsApp
             showError("O número de WhatsApp deve ter entre 10 e 11 dígitos! Exemplo: 99 9999-9999 ou 99 99999-9999");
             return
         }
 
+        let fotoPerfilUrl = user?.fotoPerfil;
+
+        if (selectedProfileFile) {
+            setUploadingProfile(true);
+            showSuccess('Fazendo upload da foto...');
+
+            const uploadResult = await uploadImage(selectedProfileFile);
+
+            setUploadingProfile(false);
+
+            if (!uploadResult) {
+                showError('Falha no upload da foto de perfil');
+                return;
+            }
+
+            fotoPerfilUrl = uploadResult.secure_url;
+            console.log('Foto enviada com sucesso:', fotoPerfilUrl);
+        }
+
         if (!whatsappRegex.test(whatsapp)) {
-            // ✅ Toast para erro de formato do WhatsApp
+            // Toast para erro de formato do WhatsApp
             showError("O WhatsApp deve conter somente números, sem espaços!");
             return
         }
 
         if (!nomeRegex.test(nomeLoja)) {
-            // ✅ Toast para erro do nome da loja
+            // Toast para erro do nome da loja
             showError("O nome deve conter somente números e letras, sem caracteres especiais!");
             return
         }
-        if(desc?.length > 500){
+        if (desc?.length > 500) {
             showError("A descrição não pode passar de 500 caracteres!")
             return
         }
 
-        await postDados(nomeLoja, formatWhatsApp(whatsapp), desc)
+        await postDados(nomeLoja, formatWhatsApp(whatsapp), desc, fotoPerfilUrl);
+
+        // Limpar preview após salvar
+        if (previewProfileUrl) {
+            URL.revokeObjectURL(previewProfileUrl);
+            setPreviewProfileUrl(null);
+            setSelectedProfileFile(null);
+        }
     }
-    function autoResize(){
-        if(descRef.current){
+
+    function autoResize() {
+        if (descRef.current) {
             descRef.current.style.height = 'auto'
-            descRef.current.style.height= descRef.current.scrollHeight + 'px'
+            descRef.current.style.height = descRef.current.scrollHeight + 'px'
         }
     }
 
@@ -280,14 +335,22 @@ export default function PerfilPage() {
             </div>
         );
     }
-// bg-[#F9FAFB]
+    // bg-[#F9FAFB]
     return (
         <div className="w-full h-full  flex justify-center bg-[#F9FAFB] px-4 py-4 sm:py-0">
             <div className="grow min-h-[750px] w-full max-w-[869px] rounded-[16px] mt-0 sm:mt-[32px] mb-[20px]">
                 <div className="bg-gradient-to-r from-[#9333EA] to-[#4338CA] min-h-[120px] sm:h-[144px] w-full flex p-[16px] sm:p-[20px] items-center rounded-t-[16px]">
                     <div className="flex justify-center items-center gap-[12px] sm:gap-[20px] text-[#fff]">
-                        <div className="shadow-md h-[60px] w-[60px] sm:h-[80px] sm:w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[28px] sm:text-[36px] font-bold text-[#9333EA]">
-                            {nome ? nome[0].toUpperCase() : "U"}
+                        <div className="relative shadow-md h-[60px] w-[60px] sm:h-[80px] sm:w-[80px] rounded-full bg-[#fff] flex justify-center items-center text-[28px] sm:text-[36px] font-bold text-[#9333EA] overflow-hidden">
+                            {(previewProfileUrl || user?.fotoPerfil) ? (
+                                <img
+                                    src={previewProfileUrl || user?.fotoPerfil}
+                                    alt="Foto de perfil"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                nome ? nome[0].toUpperCase() : "U"
+                            )}
                         </div>
                         <div>
                             <div className="text-[18px] sm:text-[20px] font-bold">{nome || user?.nome}</div>
@@ -343,13 +406,53 @@ export default function PerfilPage() {
                         </div>
                         <div className="w-[100%]">
                             <textarea
-                            onInput={autoResize} 
-                            name="" 
-                            id=""
-                            ref={descRef}
-                            className={"resize-none overflow-hidden w-[100%] font-medium border-none focus:outline-none dados text-sm sm:text-base " + isInterable}
-                            defaultValue={desc || user?.mensagem}
+                                onInput={autoResize}
+                                name=""
+                                id=""
+                                ref={descRef}
+                                className={"resize-none overflow-hidden w-[100%] font-medium border-none focus:outline-none dados text-sm sm:text-base " + isInterable}
+                                defaultValue={desc || user?.mensagem}
                             ></textarea>
+                        </div>
+                    </div>
+                    {/* Seção de Foto de Perfil */}
+                    <div className="bg-[#FAF5FF] flex flex-col gap-[10px] p-[16px] sm:p-[20px] rounded-[12px]">
+                        <div className="flex gap-[10px] items-center">
+                            <img src="self.png" alt="" className="w-5 h-5 sm:w-auto sm:h-auto" />
+                            <span className="text-[12px] text-[#6B7280]">Foto de Perfil</span>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-center gap-[12px]">
+                            {/* Preview da foto */}
+                            <div className="w-[80px] h-[80px] rounded-full bg-gradient-to-r from-[#9333EA] to-[#4338CA] flex justify-center items-center overflow-hidden">
+                                {(previewProfileUrl || user?.fotoPerfil) ? (
+                                    <img
+                                        src={previewProfileUrl || user?.fotoPerfil}
+                                        alt="Preview"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-white text-2xl font-bold">
+                                        {nome ? nome[0].toUpperCase() : "U"}
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Input de arquivo + botão */}
+                            <div className="flex flex-col gap-[8px] flex-1">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleProfileFileSelect}
+                                    disabled={isInterable === "pointer-events-none select-none"}
+                                    className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#9333EA] file:text-white hover:file:bg-[#7E22CE] file:cursor-pointer disabled:opacity-50"
+                                />
+                                {selectedProfileFile && (
+                                    <p className="text-xs text-[#6B7280]">
+                                        {selectedProfileFile.name} ({(selectedProfileFile.size / 1024).toFixed(2)} KB)
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </div>
                     <button onClick={() => { setVisible(false); setInterable("bg-[#fff]") }} className={"bg-[#9333EA] font-medium hover:bg-[#7E22CE] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-[#fff] text-sm sm:text-base " + (isVisible ? "" : "hidden")}>Editar</button>

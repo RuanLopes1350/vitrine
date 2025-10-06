@@ -277,6 +277,7 @@ export default function InicioPage() {
                 modo="logado"
                 nomeUsuario={user.nome}
                 nomeLoja={user.nomeLoja}
+                fotoPerfil={user.fotoPerfil}
                 id={user.id}
               />
               <Produtos

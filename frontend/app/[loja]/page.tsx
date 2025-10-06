@@ -18,7 +18,7 @@ export default function PageLoja() {
     const local = usePathname();
     const [itemsPerPage, setIsItemsPerPage] = useState<number>(20)
     const [currentPage, setCurrentPage] = useState<number>(0)
-    
+
     // ✅ CORRETO: Calcular valores derivados sem estado
     const startIndex = currentPage * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -31,7 +31,7 @@ export default function PageLoja() {
             const id = local.match(/[0-9a-fA-F]{24}/)?.[0] as string;
 
             if (id) {
-                 await getProdutos(id);
+                await getProdutos(id);
             }
             setLoading(false);
         }
@@ -40,31 +40,31 @@ export default function PageLoja() {
     }, [local]);
 
     useEffect(() => {
-    if (produtos?.data?.docs && produtos.data.docs.length > 0) {
-        const nomeLoja = produtos.data.docs[0].criador.nomeLoja;
-        const mensagemLoja = produtos.data.docs[0].criador.mensagem
-        const fotoPerfil = produtos.data.docs[0].criador.fotoPerfil
-        setIsNomeLoja(nomeLoja);
-        setIsMensagemLoja(mensagemLoja)
-        setIsFotoPerfil(fotoPerfil)
-        console.log(nomeLoja)
-    } else {
-        setIsNomeLoja("Loja não encontrada");
-    }
-}, [produtos]);
+        if (produtos?.data?.docs && produtos.data.docs.length > 0) {
+            const nomeLoja = produtos.data.docs[0].criador.nomeLoja;
+            const mensagemLoja = produtos.data.docs[0].criador.mensagem
+            const fotoPerfil = produtos.data.docs[0].criador.fotoPerfil
+            setIsNomeLoja(nomeLoja);
+            setIsMensagemLoja(mensagemLoja)
+            setIsFotoPerfil(fotoPerfil)
+            console.log(nomeLoja)
+        } else {
+            setIsNomeLoja("Loja não encontrada");
+        }
+    }, [produtos]);
 
     function nextPage() {
         if (currentPage < totalPages - 1) {
             setCurrentPage(prev => prev + 1)
         }
     }
-    
+
     function prevPage() {
         if (currentPage > 0) {
             setCurrentPage(prev => prev - 1)
         }
     }
-    
+
     function goToPage(page: number) {
         setCurrentPage(page);
     }
@@ -92,10 +92,18 @@ export default function PageLoja() {
                 {/* Header da vitrine */}
                 <section className="bg-white rounded-xl shadow-md p-4 sm:p-8 mb-4 sm:mb-8">
                     <div className="flex flex-col items-center">
-                        { isFotoPerfil ? isFotoPerfil : <div className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] bg-[#F3E8FF] rounded-full flex justify-center items-center mb-[10px]">
-                            <img src="Vitrine.svg" alt="" className="w-6 sm:w-auto" />
-                        </div>  }
-                        
+                        {isFotoPerfil ? (
+                            <img
+                                src={isFotoPerfil}
+                                alt="Logo da loja"
+                                className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] rounded-full object-cover border-2 border-[#9333EA]"
+                            />
+                        ) : (
+                            <div className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] bg-[#F3E8FF] rounded-full flex justify-center items-center mb-[10px]">
+                                <img src="/Vitrine.svg" alt="" className="w-6 sm:w-auto" />
+                            </div>
+                        )}
+
                         <h1 className="text-[20px] sm:text-[26px] font-bold text-center max-w-full break-words">Bem-vindo a {isNomeLoja} </h1>
                         <p className="max-w-full overflow-hidden text-[#4B5563] text-center text-sm sm:text-base px-2 break-words">{isMensagemLoja}</p>
                         {/* <p className="text-[#4B5563] text-center text-sm sm:text-base px-2">Crie sua loja hoje mesmo e comece a vender em minutos!</p> */}
@@ -136,8 +144,8 @@ export default function PageLoja() {
                             {totalPages > 1 && (
                                 <div className="flex items-center justify-center space-x-2 mt-8">
                                     {/* Botão Anterior */}
-                                    <button 
-                                        onClick={prevPage} 
+                                    <button
+                                        onClick={prevPage}
                                         disabled={currentPage === 0}
                                         className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                     >
@@ -153,11 +161,10 @@ export default function PageLoja() {
                                             <button
                                                 key={index}
                                                 onClick={() => goToPage(index)}
-                                                className={`px-3 py-2 text-sm font-medium rounded-md ${
-                                                    currentPage === index
+                                                className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === index
                                                         ? 'text-white bg-[#9333EA]'
                                                         : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 cursor-pointer'
-                                                }`}
+                                                    }`}
                                             >
                                                 {index + 1}
                                             </button>
@@ -165,8 +172,8 @@ export default function PageLoja() {
                                     </div>
 
                                     {/* Botão Próximo */}
-                                    <button 
-                                        onClick={nextPage} 
+                                    <button
+                                        onClick={nextPage}
                                         disabled={currentPage === totalPages - 1}
                                         className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                                     >
