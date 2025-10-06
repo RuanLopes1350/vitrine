@@ -36,9 +36,9 @@ export default function ProdutoCardLoja({ produto }: ProdutoCardLojaProps) {
   };
 
   return (
-    <div className="h-[420px] bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group border border-gray-100">
+    <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group border border-gray-100 flex flex-col h-full">
       {/* Imagem do produto */}
-      <div className="relative h-48 bg-gray-100 overflow-hidden">
+      <div className="relative h-48 bg-gray-100 overflow-hidden flex-shrink-0">
         {produto.imagem ? (
           <Image
             src={produto.imagem}
@@ -60,39 +60,37 @@ export default function ProdutoCardLoja({ produto }: ProdutoCardLojaProps) {
       </div>
 
       {/* Conteúdo do card */}
-      <div className="p-4 flex flex-col justify-between h-[calc(420px-192px)]">
-        {/* Conteúdo superior (título, descrição, preço) */}
-        <div className="space-y-3 flex-1">
-          {/* Título do produto */}
-          <h3 className="font-semibold text-gray-900 text-lg leading-tight line-clamp-2 group-hover:text-[#9333EA] transition-colors">
-            {produto.nome_produto}
-          </h3>
+      <div className="p-4 flex flex-col flex-grow">
+        {/* Título - altura fixa para alinhamento */}
+        <h3 className="font-semibold text-gray-900 text-lg leading-tight mb-2 overflow-hidden line-clamp-2 group-hover:text-[#9333EA] transition-colors h-[3.5rem]">
+          {produto.nome_produto}
+        </h3>
 
-          {/* Descrição */}
-          <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed overflow-y-auto"
+        {/* Descrição - altura fixa com scroll */}
+        <div 
+          className="text-gray-600 text-sm leading-relaxed mb-3 overflow-y-auto pr-1 h-[4.5rem]"
           style={{
-            scrollbarWidth: 'none'
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#E5E7EB transparent'
           }}
-          >
-            {produto.descricao}
-          </p>
+        >
+          {produto.descricao}
+        </div>
 
-          {/* Preço */}
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-[#9333EA]">
-              R$ {produto.preco.toFixed(2).replace('.', ',')}
-            </span>
-          </div>
+        {/* Preço */}
+        <div className="mb-3">
+          <span className="text-2xl font-bold text-[#9333EA]">
+            R$ {produto.preco.toFixed(2).replace('.', ',')}
+          </span>
         </div>
         
         {/* Botão WhatsApp - sempre no bottom */}
-        <div className="mt-4">
+        <div className="mt-auto pt-3 border-t border-gray-200">
           <Button 
             onClick={handleWhatsAppClick}
-            className="w-full bg-[#25D366] hover:bg-[#22c55e] text-white transition-colors group/btn cursor-pointer"
+            className="w-full bg-[#25D366] hover:bg-[#22c55e] text-white transition-colors cursor-pointer"
           >
-            {/* <MessageCircle className="w-4 h-4 mr-2 group-hover/btn:scale-110 transition-transform" /> */}
-            <img src="whatsapp2.svg" alt="" />
+            <MessageCircle className="w-4 h-4 mr-2" />
             WhatsApp
           </Button>
         </div>

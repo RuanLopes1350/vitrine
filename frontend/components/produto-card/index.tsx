@@ -95,30 +95,33 @@ export default function ProdutoCard({
       </div>
 
       <div className="p-4 flex flex-col flex-grow">
-        <h3 className={`
-          ${isGerenciar ? 'font-bold' : 'font-semibold'} 
-          text-gray-900 text-base leading-tight mb-2 overflow-hidden
-        `}
+        {/* Título */}
+        <h3 
+          className={`
+            ${isGerenciar ? 'font-bold' : 'font-semibold'} 
+            text-gray-900 text-base leading-tight mb-2 overflow-hidden line-clamp-2
+          `}
           style={{
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            minHeight: '1.5rem'
-          }}>
+            height: '2.55rem'
+          }}
+        >
           {produto.titulo}
         </h3>
-          <p className="text-gray-600 text-sm leading-relaxed overflow-y-auto"
-            style={{
-              display: '-webkit-box',
-              WebkitLineClamp: isGerenciar ? 2 : 3,
-              WebkitBoxOrient: 'vertical',
-              minHeight: isGerenciar ? '3.5rem' : '5.75rem',
-              scrollbarWidth: 'none'
-            }}>
-            {produto.descricao}
-          </p>
 
-        <div className={`flex gap-2 mt-3 ${!isGerenciar ? 'pt-3 border-t border-gray-200' : ''} min-h-[2.5rem]`}>
+        {/* Descrição */}
+        <div 
+          className="text-gray-600 text-sm leading-relaxed mb-3 overflow-y-auto pr-1"
+          style={{
+            height: isGerenciar ? '3.5rem' : '5.75rem',
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#E5E7EB transparent'
+          }}
+        >
+          {produto.descricao}
+        </div>
+
+        {/* Botões */}
+        <div className={`flex gap-2 mt-auto ${!isGerenciar ? 'pt-3 border-t border-gray-200' : ''}`}>
           {isGerenciar ? (
             <>
               <Button
