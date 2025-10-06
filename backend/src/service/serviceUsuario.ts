@@ -24,7 +24,7 @@ class ServiceUsuario {
             dadosUsuario.senha = senhaCriptografada;
 
             const usuario = await this.repository.cadastrar(dadosUsuario);
-            
+
             // Enviar email de boas-vindas (não bloqueia o cadastro se falhar)
             try {
                 await this.serviceEmail.enviarEmailBoasVindas(dadosUsuario.nome, dadosUsuario.email);
@@ -99,7 +99,7 @@ class ServiceUsuario {
             }
 
             UsuarioUpdateSchema.parse(dadosUsuario);
-            
+
             const usuarioAtualizado = await this.repository.atualizar(id, dadosUsuario);
             if (!usuarioAtualizado) {
                 return CommonResponse.error('Falha ao atualizar usuário');
