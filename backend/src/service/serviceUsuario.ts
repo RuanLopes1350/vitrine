@@ -55,18 +55,13 @@ class ServiceUsuario {
     }
 
     async buscarPorId(id: string): Promise<CommonResponse> {
-        try {
-            const dados = await this.repository.buscarPorId(id);
+        const dados = await this.repository.buscarPorId(id);
 
-            if (!dados) {
-                return CommonResponse.notFound('Usuário não encontrado');
-            }
-
-            return CommonResponse.success('Usuário encontrado', dados);
-        } catch (erro) {
-            console.error('[Service] Erro ao buscar usuário por id:', erro);
-            return CommonResponse.error('Falha ao buscar usuário por id');
+        if (!dados) {
+            return CommonResponse.notFound('Usuário não encontrado');
         }
+
+        return CommonResponse.success('Usuário encontrado', dados);
     }
 
     async atualizar(id: string, dadosUsuario: typeUsuario): Promise<CommonResponse> {
@@ -108,8 +103,7 @@ class ServiceUsuario {
                 return CommonResponse.validationError('Dados inválidos para atualização', mensagensErro);
             }
 
-            console.error('[Service] Erro ao atualizar usuário:', erro);
-            return CommonResponse.error('Falha ao atualizar usuário');
+            throw erro;
         }
     }
 
@@ -131,8 +125,7 @@ class ServiceUsuario {
 
             return CommonResponse.success('Usuário deletado com sucesso', { id, nome: usuarioExiste.nome });
         } catch (erro) {
-            console.error('[Service] Erro ao deletar usuário:', erro);
-            return CommonResponse.error('Falha ao deletar usuário');
+            throw erro;
         }
     }
 }
