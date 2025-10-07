@@ -85,6 +85,9 @@ export class ErrorHandlerMiddleware {
             mensagem: issue.message
         })) || [{ campo: 'dados', mensagem: 'Dados inválidos' }];
 
-        return CommonResponse.badRequest('ID inválido', erros);
+        // Usa a primeira mensagem como título principal
+        const mensagemPrincipal = erros[0]?.mensagem || 'Dados inválidos';
+        
+        return CommonResponse.badRequest(mensagemPrincipal, erros);
     }
 }

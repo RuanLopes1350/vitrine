@@ -78,17 +78,8 @@ class ControllerProduto {
                 return response.send(res);
             }
 
-            // Validação de ObjectId com safeParse
-            const objectIdValidation = objectIdSchema.safeParse(id);
-            if (!objectIdValidation.success) {
-                const response = CommonResponse.badRequest(
-                    'ID inválido',
-                    ['O ID fornecido não é um ObjectId válido']
-                );
-                return response.send(res);
-            }
-
-            const produto = await this.service.buscarPorId(objectIdValidation.data);
+            const validatedId = objectIdSchema.parse(id);
+            const produto = await this.service.buscarPorId(validatedId);
             return produto.send(res);
         } catch (erro: any) {
             next(erro);
@@ -110,17 +101,8 @@ class ControllerProduto {
                 return response.send(res);
             }
 
-            // Validação de ObjectId com safeParse
-            const objectIdValidation = objectIdSchema.safeParse(id);
-            if (!objectIdValidation.success) {
-                const response = CommonResponse.badRequest(
-                    'ID inválido',
-                    ['O ID fornecido não é um ObjectId válido']
-                );
-                return response.send(res);
-            }
-
-            const produtoAtualizado = await this.service.editar(objectIdValidation.data, dadosProduto, userId);
+            const validatedId = objectIdSchema.parse(id);
+            const produtoAtualizado = await this.service.editar(validatedId, dadosProduto, userId);
             return produtoAtualizado.send(res);
         } catch (erro: any) {
             next(erro);
@@ -141,17 +123,8 @@ class ControllerProduto {
                 return response.send(res);
             }
 
-            // Validação de ObjectId com safeParse
-            const objectIdValidation = objectIdSchema.safeParse(id);
-            if (!objectIdValidation.success) {
-                const response = CommonResponse.badRequest(
-                    'ID inválido',
-                    ['O ID fornecido não é um ObjectId válido']
-                );
-                return response.send(res);
-            }
-
-            const resultado = await this.service.deletar(objectIdValidation.data, userId);
+            const validatedId = objectIdSchema.parse(id);
+            const resultado = await this.service.deletar(validatedId, userId);
             return resultado.send(res);
         } catch (erro: any) {
             next(erro);
@@ -171,17 +144,8 @@ class ControllerProduto {
                 return response.send(res);
             }
             
-            // Validação de ObjectId com safeParse
-            const objectIdValidation = objectIdSchema.safeParse(id);
-            if (!objectIdValidation.success) {
-                const response = CommonResponse.badRequest(
-                    'ID inválido',
-                    ['O ID fornecido não é um ObjectId válido']
-                );
-                return response.send(res);
-            }
-
-            const produtos = await this.service.buscarTodosProdutosUsuario(req, objectIdValidation.data);
+            const validatedId = objectIdSchema.parse(id);
+            const produtos = await this.service.buscarTodosProdutosUsuario(req, validatedId);
             return produtos.send(res);
         } catch (erro: any) {
             next(erro);
