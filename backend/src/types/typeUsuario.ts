@@ -8,6 +8,9 @@ export type typeUsuario = {
     mensagem?: string,
     ativo: boolean,
     accessToken?: string
+    tokenUnico?:string
+    codigoRecuperaSenha?:string
+    expCodigoRecuperaSenha?:string
 }
 
 export type typeUsuarioCompleto = typeUsuario & {

@@ -15,7 +15,10 @@ class Usuario {
                 ativo: { type: Boolean, default: false },
                 fotoPerfil: {type: String, required: false},
                 mensagem: {type: String, required: false},
-                accessToken:{type: String, required: false, select: false}
+                accessToken:{type: String, required: false, select: false},
+                codigoRecuperaSenha:{type:String, select:false},
+                expCodigoRecuperaSenha:{type:String, select:false},
+                tokenUnico:{type:String, select: false}
             },
             {
                 timestamps: {

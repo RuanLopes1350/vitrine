@@ -32,7 +32,7 @@ class RepositoryUsuario {
         return user;
     }
 
-    async atualizar(id: string, dadosUsuario: typeUsuario) {
+    async atualizar(id: string, dadosUsuario: Partial<typeUsuario>) {
         return await this.model.findByIdAndUpdate(id, dadosUsuario, { new: true });
     }
 
@@ -71,7 +71,11 @@ class RepositoryUsuario {
         return usuario;
     }
 
-
+    async buscarPorCodigoRecuperacao(codigo:string) {
+        const filtro = {expCodigoRecuperaSenha: codigo};
+        const documento = await this.model.findOne(filtro,['+senha', '+expCodigoRecuperaSenha', '+codigoRecuperaSenha'])
+        return documento
+    }
 }
 
 export default RepositoryUsuario;

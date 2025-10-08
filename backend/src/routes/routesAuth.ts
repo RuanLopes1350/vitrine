@@ -9,5 +9,6 @@ const controlador = new ControladorAuth();
 roteador
   .post('/login', controlador.login.bind(controlador))
   .post('/logout', authMiddleware, controlador.logout.bind(controlador));
+  // .post('/recover')
 
 export default roteador;
