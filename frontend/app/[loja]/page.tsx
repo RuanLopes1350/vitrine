@@ -92,7 +92,7 @@ export default function PageLoja() {
                 {/* Header da vitrine */}
                 <section className="bg-white rounded-xl shadow-md p-4 sm:p-8 mb-4 sm:mb-8">
                     <div className="flex flex-col items-center">
-                        { isFotoPerfil ? isFotoPerfil : <div className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] bg-[#F3E8FF] rounded-full flex justify-center items-center mb-[10px]">
+                        { isFotoPerfil ? <img className="h-[68px] w-[68px] rounded-full" src={isFotoPerfil} alt="" /> : <div className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] bg-[#F3E8FF] rounded-full flex justify-center items-center mb-[10px]">
                             <img src="Vitrine.svg" alt="" className="w-6 sm:w-auto" />
                         </div>  }
                         
