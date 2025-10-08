@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import { MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 interface ProdutoLoja {
   _id: string;
@@ -36,9 +35,9 @@ export default function ProdutoCardLoja({ produto }: ProdutoCardLojaProps) {
   };
 
   return (
-    <div className="h-[420px] bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden group border border-gray-100">
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full">
       {/* Imagem do produto */}
-      <div className="relative h-48 bg-gray-100 overflow-hidden">
+      <div className="relative h-48 bg-gray-200 flex-shrink-0 overflow-hidden">
         {produto.imagem ? (
           <Image
             src={produto.imagem}
@@ -48,49 +47,56 @@ export default function ProdutoCardLoja({ produto }: ProdutoCardLojaProps) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+          <div className="w-full h-full flex items-center justify-center text-gray-400">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-2 flex items-center justify-center">
-                <span className="text-2xl text-gray-400">📦</span>
-              </div>
-              <span className="text-sm text-gray-400 font-medium">Sem imagem</span>
+              <div className="w-16 h-16 bg-gray-300 rounded-lg mx-auto mb-2"></div>
+              <span className="text-sm">Sem imagem</span>
             </div>
           </div>
         )}
       </div>
 
       {/* Conteúdo do card */}
-      <div className="p-4 flex flex-col justify-between h-[calc(420px-192px)]">
-        {/* Conteúdo superior (título, descrição, preço) */}
-        <div className="space-y-3 flex-1">
-          {/* Título do produto */}
-          <h3 className="font-semibold text-gray-900 text-lg leading-tight line-clamp-2 group-hover:text-[#9333EA] transition-colors">
-            {produto.nome_produto}
-          </h3>
+      <div className="p-4 flex flex-col flex-grow">
+        {/* Título do produto */}
+        <h3 className="font-semibold text-gray-900 text-base leading-tight mb-2 overflow-hidden"
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            minHeight: '1.5rem'
+          }}>
+          {produto.nome_produto}
+        </h3>
 
-          {/* Descrição */}
-          <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">
-            {produto.descricao}
-          </p>
+        {/* Descrição */}
+        <p className="text-gray-600 text-sm leading-relaxed overflow-y-auto mb-2"
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            minHeight: '5.75rem',
+            scrollbarWidth: 'none'
+          }}>
+          {produto.descricao}
+        </p>
 
-          {/* Preço */}
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-[#9333EA]">
-              R$ {produto.preco.toFixed(2).replace('.', ',')}
-            </span>
-          </div>
+        {/* Preço */}
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xl font-bold text-[#9333EA]">
+            R$ {produto.preco.toFixed(2).replace('.', ',')}
+          </span>
         </div>
         
         {/* Botão WhatsApp - sempre no bottom */}
-        <div className="mt-4">
-          <Button 
+        <div className="pt-3 border-t border-gray-200 min-h-[2.5rem]">
+          <button
             onClick={handleWhatsAppClick}
-            className="w-full bg-[#25D366] hover:bg-[#22c55e] text-white transition-colors group/btn cursor-pointer"
+            className="w-full bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-xs font-medium transition-colors duration-200 flex items-center justify-center gap-1"
           >
-            {/* <MessageCircle className="w-4 h-4 mr-2 group-hover/btn:scale-110 transition-transform" /> */}
-            <img src="whatsapp2.svg" alt="" />
+            <MessageCircle size={14} />
             WhatsApp
-          </Button>
+          </button>
         </div>
       </div>
     </div>
