@@ -278,6 +278,8 @@ export default function InicioPage() {
                 nomeUsuario={user.nome}
                 nomeLoja={user.nomeLoja}
                 id={user.id}
+                mensagem={user.mensagem}
+                fotoUsuario={user.fotoPerfil}
               />
               <Produtos
                 modo="gerenciar"

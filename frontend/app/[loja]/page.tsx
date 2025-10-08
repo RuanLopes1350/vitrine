@@ -87,31 +87,31 @@ export default function PageLoja() {
     const temProdutos = produtos?.data?.docs && produtos.data.docs.length > 0;
     const nomeLoja = temProdutos ? produtos.data.docs[0].criador.nomeLoja : "Loja não encontrada";
     return (
-        <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
+        <div className="min-h-screen dark:bg-gray-900  py-4 sm:py-8">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header da vitrine */}
-                <section className="bg-white rounded-xl shadow-md p-4 sm:p-8 mb-4 sm:mb-8">
+                <section className="dark:bg-gray-800  rounded-xl shadow-md p-4 sm:p-8 mb-4 sm:mb-8">
                     <div className="flex flex-col items-center">
                         { isFotoPerfil ? <img className="h-[68px] w-[68px] rounded-full" src={isFotoPerfil} alt="" /> : <div className="h-[48px] w-[48px] sm:h-[64px] sm:w-[64px] bg-[#F3E8FF] rounded-full flex justify-center items-center mb-[10px]">
                             <img src="Vitrine.svg" alt="" className="w-6 sm:w-auto" />
                         </div>  }
                         
-                        <h1 className="text-[20px] sm:text-[26px] font-bold text-center max-w-full break-words">Bem-vindo a {isNomeLoja} </h1>
-                        <p className="max-w-full overflow-hidden text-[#4B5563] text-center text-sm sm:text-base px-2 break-words">{isMensagemLoja}</p>
+                        <h1 className="text-[20px] sm:text-[26px] font-bold text-center max-w-full break-words text-[#fff]">Bem-vindo a {isNomeLoja} </h1>
+                        <p className="max-w-full overflow-hidden text-[#fff] text-center text-sm sm:text-base px-2 break-words">{isMensagemLoja}</p>
                         {/* <p className="text-[#4B5563] text-center text-sm sm:text-base px-2">Crie sua loja hoje mesmo e comece a vender em minutos!</p> */}
                     </div>
                 </section>
 
                 {/* Seção da loja */}
-                <section className="bg-white rounded-xl shadow-md p-4 sm:p-8">
+                <section className="dark:bg-gray-800  rounded-xl shadow-md p-4 sm:p-8">
                     {/* Header da loja */}
                     <div className="flex items-center space-x-3 mb-8">
                         <div className="bg-[#F3E8FF] p-3 rounded-lg border border-[#E9D5FF]">
                             <Store className="h-6 w-6 text-[#9333EA]" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-[#111827]">{nomeLoja}</h1>
-                            <p className="text-gray-600 mt-1">
+                            <h1 className="text-3xl font-bold text-[#fff]">{nomeLoja}</h1>
+                            <p className="text-[#fff] mt-1">
                                 {temProdutos
                                     ? `${produtos.data.docs.length} produto${produtos.data.docs.length !== 1 ? 's' : ''} disponível${produtos.data.docs.length !== 1 ? 'eis' : ''}`
                                     : "Nenhum produto encontrado"
