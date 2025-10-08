@@ -27,7 +27,7 @@ export default function CardSessao({
     return name.charAt(0).toUpperCase();
   };
   
-  // ✅ Memoizar cálculos derivados
+  // Memorizar cálculos derivados
   const linkCompleto = useMemo(() => {
     return origin + "/" + nomeLoja.toLowerCase() + "-" + id;
   }, [nomeLoja, id]);
@@ -37,7 +37,7 @@ export default function CardSessao({
     return linkCompleto.length > maxLength ? linkCompleto.slice(0, maxLength) + '...' : linkCompleto;
   }, [linkCompleto]);
   
-  // ✅ Memoizar função de cópia
+  // Memorizar função de cópia
   const copiarLink = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(linkCompleto);

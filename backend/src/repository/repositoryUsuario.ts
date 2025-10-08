@@ -41,7 +41,9 @@ class RepositoryUsuario {
     }
 
     async buscarPorEmail(email:string) {
-        const data = await this.model.findOne({email:email}, '+senha +nomeLoja +whatsapp +ativo +mensagem' );
+
+        const data = await this.model.findOne({email:email}, ' +fotoPerfil +senha +nomeLoja +whatsapp +ativo' );
+
         return data
     }
 

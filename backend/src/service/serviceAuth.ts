@@ -40,7 +40,9 @@ class ServicoAuth {
         nomeLoja: usuario.nomeLoja,
         whatsapp: usuario.whatsapp,
         ativo: usuario.ativo,
-        mensagem: usuario.mensagem
+        mensagem: usuario.mensagem,
+        fotoPerfil: usuario.fotoPerfil
+
       }
     };
 

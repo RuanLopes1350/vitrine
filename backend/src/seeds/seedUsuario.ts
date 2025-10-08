@@ -1,7 +1,7 @@
 import modelUsuario from '../models/modelUsuario.js'
 import { typeUsuario } from '../types/typeUsuario.js'
 
-import { getGlobalFakeMapping } from './globalFakeMapping.js'
+import getGlobalFakeMapping from './globalFakeMapping.js'
 
 async function seedUsuarios() {
     await modelUsuario.deleteMany();
@@ -21,6 +21,7 @@ async function seedUsuarios() {
         email: 'intel.spec.lopes@gmail.com',
         senha: hashedPassword,
         whatsapp: '556992468120',
+        fotoPerfil: '',
         ativo: true
     },{
         nome: 'Silvio Huan',
@@ -28,7 +29,7 @@ async function seedUsuarios() {
         email: 'silvio.huan@gmail.com',
         senha: hashedPassword,
         whatsapp: '556955667788',
-
+        fotoPerfil: '',
         ativo: true
     },{
         nome: 'Luis Felipe',
@@ -36,6 +37,7 @@ async function seedUsuarios() {
         email: 'luis.felipe@gmail.com',
         senha: hashedPassword,
         whatsapp: '556911223344',
+        fotoPerfil: '',
         ativo: true
     }
 ]
@@ -50,14 +52,14 @@ async function seedUsuarios() {
     for (let i = 0; i < 27; i++) {
         usuariosAleatorios.push(
             {
-                nome: mapping.usuario.nome(),
-                nomeLoja: mapping.usuario.nomeLoja(),
-                email: mapping.usuario.email(),
-                senha: mapping.usuario.senha(),
-                whatsapp: mapping.usuario.whatsapp(),
-                fotoPerfil: mapping.usuario.fotoPerfil(),
-                mensagem: mapping.usuario.mensagem(),
-                ativo: mapping.usuario.ativo()
+                nome: mapping.nome(),
+                nomeLoja: mapping.nomeLoja(),
+                email: mapping.email(),
+                senha: mapping.senha(),
+                whatsapp: mapping.whatsapp(),
+                fotoPerfil: mapping.fotoPerfil(),
+                ativo: mapping.ativo(),
+                accessToken: mapping.accessToken()
             }
         )
     }
