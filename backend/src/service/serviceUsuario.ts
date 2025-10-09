@@ -25,7 +25,7 @@ class ServiceUsuario {
 
             const emailBoasVinda: SendMailParams = {
                 to: usuario.email!,
-                subject: 'Bem-vindo ao Nosso Sistema!',
+                subject: 'Bem-vindo à Nossa Plataforma!',
                 template: 'bemvindo',
                 data: {
                     nomeSistema: 'Vitrine',
