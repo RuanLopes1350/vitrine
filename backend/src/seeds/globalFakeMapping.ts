@@ -19,6 +19,9 @@ const fakeMappings: Record<string, any> = {
         fotoPerfil: () => faker.image.avatar(),
         mensagem: () => faker.lorem.sentence(),
         accessToken: () => faker.string.alphanumeric(32),
+        codigoRecuperaSenha: () =>"",
+        expCodigoRecuperaSenha: () =>"",
+        tokenUnico:() =>""
     },
     modelProduto: {
         criador: () => faker.person.fullName(),
