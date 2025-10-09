@@ -17,6 +17,7 @@
     "@supabase/supabase-js": "^2.57.2",
     "@types/nodemailer": "^7.0.2",
     "@types/promisify-node": "^0.4.3",
+    "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.7.0",
     "cors": "^2.8.5",

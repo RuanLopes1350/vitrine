@@ -1,18 +1,16 @@
-import { z } from "zod";
+import { email, z } from "zod";
 import RepositoryUsuario from "../repository/repositoryUsuario.js";
 import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuarioSchema.js";
 import { typeUsuario } from "../types/typeUsuario.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
 import { PasswordHelper } from "../utils/helpers/passwordHelper.js";
-import ServiceEmail from "./serviceEmail.js";
+import { enviarEmail, SendMailParams, MailDataBemVindo, MailDataGenerico } from "../utils/mailService.js";
 
 class ServiceUsuario {
     private repository: RepositoryUsuario;
-    private serviceEmail: ServiceEmail;
 
     constructor() {
         this.repository = new RepositoryUsuario();
-        this.serviceEmail = new ServiceEmail();
     }
 
     async cadastrar(dadosUsuario: typeUsuario): Promise<CommonResponse> {
@@ -23,11 +21,35 @@ class ServiceUsuario {
             const senhaCriptografada = await PasswordHelper.hash(dadosUsuario.senha);
             dadosUsuario.senha = senhaCriptografada;
 
-            const usuario = await this.repository.cadastrar(dadosUsuario);
+            const usuario:Partial<typeUsuario> = await this.repository.cadastrar(dadosUsuario);
+
+            const emailBoasVinda: SendMailParams = {
+                to: usuario.email!,
+                subject: 'Bem-vindo ao Nosso Sistema!',
+                template: 'bemvindo',
+                data: {
+                    nomeSistema: 'Vitrine',
+                    nome: usuario.nome,
+                    mensagem: 'Bem-vindo à nossa plataforma! Estamos muito felizes em tê-lo conosco. Este é um email de boas-vindas com algumas informações úteis para você começar.',
+                    mensagemSecundaria: 'O que você pode fazer em nossa plataforma:',
+                    itens: [
+                        'Cadastrar seus produtos e serviços com uma foto atraente.',
+                        'Definir preços competitivos para atrair mais clientes.',
+                        'Definir sua foto de perfil para mostrar a marca do seu negócio.',
+                        'Definir uma descrição envolvente para destacar o que torna seu negócio único.',
+                    ],
+                    mostrarBotao: true,
+                    textoBotao: 'Acessar Plataforma',
+                    urlBotao: process.env.URL_LOGIN || 'http://localhost:3000/login',
+                    corPrimaria: '#8a36eb',
+                    corBotao: '#9810fa'
+                } as MailDataBemVindo
+            }
 
             // Enviar email de boas-vindas (não bloqueia o cadastro se falhar)
             try {
-                await this.serviceEmail.enviarEmailBoasVindas(dadosUsuario.nome, dadosUsuario.email);
+                const respostaEmail = await enviarEmail(emailBoasVinda);
+                console.log('Email de boas-vindas enviado com sucesso:', respostaEmail);
             } catch (error) {
                 console.error('Erro ao enviar email de boas-vindas, mas cadastro foi realizado:', error);
             }
