@@ -78,8 +78,8 @@ class ControllerProduto {
                 return response.send(res);
             }
 
-            const validacao = objectIdSchema.parse(id);
-            const produto = await this.service.buscarPorId(validacao);
+            const validatedId = objectIdSchema.parse(id);
+            const produto = await this.service.buscarPorId(validatedId);
             return produto.send(res);
         } catch (erro: any) {
             next(erro);
@@ -101,8 +101,8 @@ class ControllerProduto {
                 return response.send(res);
             }
 
-            const validacao = objectIdSchema.parse(id);
-            const produtoAtualizado = await this.service.editar(validacao, dadosProduto, userId);
+            const validatedId = objectIdSchema.parse(id);
+            const produtoAtualizado = await this.service.editar(validatedId, dadosProduto, userId);
             return produtoAtualizado.send(res);
         } catch (erro: any) {
             next(erro);
@@ -123,8 +123,8 @@ class ControllerProduto {
                 return response.send(res);
             }
 
-            const validacao = objectIdSchema.parse(id);
-            const resultado = await this.service.deletar(validacao, userId);
+            const validatedId = objectIdSchema.parse(id);
+            const resultado = await this.service.deletar(validatedId, userId);
             return resultado.send(res);
         } catch (erro: any) {
             next(erro);
@@ -144,8 +144,8 @@ class ControllerProduto {
                 return response.send(res);
             }
             
-            const validacao = objectIdSchema.parse(id);
-            const produtos = await this.service.buscarTodosProdutosUsuario(req, validacao);
+            const validatedId = objectIdSchema.parse(id);
+            const produtos = await this.service.buscarTodosProdutosUsuario(req, validatedId);
             return produtos.send(res);
         } catch (erro: any) {
             next(erro);

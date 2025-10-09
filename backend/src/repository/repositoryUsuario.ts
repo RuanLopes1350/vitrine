@@ -25,10 +25,6 @@ class RepositoryUsuario {
             query.select('+refreshToken +accessToken')
         }
         const user = await query
-        if (!user) {
-            throw new Error('Usuário não encontrado')
-        }
-
         return user;
     }
 
@@ -42,7 +38,6 @@ class RepositoryUsuario {
 
     async buscarPorEmail(email:string) {
         const data = await this.model.findOne({email:email}, ' +fotoPerfil +senha +nomeLoja +whatsapp +ativo' );
-        console.log(`Debugando: Retornando \n${data}`)
         return data
     }
 

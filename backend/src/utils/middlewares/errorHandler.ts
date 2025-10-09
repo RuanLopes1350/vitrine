@@ -37,6 +37,13 @@ export class ErrorHandlerMiddleware {
             return;
         }
 
+        // Erro de validação do Zod (incluindo ObjectId inválido)
+        if (erro.name === 'ZodError') {
+            const response = ErrorHandlerMiddleware.handleZodError(erro);
+            response.send(res);
+            return;
+        }
+
         // Erro genérico
         const response = CommonResponse.error('Erro interno do servidor');
         response.send(res);
@@ -69,5 +76,18 @@ export class ErrorHandlerMiddleware {
         }));
 
         return CommonResponse.validationError('Dados inválidos', erros);
+    }
+
+    // Trata erros de validação do Zod
+    private static handleZodError(erro: any): CommonResponse {
+        const erros = erro.issues?.map((issue: any) => ({
+            campo: issue.path?.join('.') || 'campo',
+            mensagem: issue.message
+        })) || [{ campo: 'dados', mensagem: 'Dados inválidos' }];
+
+        // Usa a primeira mensagem como título principal
+        const mensagemPrincipal = erros[0]?.mensagem || 'Dados inválidos';
+        
+        return CommonResponse.badRequest(mensagemPrincipal, erros);
     }
 }
