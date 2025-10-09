@@ -5,7 +5,8 @@ import { CommonResponse } from '../utils/helpers/commonResponse.js';
 import { PasswordHelper } from '../utils/helpers/passwordHelper.js';
 import { UsuarioUpdateSchema } from '../utils/validations/usuarioSchema.js';
 import { typeUsuario } from '../types/typeUsuario.js';
-import { Response } from 'express';
+import { Response, Request } from 'express';
+import { enviarEmail, MailDataGenerico, SendMailParams } from '../utils/mailService.js';
 
 // Serviço de autenticação - versão simplificada
 class ServicoAuth {
@@ -53,14 +54,16 @@ class ServicoAuth {
     return CommonResponse.success('Login realizado com sucesso', dadosResposta);
   }
 
-  async recuperaSenha(email: string, res: Response) {
+  async recuperaSenha(req: Request, res: Response) {
+    console.log(req.body)
     type usuarioMongo = typeUsuario & {
       _id: string;
       tokenUnico: string;
     }
-    const validarEmail = UsuarioUpdateSchema.parse(email)
-    const data = await this.repositorioUsuario.buscarPorEmail(email) as usuarioMongo
+    const validarEmail = UsuarioUpdateSchema.parse(req.body)
+    const data = await this.repositorioUsuario.buscarPorEmail(validarEmail.email as string) as usuarioMongo
     if (!data || (data.ativo !== true)) {
+      console.log("realizarLogin")
       const response = CommonResponse.success('Um código de recuperação foi enviado para o seu email')
       response.send(res)
       return
@@ -74,16 +77,14 @@ class ServicoAuth {
     let codigoRecuperaSenha = generateCode();
 
     let codigoExistente = await this.repositorioUsuario.buscarPorCodigoRecuperacao(codigoRecuperaSenha);
-
     while (codigoExistente) {
       codigoRecuperaSenha = generateCode()
       codigoExistente = await this.repositorioUsuario.buscarPorCodigoRecuperacao(codigoRecuperaSenha);
     }
 
-    const tokenUnico = geradorToken.generatePasswordRecoveryToken(data._id);
+    // const tokenUnico = geradorToken.generatePasswordRecoveryToken(data._id);
     const expMs = Date.now() + 60 * 60 * 1000; // 1 hora de expiração
     const novosDados = await this.repositorioUsuario.atualizar(data._id, {
-      tokenUnico: tokenUnico,
       codigoRecuperaSenha: codigoRecuperaSenha,
       expCodigoRecuperaSenha: new Date(expMs).toISOString() // Armazenar expiração como string ISO TMZ0 Ex.: 2023-10-01T12:00:00.000Z
     });
@@ -93,19 +94,34 @@ class ServicoAuth {
       response.send(res)
       return
     }
-    const resetUrl = `${process.env.MAIL_HOST}/auth/?token=${tokenUnico}`;
-    const emailData = {
-      to: data.email,
-      subject: 'Redefinir senha',
-      template: 'password-reset',
+    const emailRecuperaSenha: SendMailParams = {
+      to: validarEmail.email!,
+      subject: "Vitrine: Recuperação de Senha",
+      template: "generico",
       data: {
-        name: data.nome,
-        resetUrl: resetUrl,
-        expirationMinutes: 60, // Expiração em minutos
-        year: new Date().getFullYear(),
-        company: process.env.COMPANY_NAME || 'Auth'
-      }
-    };
+        titulo: "Redefinição de Senha",
+        nomeSistema: "Vitrine",
+        mostrarHeader: true,
+        nome: data.nome,
+        subtitulo: "Siga as instruções abaixo para criar uma nova senha.",
+        mensagem: `<br>Recebemos uma solicitação para redefinir a senha da sua conta. Para continuar, clique no botão abaixo. O link de redefinição é válido por <strong>60 minutos</strong>.`,
+        mostrarBotao: true,
+        textoBotao: "Redefinir Minha Senha",
+        urlBotao: "http://localhost:3000/esqueci-minha-senha-b",
+        nota: "Se você não solicitou esta alteração, pode ignorar este e-mail com segurança. Nenhuma alteração será feita em sua conta.",
+        textoFooter: "Esta é uma mensagem automática. Por favor, não responda a este e-mail."
+      } as MailDataGenerico
+    }
+    try{
+      const response = await enviarEmail(emailRecuperaSenha)
+    console.log(`Email enviado com sucesso: ${response}`)
+    console.log(`Código de recuperação de senha: ${codigoRecuperaSenha}`)
+    }
+    catch(erro){
+      console.log(`Erro ao enviar email: ${erro}`)
+    }
+    // const resetUrl = `${process.env.MAIL_HOST}/auth/?token=${tokenUnico}`;
+    return "Enviamos um email de para recuperar senha"
 
 
   }

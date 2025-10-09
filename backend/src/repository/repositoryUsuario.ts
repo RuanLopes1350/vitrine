@@ -25,10 +25,6 @@ class RepositoryUsuario {
             query.select('+refreshToken +accessToken')
         }
         const user = await query
-        if (!user) {
-            throw new Error('Usuário não encontrado')
-        }
-
         return user;
     }
 

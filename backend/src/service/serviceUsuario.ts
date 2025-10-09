@@ -1,11 +1,10 @@
-import { z } from "zod";
+import { email, z } from "zod";
 import RepositoryUsuario from "../repository/repositoryUsuario.js";
 import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuarioSchema.js";
 import { typeUsuario } from "../types/typeUsuario.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
 import { PasswordHelper } from "../utils/helpers/passwordHelper.js";
 import { v2 as cloudinary } from 'cloudinary';
-
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -14,10 +13,14 @@ cloudinary.config({
     secure: true,
 });
 
+import { enviarEmail, SendMailParams, MailDataBemVindo, MailDataGenerico } from "../utils/mailService.js";
+
+
 class ServiceUsuario {
-    private repository: RepositoryUsuario
+    private repository: RepositoryUsuario;
+
     constructor() {
-        this.repository = new RepositoryUsuario
+        this.repository = new RepositoryUsuario();
     }
 
         private extractPublicIdFromUrl(imageUrl: string): string | null {
@@ -83,7 +86,39 @@ class ServiceUsuario {
             const senhaCriptografada = await PasswordHelper.hash(dadosUsuario.senha);
             dadosUsuario.senha = senhaCriptografada;
 
-            const usuario = await this.repository.cadastrar(dadosUsuario);
+            const usuario:Partial<typeUsuario> = await this.repository.cadastrar(dadosUsuario);
+
+            const emailBoasVinda: SendMailParams = {
+                to: usuario.email!,
+                subject: 'Bem-vindo à Nossa Plataforma!',
+                template: 'bemvindo',
+                data: {
+                    nomeSistema: 'Vitrine',
+                    nome: usuario.nome,
+                    mensagem: 'Bem-vindo à nossa plataforma! Estamos muito felizes em tê-lo conosco. Este é um email de boas-vindas com algumas informações úteis para você começar.',
+                    mensagemSecundaria: 'O que você pode fazer em nossa plataforma:',
+                    itens: [
+                        'Cadastrar seus produtos e serviços com uma foto atraente.',
+                        'Definir preços competitivos para atrair mais clientes.',
+                        'Definir sua foto de perfil para mostrar a marca do seu negócio.',
+                        'Definir uma descrição envolvente para destacar o que torna seu negócio único.',
+                    ],
+                    mostrarBotao: true,
+                    textoBotao: 'Acessar Plataforma',
+                    urlBotao: process.env.URL_LOGIN || 'http://localhost:3000/login',
+                    corPrimaria: '#8a36eb',
+                    corBotao: '#9810fa'
+                } as MailDataBemVindo
+            }
+
+            // Enviar email de boas-vindas (não bloqueia o cadastro se falhar)
+            try {
+                const respostaEmail = await enviarEmail(emailBoasVinda);
+                console.log('Email de boas-vindas enviado com sucesso:', respostaEmail);
+            } catch (error) {
+                console.error('Erro ao enviar email de boas-vindas, mas cadastro foi realizado:', error);
+            }
+
             return CommonResponse.created('Usuário cadastrado com sucesso!', usuario);
         } catch (erro: any) {
             if (erro instanceof z.ZodError) {
@@ -119,18 +154,13 @@ class ServiceUsuario {
     }
 
     async buscarPorId(id: string): Promise<CommonResponse> {
-        try {
-            const dados = await this.repository.buscarPorId(id);
+        const dados = await this.repository.buscarPorId(id);
 
-            if (!dados) {
-                return CommonResponse.notFound('Usuário não encontrado');
-            }
-
-            return CommonResponse.success('Usuário encontrado', dados);
-        } catch (erro) {
-            console.error('[Service] Erro ao buscar usuário por id:', erro);
-            return CommonResponse.error('Falha ao buscar usuário por id');
+        if (!dados) {
+            return CommonResponse.notFound('Usuário não encontrado');
         }
+
+        return CommonResponse.success('Usuário encontrado', dados);
     }
 
     async atualizar(id: string, dadosUsuario: typeUsuario): Promise<CommonResponse> {
@@ -158,6 +188,7 @@ class ServiceUsuario {
                 await this.deleteImageFromCloudinary(usuarioExiste.fotoPerfil)
             }
             
+
             const usuarioAtualizado = await this.repository.atualizar(id, dadosUsuario);
             if (!usuarioAtualizado) {
                 return CommonResponse.error('Falha ao atualizar usuário');
@@ -178,8 +209,7 @@ class ServiceUsuario {
                 return CommonResponse.validationError('Dados inválidos para atualização', mensagensErro);
             }
 
-            console.error('[Service] Erro ao atualizar usuário:', erro);
-            return CommonResponse.error('Falha ao atualizar usuário');
+            throw erro;
         }
     }
 
@@ -201,8 +231,7 @@ class ServiceUsuario {
 
             return CommonResponse.success('Usuário deletado com sucesso', { id, nome: usuarioExiste.nome });
         } catch (erro) {
-            console.error('[Service] Erro ao deletar usuário:', erro);
-            return CommonResponse.error('Falha ao deletar usuário');
+            throw erro;
         }
     }
 }

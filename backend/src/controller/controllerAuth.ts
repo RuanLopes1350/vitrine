@@ -53,8 +53,9 @@ class ControladorAuth {
   }
   async recover(req: Request, res:Response):Promise<void> {
     console.log('realizando recover')
-    const dados:DadosLogin = req.body
-    const resultado = this.servico.recuperaSenha(dados.email, res)
+    const resultado = await this.servico.recuperaSenha(req, res) as string
+    const response = CommonResponse.success(resultado)
+    response.send(res)
   }
 }
 

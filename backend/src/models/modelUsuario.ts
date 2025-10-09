@@ -18,7 +18,6 @@ class Usuario {
                 accessToken:{type: String, required: false, select: false},
                 codigoRecuperaSenha:{type:String, select:false},
                 expCodigoRecuperaSenha:{type:String, select:false},
-                tokenUnico:{type:String, select: false}
             },
             {
                 timestamps: {
