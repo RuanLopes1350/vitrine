@@ -19,6 +19,7 @@ export default function PageLoja() {
     const [isFotoPerfil, setIsFotoPerfil] = useState<string>()
     const local = usePathname();
     const [itemsPerPage, setIsItemsPerPage] = useState<number>(20)
+    const totalItems = 1000
     const [currentPage, setCurrentPage] = useState<number>(0)
 
     // CORRETO: Calcular valores derivados sem estado
@@ -33,7 +34,7 @@ export default function PageLoja() {
             const id = local.match(/[0-9a-fA-F]{24}/)?.[0] as string;
 
             if (id) {
-                await getProdutos(id);
+                await getProdutos(id, totalItems);
             }
             setLoading(false);
         }

@@ -39,7 +39,7 @@ interface ProdutoResponsePaginate {
 
 interface LojaProdutoReturn {
     produtos: ProdutoResponsePaginate | undefined,
-    getProdutos: (criador: string) => Promise<void>
+    getProdutos: (criador: string, number?:number) => Promise<void>
 }
 
 export function useProdutosLoja(): LojaProdutoReturn {
@@ -55,8 +55,11 @@ export function useProdutosLoja(): LojaProdutoReturn {
         }
     }, [link, router])
 
-    async function getProdutos(criador: string): Promise<void> {
+    async function getProdutos(criador: string, quantidade?:number): Promise<void> {
         try {
+            if(Number.isInteger(quantidade)){
+                criador+= `?limit=${quantidade}`
+            }
             const resposta = await apiClient<ProdutoResponsePaginate>({ url: `/produtos/usuario/${criador}` })
             if (resposta.status === 200) {
                 setProdutos(resposta.data as ProdutoResponsePaginate)
