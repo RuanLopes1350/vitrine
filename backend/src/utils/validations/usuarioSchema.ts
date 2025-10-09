@@ -8,8 +8,8 @@ const UsuarioSchema = z.object({
     nomeLoja: z.string({message: 'Campo nome da loja é obrigatório.'})
         .min(3, 'Campo nome da loja deve conter pelo menos 3 caracteres.'),
     whatsapp: z.string({message: 'Campo whatsapp é obrigatório.'})
-        .min(12, 'Campo whatsapp deve conter pelo menos 12 caracteres.')
-        .max(13, 'Campo whatsapp deve conter no máximo 13 caracteres.'),
+        .min(10, 'Campo whatsapp deve conter pelo menos 10 caracteres.')
+        .max(11, 'Campo whatsapp deve conter no máximo 11 caracteres.'),
     email: z.string({message: 'Campo email é obrigatório.'}).email('Formato de email inválido.'),
     senha: z.string({message: 'A senha deve ter pelo menos 8 caracteres.'})
         .min(8, 'A senha deve ter pelo menos 8 caracteres.')
