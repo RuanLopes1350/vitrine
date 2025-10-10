@@ -4,6 +4,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Header from "@/components/header";
 import React from "react";
+import { Analytics } from "@vercel/analytics/react";
+
 
 export default function ClientLayout({
   children,
@@ -16,6 +18,7 @@ export default function ClientLayout({
         <Header />
         <main className="flex-grow">
           {children}
+        <Analytics />
         </main>
       </AuthProvider>
     </ThemeProvider>
