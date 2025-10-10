@@ -105,7 +105,7 @@ class ServicoAuth {
         mensagem: `<br>Recebemos uma solicitação para redefinir a senha da sua conta. Para continuar, clique no botão abaixo. O link de redefinição é válido por <strong>60 minutos</strong>.<br><div style="width: 100%; text-align: center; margin: 20px 0;"><p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">Código</p><strong style="font-size: 40px; letter-spacing: 8px;">${codigoRecuperaSenha}</strong></div>`,
         mostrarBotao: true,
         textoBotao: "Redefinir Minha Senha",
-        urlBotao: "http://localhost:3000/esqueci-minha-senha-b",
+        urlBotao: "https://vitrine-fawn.vercel.app/esqueci-minha-senha-b",
         nota: "Se você não solicitou esta alteração, pode ignorar este e-mail com segurança. Nenhuma alteração será feita em sua conta.",
         textoFooter: "Esta é uma mensagem automática. Por favor, não responda a este e-mail."
       } as MailDataGenerico
