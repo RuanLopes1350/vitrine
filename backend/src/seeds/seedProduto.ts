@@ -15,7 +15,7 @@ async function seedProdutos(usuarios: typeUsuario[]) {
 
     const mapping = await getGlobalFakeMapping();
 
-    let quantidade: number = 45;
+    let quantidade: number = 100;
 
     for(let criados: number = 0; criados < quantidade; criados++){
         const produtoAleatorio: typeProduto = {
@@ -24,7 +24,7 @@ async function seedProdutos(usuarios: typeUsuario[]) {
             descricao: mapping.descricao(),
             preco: Number(mapping.preco()),
             imagem: mapping.imagem(),
-            ativo: mapping.ativo(),
+            ativo: true,
         };
         await modelProduto.collection.insertOne(produtoAleatorio);
     }
