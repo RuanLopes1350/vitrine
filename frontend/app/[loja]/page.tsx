@@ -125,7 +125,7 @@ export default function PageLoja() {
                                 className="h-[96px] w-[96px] sm:h-[128px] sm:w-[128px] rounded-full object-cover border-2 border-[#9333EA] mb-[10px]"
                             />
                         ) : (
-                            <div className="h-[48px] w-[48px] sm:h-[128px] sm:w-[128px] bg-[#F3E8FF] rounded-full flex justify-center items-center mb-[10px]">
+                            <div className="h-[48px] w-[48px] sm:h-[128px] sm:w-[128px] bg-[#F3E8FF] dark:bg-purple-900/30 rounded-full flex justify-center items-center mb-[10px]">
                                 <img src="/Vitrine.svg" alt="" className="w-6 sm:w-auto" />
                             </div>
                         )}
@@ -147,7 +147,9 @@ export default function PageLoja() {
                             <h1 className="text-3xl font-bold text-[#111827] dark:text-gray-100">{nomeLoja}</h1>
                             <p className="text-gray-600 dark:text-gray-400 mt-1">
                                 {temProdutos
+
                                     ? `${totalDocs} produto${totalDocs !== 1 ? 's' : ''} disponível${totalDocs !== 1 ? 'eis' : ''}`
+
                                     : "Nenhum produto encontrado"
                                 }
                             </p>
