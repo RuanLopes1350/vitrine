@@ -60,12 +60,12 @@ class ServicoAuth {
     }
     const validarEmail = UsuarioUpdateSchema.parse(req.body)
     const data = await this.repositorioUsuario.buscarPorEmail(validarEmail.email as string) as usuarioMongo
-    if (!data || (data.ativo !== true)) {
-      console.log("realizarLogin")
-      const response = CommonResponse.success('Enviamos um email de para recuperar senha')
-      response.send(res)
-      return
-    }
+    // if (!data || (data.ativo !== true)) {
+    //   console.log("realizarLogin")
+    //   const response = CommonResponse.success('Enviamos um email de para recuperar senha')
+    //   response.send(res)
+    //   return
+    // }
     const generateCode = () => Math.random()
       .toString(36)              // ex: “0.f5g9hk3j”
       .replace(/[^a-z0-9]/gi, '') // mantém só letras/números
@@ -110,31 +110,36 @@ class ServicoAuth {
         textoFooter: "Esta é uma mensagem automática. Por favor, não responda a este e-mail."
       } as MailDataGenerico
     }
-    try{
-      const response = await enviarEmail(emailRecuperaSenha)
-    console.log(`Email enviado com sucesso: ${response}`)
-    console.log(`Código de recuperação de senha: ${codigoRecuperaSenha}`)
+    try {
+      await enviarEmail(emailRecuperaSenha)
+      console.log(`Email enviado com sucesso`)
+      console.log(`Código de recuperação de senha: ${codigoRecuperaSenha}`)
     }
-    catch(erro){
+    catch (erro) {
       console.log(`Erro ao enviar email: ${erro}`)
+      const response = CommonResponse.error("Erro ao enviar email de recuperação", [], 500)
+      response.send(res)
+      return
     }
-    // const resetUrl = `${process.env.MAIL_HOST}/auth/?token=${tokenUnico}`;
-    return "Enviamos um email de para recuperar senha"
 
-
+    const response = CommonResponse.success('Enviamos um email para recuperar senha')
+    response.send(res)
   }
 
-  async trocaSenha(req:Request, res:Response) {
-    const {codigo} = req.body
-    const {senha} = req.body
+  async trocaSenha(req: Request, res: Response) {
+    const { codigo } = req.body
+    const { senha } = req.body
     const novaSenha = await PasswordHelper.hash(senha)
     const data = await this.repositorioUsuario.trocaSenha(codigo, novaSenha)
-    // console.log(data)
-    if(!data) {
-      const response = CommonResponse.error("Nenhum codigo encontrado", ["Codigo"], 500)
+
+    if (!data) {
+      const response = CommonResponse.error("Nenhum código encontrado ou expirado", ["Codigo"], 404)
       response.send(res)
+      return
     }
-    return data
+
+    const response = CommonResponse.success("Senha alterada com sucesso!", data)
+    response.send(res)
   }
 }
 

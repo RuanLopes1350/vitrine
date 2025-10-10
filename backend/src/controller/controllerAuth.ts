@@ -18,7 +18,7 @@ class ControladorAuth {
     try {
       const dados: DadosLogin = req.body;
       console.log('Email recebido:', dados.email);
-      
+
       // Validações simples
       if (!dados.email || !dados.senha) {
         const response = CommonResponse.badRequest('Email e senha são obrigatórios');
@@ -29,7 +29,7 @@ class ControladorAuth {
       const resultado = await this.servico.realizarLogin(dados.email, dados.senha);
       console.log('Login realizado com sucesso');
       resultado.send(res);
-      
+
     } catch (erro: any) {
       console.log('Erro no login:', erro.message);
       // Erros específicos de login
@@ -38,7 +38,7 @@ class ControladorAuth {
         response.send(res);
         return;
       }
-      
+
       // Outros erros seguem para o errorHandler
       next(erro);
     }
@@ -52,19 +52,15 @@ class ControladorAuth {
     const response = CommonResponse.success('Logout realizado com sucesso');
     response.send(res);
   }
-  async recover(req: Request, res:Response):Promise<void> {
+  async recover(req: Request, res: Response): Promise<void> {
     console.log('realizando recover')
-    const resultado = await this.servico.recuperaSenha(req, res) as string
-    const response = CommonResponse.success(resultado)
-    response.send(res)
+    await this.servico.recuperaSenha(req, res)
   }
-  async trocarSenha(req:Request, res:Response) {
-    const {senha} = req.body
-    UsuarioUpdateSchema.parse({senha:senha})
-    await this.servico.trocaSenha(req, res)
-    const response = CommonResponse.success("Sucesso ao trocar senha!", null, 200)
-    response.send(res)
 
+  async trocarSenha(req: Request, res: Response) {
+    const { senha } = req.body
+    UsuarioUpdateSchema.parse({ senha: senha })
+    await this.servico.trocaSenha(req, res)
   }
 }
 

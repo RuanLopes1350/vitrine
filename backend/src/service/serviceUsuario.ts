@@ -84,6 +84,34 @@ class ServiceUsuario {
             dadosUsuario.senha = senhaCriptografada;
 
             const usuario = await this.repository.cadastrar(dadosUsuario);
+
+            let emailData: MailDataBemVindo = {
+                nomeSistema: "Vitrine",
+                nome: usuario.nome,
+                mensagem: "Estamos muito felizes em ter você conosco! Sua conta foi criada e está pronta para ser configurada.",
+                mensagemSecundaria: "Para começar, que tal seguir estes passos?",
+                itens: [
+                    "Acesse seu painel para personalizar as informações da sua loja.",
+                    "Cadastre seus primeiros produtos com fotos e descrições detalhadas.",
+                    "Compartilhe o link da sua vitrine com seus clientes e comece a vender!"
+                ],
+                mostrarBotao: true,
+                textoBotao: "Acessar Minha Conta",
+                urlBotao: "https://vitrine-fawn.vercel.app/login",
+                corPrimaria: "#9333EA",
+                corBotao: "#7C3AED",
+                infoAdicional: "<strong>Dica:</strong> Mantenha seus produtos sempre atualizados com fotos de alta qualidade para atrair mais clientes!",
+                textoFooter: "Esta é uma mensagem automática. Por favor, não responda a este e-mail."
+            }
+
+            let email: SendMailParams = {
+                to: usuario.email,
+                subject: 'Bem-vindo à Vitrine de Produtos!',
+                template: 'bemvindo',
+                data: emailData
+            }
+
+            await enviarEmail(email);
             return CommonResponse.created('Usuário cadastrado com sucesso!', usuario);
         } catch (erro: any) {
             if (erro instanceof z.ZodError) {
