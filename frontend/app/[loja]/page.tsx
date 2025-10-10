@@ -50,7 +50,7 @@ export default function PageLoja() {
             setIsNomeLoja(nomeLoja);
             setIsMensagemLoja(mensagemLoja)
             setIsFotoPerfil(fotoPerfil)
-            console.log(nomeLoja)
+            // console.log(nomeLoja)
         } else {
             setIsNomeLoja("Loja não encontrada");
         }
