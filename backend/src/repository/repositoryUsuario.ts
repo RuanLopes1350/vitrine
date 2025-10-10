@@ -72,6 +72,11 @@ class RepositoryUsuario {
         const documento = await this.model.findOne(filtro,[ '+expCodigoRecuperaSenha', '+codigoRecuperaSenha'])
         return documento
     }
+    async trocaSenha(codigo:string, senha:string) {
+        const filtro = {codigoRecuperaSenha: codigo}
+        const documento = await this.model.findOneAndUpdate(filtro, {senha: senha, codigoRecuperaSenha:"", expCodigoRecuperaSenha:""}, {new: true})
+        return documento
+    }
 }
 
 export default RepositoryUsuario;

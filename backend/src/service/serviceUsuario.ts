@@ -240,6 +240,7 @@ class ServiceUsuario {
             tokenUnico: string;
         }
         const data:usuarioMongo = await this.repository.buscarPorCodigoRecuperacao(codigo)
+       
         return data
     }
 }

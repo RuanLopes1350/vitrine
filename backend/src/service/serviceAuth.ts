@@ -64,7 +64,7 @@ class ServicoAuth {
     const data = await this.repositorioUsuario.buscarPorEmail(validarEmail.email as string) as usuarioMongo
     if (!data || (data.ativo !== true)) {
       console.log("realizarLogin")
-      const response = CommonResponse.success('Um código de recuperação foi enviado para o seu email')
+      const response = CommonResponse.success('Enviamos um email de para recuperar senha')
       response.send(res)
       return
     }
@@ -104,7 +104,7 @@ class ServicoAuth {
         mostrarHeader: true,
         nome: data.nome,
         subtitulo: "Siga as instruções abaixo para criar uma nova senha.",
-        mensagem: `<br>Recebemos uma solicitação para redefinir a senha da sua conta. Para continuar, clique no botão abaixo. O link de redefinição é válido por <strong>60 minutos</strong>.`,
+        mensagem: `<br>Recebemos uma solicitação para redefinir a senha da sua conta. Para continuar, clique no botão abaixo. O link de redefinição é válido por <strong>60 minutos</strong>.<br><div style="width: 100%; text-align: center; margin: 20px 0;"><p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">Código</p><strong style="font-size: 40px; letter-spacing: 8px;">${codigoRecuperaSenha}</strong></div>`,
         mostrarBotao: true,
         textoBotao: "Redefinir Minha Senha",
         urlBotao: "http://localhost:3000/esqueci-minha-senha-b",
@@ -124,6 +124,19 @@ class ServicoAuth {
     return "Enviamos um email de para recuperar senha"
 
 
+  }
+
+  async trocaSenha(req:Request, res:Response) {
+    const {codigo} = req.body
+    const {senha} = req.body
+    const novaSenha = await PasswordHelper.hash(senha)
+    const data = await this.repositorioUsuario.trocaSenha(codigo, novaSenha)
+    console.log(data)
+    if(!data) {
+      const response = CommonResponse.error("Nenhum codigo encontrado", ["Codigo"], 500)
+      response.send(res)
+    }
+    return data
   }
 }
 

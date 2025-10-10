@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { DadosLogin } from '../types/typeLogin.js';
 import ServicoAuth from '../service/serviceAuth.js';
 import { CommonResponse } from '../utils/helpers/commonResponse.js';
+import { UsuarioUpdateSchema } from '../utils/validations/usuarioSchema.js';
 
 // Controller de autenticação - versão simplificada
 class ControladorAuth {
@@ -56,6 +57,14 @@ class ControladorAuth {
     const resultado = await this.servico.recuperaSenha(req, res) as string
     const response = CommonResponse.success(resultado)
     response.send(res)
+  }
+  async trocarSenha(req:Request, res:Response) {
+    const {senha} = req.body
+    UsuarioUpdateSchema.parse({senha:senha})
+    await this.servico.trocaSenha(req, res)
+    const response = CommonResponse.success("Sucesso ao trocar senha!", null, 200)
+    response.send(res)
+
   }
 }
 
