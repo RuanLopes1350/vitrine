@@ -19,7 +19,7 @@ router.get("/openapi.json", async (req, res) => {
 router.use(
     "/",
     apiReference({
-        url: "/docs/openapi.json",
+        url: "/api/docs/openapi.json",
     })
 );
 
