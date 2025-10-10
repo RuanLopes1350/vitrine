@@ -14,6 +14,7 @@ export interface RespostaLogin {
     email: string;
     whatsapp: string;
     ativo: boolean;
+    mensagem?:string;
     fotoPerfil: string;
   };
 }

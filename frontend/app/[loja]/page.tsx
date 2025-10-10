@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useProdutosLoja } from "@/hooks/useLoja";
 import { usePathname } from "next/navigation";
 import { ShoppingBag, Loader2, Store, MessageCircle } from "lucide-react";
@@ -10,36 +10,35 @@ import { useTheme } from "@/contexts/ThemeContext";
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
+const ITEMS_PER_PAGE = 20;
+
 export default function PageLoja() {
-    const { produtos, getProdutos } = useProdutosLoja();
+    const { produtos, loading, error, currentPage, getProdutos, setPage } = useProdutosLoja();
     const { theme } = useTheme();
-    const [loading, setLoading] = useState(true);
     const [isNomeLoja, setIsNomeLoja] = useState<string>()
     const [isMensagemLoja, setIsMensagemLoja] = useState<string>()
     const [isFotoPerfil, setIsFotoPerfil] = useState<string>()
     const local = usePathname();
-    const [itemsPerPage, setIsItemsPerPage] = useState<number>(20)
-    const [currentPage, setCurrentPage] = useState<number>(0)
+    const [criadorId, setCriadorId] = useState<string | null>(null)
 
-    // CORRETO: Calcular valores derivados sem estado
-    const startIndex = currentPage * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const currentItems = produtos?.data.docs.slice(startIndex, endIndex) || [];
-    const totalPages = produtos?.data.docs ? Math.ceil(produtos.data.docs.length / itemsPerPage) : 0;
+    // Valores derivados da paginação do backend
+    const currentItems = produtos?.data.docs || [];
+    const totalPages = produtos?.data.totalPages || 0;
+    const totalDocs = produtos?.data.totalDocs || 0;
 
+    // Carrega produtos quando a rota muda ou quando a página muda
     useEffect(() => {
         async function carregarProdutos() {
-            setLoading(true);
             const id = local.match(/[0-9a-fA-F]{24}/)?.[0] as string;
 
             if (id) {
-                await getProdutos(id);
+                setCriadorId(id);
+                await getProdutos(id, currentPage, ITEMS_PER_PAGE);
             }
-            setLoading(false);
         }
 
         carregarProdutos();
-    }, [local]);
+    }, [local, currentPage]);
 
     useEffect(() => {
         if (produtos?.data?.docs && produtos.data.docs.length > 0) {
@@ -49,27 +48,28 @@ export default function PageLoja() {
             setIsNomeLoja(nomeLoja);
             setIsMensagemLoja(mensagemLoja)
             setIsFotoPerfil(fotoPerfil)
-            console.log(nomeLoja)
+            // console.log(nomeLoja)
         } else {
             setIsNomeLoja("Loja não encontrada");
         }
     }, [produtos]);
 
     function nextPage() {
-        if (currentPage < totalPages - 1) {
-            setCurrentPage(prev => prev + 1)
+        if (currentPage < totalPages) {
+            setPage(currentPage + 1);
         }
     }
 
     function prevPage() {
-        if (currentPage > 0) {
-            setCurrentPage(prev => prev - 1)
+        if (currentPage > 1) {
+            setPage(currentPage - 1);
         }
     }
 
     function goToPage(page: number) {
-        setCurrentPage(page);
+        setPage(page);
     }
+
     // Loading state
     if (loading) {
         return (
@@ -79,6 +79,29 @@ export default function PageLoja() {
                         <div className="flex items-center justify-center py-12">
                             <Loader2 className="w-8 h-8 animate-spin text-[#9333EA] dark:text-purple-400" />
                             <span className="ml-3 text-gray-600 dark:text-gray-300">Carregando loja...</span>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <section className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-8">
+                        <div className="text-center py-12">
+                            <div className="w-20 h-20 bg-red-100 dark:bg-red-900/30 rounded-xl mx-auto mb-6 flex items-center justify-center">
+                                <ShoppingBag className="w-10 h-10 text-red-500 dark:text-red-400" />
+                            </div>
+                            <h3 className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-3">
+                                Erro ao carregar loja
+                            </h3>
+                            <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
+                                {error}
+                            </p>
                         </div>
                     </section>
                 </div>
@@ -124,7 +147,7 @@ export default function PageLoja() {
                             <h1 className="text-3xl font-bold text-[#111827] dark:text-gray-100">{nomeLoja}</h1>
                             <p className="text-gray-600 dark:text-gray-400 mt-1">
                                 {temProdutos
-                                    ? `${produtos.data.docs.length} produto${produtos.data.docs.length !== 1 ? 's' : ''} disponível${produtos.data.docs.length !== 1 ? 'eis' : ''}`
+                                    ? `${totalDocs} produto${totalDocs !== 1 ? 's' : ''} disponível${totalDocs !== 1 ? 'eis' : ''}`
                                     : "Nenhum produto encontrado"
                                 }
                             </p>
@@ -134,7 +157,7 @@ export default function PageLoja() {
                     {/* Grid de produtos */}
                     {temProdutos ? (
                         <>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                                 {currentItems.map((produto) => (
                                     <ProdutoCardLoja
                                         key={produto._id}
@@ -145,46 +168,66 @@ export default function PageLoja() {
 
                             {/* Paginação */}
                             {totalPages > 1 && (
-                                <div className="flex items-center justify-center space-x-2 mt-8">
-                                    {/* Botão Anterior */}
-                                    <button
-                                        onClick={prevPage}
-                                        disabled={currentPage === 0}
-                                        className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                                    >
-                                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                        </svg>
-                                        Anterior
-                                    </button>
-
-                                    {/* Números das páginas */}
-                                    <div className="flex space-x-1">
-                                        {Array.from({ length: totalPages }, (_, index) => (
-                                            <button
-                                                key={index}
-                                                onClick={() => goToPage(index)}
-                                                className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === index
-                                                        ? 'text-white bg-[#9333EA] dark:bg-purple-600'
-                                                        : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer'
-                                                    }`}
-                                            >
-                                                {index + 1}
-                                            </button>
-                                        ))}
+                                <div className="flex flex-col items-center space-y-4 mt-8">
+                                    {/* Informação de paginação */}
+                                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                                        Página {currentPage} de {totalPages} ({totalDocs} produtos no total)
                                     </div>
 
-                                    {/* Botão Próximo */}
-                                    <button
-                                        onClick={nextPage}
-                                        disabled={currentPage === totalPages - 1}
-                                        className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                                    >
-                                        Próximo
-                                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </button>
+                                    <div className="flex items-center justify-center space-x-2">
+                                        {/* Botão Anterior */}
+                                        <button
+                                            onClick={prevPage}
+                                            disabled={currentPage === 1}
+                                            className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                        >
+                                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                            Anterior
+                                        </button>
+
+                                        {/* Números das páginas - limitado a 5 páginas visíveis */}
+                                        <div className="flex space-x-1">
+                                            {Array.from({ length: Math.min(totalPages, 5) }, (_, index) => {
+                                                let pageNum;
+                                                if (totalPages <= 5) {
+                                                    pageNum = index + 1;
+                                                } else if (currentPage <= 3) {
+                                                    pageNum = index + 1;
+                                                } else if (currentPage >= totalPages - 2) {
+                                                    pageNum = totalPages - 4 + index;
+                                                } else {
+                                                    pageNum = currentPage - 2 + index;
+                                                }
+
+                                                return (
+                                                    <button
+                                                        key={pageNum}
+                                                        onClick={() => goToPage(pageNum)}
+                                                        className={`px-3 py-2 text-sm font-medium rounded-md ${currentPage === pageNum
+                                                            ? 'text-white bg-[#9333EA] dark:bg-purple-600'
+                                                            : 'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer'
+                                                            }`}
+                                                    >
+                                                        {pageNum}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Botão Próximo */}
+                                        <button
+                                            onClick={nextPage}
+                                            disabled={currentPage === totalPages}
+                                            className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                        >
+                                            Próximo
+                                            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </>

@@ -45,7 +45,7 @@ class RepositoryProduto {
 
     async buscarTodosProdutosUsuario(req: Request<any, any, Query>, id:string){
         const { page=1} = req.query
-        const limit = Math.min(parseInt(req.query.limit as string, 10) || 10, 1000)
+        const limit = Math.min(parseInt(req.query.limit as string, 10) || 20, 1000)
         const options = {
             page: parseInt(page as string, 10),
             limit: limit,

@@ -4,7 +4,17 @@ import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuario
 import { typeUsuario } from "../types/typeUsuario.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
 import { PasswordHelper } from "../utils/helpers/passwordHelper.js";
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true,
+});
+
 import { enviarEmail, SendMailParams, MailDataBemVindo, MailDataGenerico } from "../utils/mailService.js";
+
 
 class ServiceUsuario {
     private repository: RepositoryUsuario;
@@ -12,6 +22,61 @@ class ServiceUsuario {
     constructor() {
         this.repository = new RepositoryUsuario();
     }
+
+        private extractPublicIdFromUrl(imageUrl: string): string | null {
+        try {
+            if (!imageUrl || !imageUrl.includes('cloudinary.com')) {
+                return null; // Não é uma URL do Cloudinary
+            }
+
+            // URL exemplo: https://res.cloudinary.com/dkpxwccpg/image/upload/v1759265878/Vitrine/v9qmxhkupohplcz2wqem.png
+            // public_id seria: Vitrine/v9qmxhkupohplcz2wqem
+
+            const parts = imageUrl.split('/');
+            const uploadIndex = parts.findIndex(part => part === 'upload');
+
+            if (uploadIndex === -1 || uploadIndex + 2 >= parts.length) {
+                return null;
+            }
+
+            // Pega tudo após /upload/v{version}/
+            const pathAfterVersion = parts.slice(uploadIndex + 2).join('/');
+
+            // Remove a extensão do arquivo
+            const publicId = pathAfterVersion.replace(/\.[^/.]+$/, '');
+
+            return publicId;
+        } catch (error) {
+            console.error('Erro ao extrair public_id da URL:', error);
+            return null;
+        }
+    }
+        private async deleteImageFromCloudinary(imageUrl: string): Promise<boolean> {
+            try {
+                console.log("deletando imagem")
+                const publicId = this.extractPublicIdFromUrl(imageUrl);
+                console.log(publicId)
+                if (!publicId) {
+                    console.log('URL não é do Cloudinary ou public_id não encontrado:', imageUrl);
+                    return true; // Não é erro, apenas não precisa deletar
+                }
+    
+                console.log('Deletando imagem do Cloudinary com public_id:', publicId);
+    
+                const result = await cloudinary.uploader.destroy(publicId);
+    
+                if (result.result === 'ok' || result.result === 'not found') {
+                    console.log('Imagem deletada com sucesso ou não encontrada:', result);
+                    return true;
+                } else {
+                    console.error('Falha ao deletar imagem do Cloudinary:', result);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Erro ao deletar imagem do Cloudinary:', error);
+                return false; // Não bloqueia a operação, apenas loga o erro
+            }
+        }
 
     async cadastrar(dadosUsuario: typeUsuario): Promise<CommonResponse> {
         try {
@@ -100,7 +165,7 @@ class ServiceUsuario {
 
     async atualizar(id: string, dadosUsuario: typeUsuario): Promise<CommonResponse> {
         try {
-            const usuarioExiste = await this.repository.buscarPorId(id);
+            const usuarioExiste:typeUsuario = await this.repository.buscarPorId(id);
 
             if (!usuarioExiste) {
                 return CommonResponse.notFound('Usuário não encontrado');
@@ -116,6 +181,13 @@ class ServiceUsuario {
             }
 
             UsuarioUpdateSchema.parse(dadosUsuario);
+            // console.log("FotoPerfil:",dadosUsuario.fotoPerfil)
+            // console.log("Banco:", dadosUsuario.fotoPerfil)
+            if(dadosUsuario.fotoPerfil === null && usuarioExiste.fotoPerfil){
+                // console.log("Aqui")
+                await this.deleteImageFromCloudinary(usuarioExiste.fotoPerfil)
+            }
+            
 
             const usuarioAtualizado = await this.repository.atualizar(id, dadosUsuario);
             if (!usuarioAtualizado) {
@@ -161,6 +233,15 @@ class ServiceUsuario {
         } catch (erro) {
             throw erro;
         }
+    }
+    async obterCodigo(codigo:string) {
+        type usuarioMongo = typeUsuario & {
+            _id: string;
+            tokenUnico: string;
+        }
+        const data:usuarioMongo = await this.repository.buscarPorCodigoRecuperacao(codigo)
+       
+        return data
     }
 }
 
