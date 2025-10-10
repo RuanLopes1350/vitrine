@@ -20,7 +20,7 @@ class ServiceUsuario {
         this.repository = new RepositoryUsuario
     }
 
-        private extractPublicIdFromUrl(imageUrl: string): string | null {
+    private extractPublicIdFromUrl(imageUrl: string): string | null {
         try {
             if (!imageUrl || !imageUrl.includes('cloudinary.com')) {
                 return null; // Não é uma URL do Cloudinary
@@ -48,32 +48,32 @@ class ServiceUsuario {
             return null;
         }
     }
-        private async deleteImageFromCloudinary(imageUrl: string): Promise<boolean> {
-            try {
-                console.log("deletando imagem")
-                const publicId = this.extractPublicIdFromUrl(imageUrl);
-                console.log(publicId)
-                if (!publicId) {
-                    console.log('URL não é do Cloudinary ou public_id não encontrado:', imageUrl);
-                    return true; // Não é erro, apenas não precisa deletar
-                }
-    
-                console.log('Deletando imagem do Cloudinary com public_id:', publicId);
-    
-                const result = await cloudinary.uploader.destroy(publicId);
-    
-                if (result.result === 'ok' || result.result === 'not found') {
-                    console.log('Imagem deletada com sucesso ou não encontrada:', result);
-                    return true;
-                } else {
-                    console.error('Falha ao deletar imagem do Cloudinary:', result);
-                    return false;
-                }
-            } catch (error) {
-                console.error('Erro ao deletar imagem do Cloudinary:', error);
-                return false; // Não bloqueia a operação, apenas loga o erro
+    private async deleteImageFromCloudinary(imageUrl: string): Promise<boolean> {
+        try {
+            console.log("deletando imagem")
+            const publicId = this.extractPublicIdFromUrl(imageUrl);
+            console.log(publicId)
+            if (!publicId) {
+                console.log('URL não é do Cloudinary ou public_id não encontrado:', imageUrl);
+                return true; // Não é erro, apenas não precisa deletar
             }
+
+            console.log('Deletando imagem do Cloudinary com public_id:', publicId);
+
+            const result = await cloudinary.uploader.destroy(publicId);
+
+            if (result.result === 'ok' || result.result === 'not found') {
+                console.log('Imagem deletada com sucesso ou não encontrada:', result);
+                return true;
+            } else {
+                console.error('Falha ao deletar imagem do Cloudinary:', result);
+                return false;
+            }
+        } catch (error) {
+            console.error('Erro ao deletar imagem do Cloudinary:', error);
+            return false; // Não bloqueia a operação, apenas loga o erro
         }
+    }
 
     async cadastrar(dadosUsuario: typeUsuario): Promise<CommonResponse> {
         try {
@@ -135,7 +135,7 @@ class ServiceUsuario {
 
     async atualizar(id: string, dadosUsuario: typeUsuario): Promise<CommonResponse> {
         try {
-            const usuarioExiste:typeUsuario = await this.repository.buscarPorId(id);
+            const usuarioExiste: typeUsuario = await this.repository.buscarPorId(id);
 
             if (!usuarioExiste) {
                 return CommonResponse.notFound('Usuário não encontrado');
@@ -153,11 +153,11 @@ class ServiceUsuario {
             UsuarioUpdateSchema.parse(dadosUsuario);
             // console.log("FotoPerfil:",dadosUsuario.fotoPerfil)
             // console.log("Banco:", dadosUsuario.fotoPerfil)
-            if(dadosUsuario.fotoPerfil === null && usuarioExiste.fotoPerfil){
+            if (dadosUsuario.fotoPerfil === null && usuarioExiste.fotoPerfil) {
                 // console.log("Aqui")
                 await this.deleteImageFromCloudinary(usuarioExiste.fotoPerfil)
             }
-            
+
             const usuarioAtualizado = await this.repository.atualizar(id, dadosUsuario);
             if (!usuarioAtualizado) {
                 return CommonResponse.error('Falha ao atualizar usuário');
@@ -203,6 +203,24 @@ class ServiceUsuario {
         } catch (erro) {
             console.error('[Service] Erro ao deletar usuário:', erro);
             return CommonResponse.error('Falha ao deletar usuário');
+        }
+    }
+
+    async obterCodigo(codigo: string): Promise<typeUsuario | null> {
+        try {
+            console.log(`[Service] Buscando código de recuperação: ${codigo}`);
+            const usuario = await this.repository.buscarPorCodigoRecuperacao(codigo);
+
+            if (!usuario) {
+                console.log('[Service] Nenhum usuário encontrado com este código');
+                return null;
+            }
+
+            console.log('[Service] Código encontrado para usuário:', usuario.email);
+            return usuario;
+        } catch (erro) {
+            console.error('[Service] Erro ao buscar código de recuperação:', erro);
+            throw erro;
         }
     }
 }

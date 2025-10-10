@@ -172,36 +172,59 @@ class ControllerUsuario {
             next(erro);
         }
     }
-    async obterCodigo(req: Request, res: Response) {
-        const { code } = req.params
-        const dados =  await this.service.obterCodigo(code as string)
-        if (!dados) {
-            const response = CommonResponse.notFound("Nenhum código encontrado.")
-            response.send(res)
-            return
+    async obterCodigo(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { code } = req.params;
+
+            console.log('[Controller] Validando código de recuperação:', code);
+
+            if (!code || code.trim() === '') {
+                const response = CommonResponse.badRequest('Código de recuperação não fornecido');
+                response.send(res);
+                return;
+            }
+
+            const dados = await this.service.obterCodigo(code as string);
+
+            if (!dados) {
+                const response = CommonResponse.notFound("Nenhum código encontrado.");
+                response.send(res);
+                return;
+            }
+
+            // Verifica se há data de expiração
+            if (!dados.expCodigoRecuperaSenha) {
+                const response = CommonResponse.error("Código inválido ou expirado.", [], 400);
+                response.send(res);
+                return;
+            }
+
+            const expiraEmMs = new Date(dados.expCodigoRecuperaSenha).getTime();
+            const agora = Date.now();
+
+            console.log('[Controller] Validando expiração do código:');
+            console.log('  - Expira em:', new Date(expiraEmMs).toISOString());
+            console.log('  - Agora:', new Date(agora).toISOString());
+            console.log('  - Expirado?', expiraEmMs < agora);
+
+            // Verifica se o código expirou
+            if (expiraEmMs < agora) {
+                const response = CommonResponse.error(
+                    "Tempo do código expirado, por favor peça um novo.",
+                    [],
+                    410
+                );
+                response.send(res);
+                return;
+            }
+
+            const response = CommonResponse.success("Código válido", dados.codigoRecuperaSenha);
+            response.send(res);
+            return;
+        } catch (erro: any) {
+            console.error('[Controller] Erro ao validar código:', erro);
+            next(erro);
         }
-        
-        // DEBUG: Logs para verificar as datas
-        // console.log("=== DEBUG EXPIRAÇÃO ===");
-        // console.log("Data de expiração (string do banco):", dados.expCodigoRecuperaSenha);
-        const expiraEmMs = new Date(dados.expCodigoRecuperaSenha!).getTime();
-        // console.log("Data de expiração (timestamp):", expiraEmMs);
-        // console.log("Data de expiração (legível):", new Date(expiraEmMs));
-        // console.log("Data atual (timestamp):", Date.now());
-        // console.log("Data atual (legível):", new Date());
-        // console.log("Está expirado?", expiraEmMs < Date.now());
-        // console.log("======================");
-        
-        // Verifica se o código expirou
-        if(expiraEmMs < Date.now()) {
-            const response = CommonResponse.error("Tempo do código expirado, por favor peça um novo.", [], 410)
-            response.send(res)
-            return
-        }
-        
-        const response = CommonResponse.success("Código válido", dados.codigoRecuperaSenha)
-        response.send(res)
-        return
     }
 }
 
