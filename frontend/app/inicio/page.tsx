@@ -22,6 +22,10 @@ export default function InicioPage() {
   const [refreshKey, setRefreshKey] = useState(0); // Estado para controlar refresh
   const { toasts, showSuccess, showError, removeToast } = useToast();
 
+  // Estados para paginação
+  const [itemsPerPage] = useState<number>(5);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+
   // Estados para upload de arquivo
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -36,6 +40,20 @@ export default function InicioPage() {
   // Função para fazer refresh da lista de produtos
   const triggerRefresh = () => {
     setRefreshKey(prev => prev + 1);
+    setCurrentPage(0); // Volta para a primeira página ao fazer refresh
+  };
+
+  // Funções de navegação da paginação
+  const nextPage = () => {
+    setCurrentPage(prev => prev + 1);
+  };
+
+  const prevPage = () => {
+    setCurrentPage(prev => prev - 1);
+  };
+
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
   };
 
   // Funções para controle do arquivo selecionado
@@ -278,6 +296,7 @@ export default function InicioPage() {
                 nomeUsuario={user.nome}
                 nomeLoja={user.nomeLoja}
                 id={user.id}
+                fotoUsuario={user.fotoPerfil}
               />
               <Produtos
                 modo="gerenciar"
@@ -285,12 +304,26 @@ export default function InicioPage() {
                 onEditProduct={handleEditProduct}
                 refreshKey={refreshKey}
                 onRefresh={triggerRefresh}
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+                onPageChange={goToPage}
+                onNextPage={nextPage}
+                onPrevPage={prevPage}
               />
             </>
           ) : (
             <>
               <CardSessao modo="visitante" />
-              <Produtos modo="visualizar" refreshKey={refreshKey} onRefresh={triggerRefresh} />
+              <Produtos 
+                modo="visualizar" 
+                refreshKey={refreshKey} 
+                onRefresh={triggerRefresh}
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+                onPageChange={goToPage}
+                onNextPage={nextPage}
+                onPrevPage={prevPage}
+              />
             </>
           )}
         </div>

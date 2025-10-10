@@ -113,7 +113,7 @@ export default function PageLoja() {
                             <h1 className="text-3xl font-bold text-[#111827]">{nomeLoja}</h1>
                             <p className="text-gray-600 mt-1">
                                 {temProdutos
-                                    ? `${produtos.data.docs.length} produto${produtos.data.docs.length !== 1 ? 's' : ''} disponível${produtos.data.docs.length !== 1 ? 'eis' : ''}`
+                                    ? `${produtos.data.docs.length} produto${produtos.data.docs.length !== 1 ? 's' : ''} disponíve${produtos.data.docs.length !== 1 ? 'is' : 'l'}`
                                     : "Nenhum produto encontrado"
                                 }
                             </p>

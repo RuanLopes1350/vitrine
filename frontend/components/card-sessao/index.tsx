@@ -54,6 +54,7 @@ export default function CardSessao({
       setTimeout(() => setCopiado(false), 2000);
     }
   }, [linkCompleto]);
+  console.log(fotoUsuario)
   if (modo === 'logado') {
     return (
       <div className="bg-gradient-to-r from-[#9333EA] to-[#7C3AED] rounded-xl p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 md:mb-8 text-white shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

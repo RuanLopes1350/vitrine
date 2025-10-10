@@ -14,6 +14,12 @@ interface ProdutosProps {
   onDeleteProduct?: (produtoId: string) => void;
   refreshKey?: number; // Nova prop para forçar refresh
   onRefresh?: () => void; // Callback para notificar refresh
+  // Props para paginação
+  currentPage?: number;
+  itemsPerPage?: number;
+  onPageChange?: (page: number) => void;
+  onNextPage?: () => void;
+  onPrevPage?: () => void;
 }
 
 export default function Produtos({ 
@@ -22,10 +28,21 @@ export default function Produtos({
   onEditProduct,
   onDeleteProduct,
   refreshKey,
-  onRefresh 
+  onRefresh,
+  currentPage = 0,
+  itemsPerPage,
+  onPageChange,
+  onNextPage,
+  onPrevPage
 }: ProdutosProps) {
   const { produtos, loading, error, buscarProdutos, buscarProdutosPorUsuario, deletarProduto } = useProdutos();
   const { user, isAuthenticated } = useAuth();
+
+  // Calcular produtos da página atual
+  const startIndex = itemsPerPage ? currentPage * itemsPerPage : 0;
+  const endIndex = itemsPerPage ? startIndex + itemsPerPage : produtos.length;
+  const currentItems = itemsPerPage ? produtos.slice(startIndex, endIndex) : produtos;
+  const totalPages = itemsPerPage ? Math.ceil(produtos.length / itemsPerPage) : 1;
 
   useEffect(() => {
     if (modo === 'gerenciar' && isAuthenticated && user) {
@@ -108,7 +125,15 @@ export default function Produtos({
           <div className="bg-[#F3E8FF] dark:bg-purple-900/30 p-1.5 sm:p-2 rounded-lg border border-[#E9D5FF] dark:border-purple-700">
             <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5 text-[#9333EA] dark:text-purple-400" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-gray-100">{titulo}</h2>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-gray-100">{titulo}</h2>
+            <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm">
+              {produtos.length > 0
+                ? `${produtos.length} produto${produtos.length !== 1 ? 's' : ''} disponíve${produtos.length !== 1 ? 'is' : 'l'}`
+                : "Nenhum produto encontrado"
+              }
+            </p>
+          </div>
         </div>
         {isGerenciar && (
           <Button 
@@ -122,17 +147,65 @@ export default function Produtos({
       </div>
 
       {produtos.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {produtos.map((produto) => (
-            <ProdutoCard 
-              key={produto._id} 
-              produto={produto}
-              modo={modo}
-              onEdit={isGerenciar ? handleEditProduct : undefined}
-              onDelete={isGerenciar ? handleDeleteProduct : undefined}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {currentItems.map((produto) => (
+              <ProdutoCard 
+                key={produto._id} 
+                produto={produto}
+                modo={modo}
+                onEdit={isGerenciar ? handleEditProduct : undefined}
+                onDelete={isGerenciar ? handleDeleteProduct : undefined}
+              />
+            ))}
+          </div>
+
+          {/* Paginação */}
+          {itemsPerPage && totalPages > 1 && (
+            <div className="flex items-center justify-center space-x-2 mt-8">
+              {/* Botão Anterior */}
+              <button 
+                onClick={onPrevPage} 
+                disabled={currentPage === 0}
+                className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Anterior
+              </button>
+
+              {/* Números das páginas */}
+              <div className="flex space-x-1">
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => onPageChange?.(index)}
+                    className={`px-3 py-2 text-sm font-medium rounded-md ${
+                      currentPage === index
+                        ? 'text-white bg-[#9333EA]'
+                        : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 cursor-pointer'
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+              </div>
+
+              {/* Botão Próximo */}
+              <button 
+                onClick={onNextPage} 
+                disabled={currentPage === totalPages - 1}
+                className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                Próximo
+                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         isGerenciar && (
           <div className="text-center py-8 sm:py-12 px-4">
