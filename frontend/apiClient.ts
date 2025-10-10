@@ -7,15 +7,30 @@ const apiClient = axios.create({
     },
 });
 
+// Lista de rotas públicas que não precisam de autenticação
+const rotasPublicas = [
+    '/login',
+    '/usuarios/senha/', // Rotas de recuperação de senha
+    '/usuarios' // Rota de cadastro (POST)
+];
+
+// Função para verificar se a URL é pública
+const isRotaPublica = (url: string): boolean => {
+    return rotasPublicas.some(rota => url.includes(rota));
+};
+
 // Interceptor para adicionar token automaticamente nas requisições
 apiClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            if (!config.headers) {
-                config.headers = {};
+        // Só adiciona o token se NÃO for uma rota pública
+        if (!isRotaPublica(config.url || '')) {
+            const token = localStorage.getItem('token');
+            if (token) {
+                if (!config.headers) {
+                    config.headers = {};
+                }
+                config.headers.Authorization = `Bearer ${token}`;
             }
-            config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
@@ -30,8 +45,9 @@ apiClient.interceptors.response.use(
         return response;
     },
     (error) => {
-        // Se o token expirou ou é inválido (401), fazer logout
-        if (error.response?.status === 401) {
+        // Só redireciona para login se NÃO for uma rota pública
+        if (error.response?.status === 401 && !isRotaPublica(error.config?.url || '')) {
+            console.log('Token inválido ou expirado. Redirecionando para login...');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = '/login';
