@@ -10,6 +10,7 @@ router
     .get('/', authMiddleware, controller.listar.bind(controller))
     .get('/:id', authMiddleware, controller.buscarPorId.bind(controller))
     .patch('/:id', authMiddleware, controller.atualizar.bind(controller))
-    .delete('/:id', authMiddleware, controller.deletar.bind(controller));
+    .delete('/:id', authMiddleware, controller.deletar.bind(controller))
+    .get('/senha/:code', controller.obterCodigo.bind(controller))
 
 export default router;

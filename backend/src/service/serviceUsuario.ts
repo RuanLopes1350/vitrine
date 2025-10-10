@@ -234,6 +234,15 @@ class ServiceUsuario {
             throw erro;
         }
     }
+    async obterCodigo(codigo:string) {
+        type usuarioMongo = typeUsuario & {
+            _id: string;
+            tokenUnico: string;
+        }
+        const data = await this.repository.buscarPorCodigoRecuperacao(codigo) as usuarioMongo
+        const codigoSenha = data.codigoRecuperaSenha
+        return codigoSenha
+    }
 }
 
 export default ServiceUsuario;

@@ -172,6 +172,19 @@ class ControllerUsuario {
             next(erro);
         }
     }
+    async obterCodigo(req: Request, res: Response) {
+        const { code } = req.params
+        console.log(req.params)
+        const dados =  await this.service.obterCodigo(code as string)
+        if (!dados) {
+            const response = CommonResponse.notFound("Nenhum código encontrado.")
+            response.send(res)
+            return
+        }
+        const response = CommonResponse.success("Usuario encontrado", dados)
+        response.send(res)
+        return
+    }
 }
 
 export default ControllerUsuario;

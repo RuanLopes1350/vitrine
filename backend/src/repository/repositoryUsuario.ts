@@ -69,7 +69,7 @@ class RepositoryUsuario {
 
     async buscarPorCodigoRecuperacao(codigo:string) {
         const filtro = {expCodigoRecuperaSenha: codigo};
-        const documento = await this.model.findOne(filtro,['+senha', '+expCodigoRecuperaSenha', '+codigoRecuperaSenha'])
+        const documento = await this.model.findOne(filtro,[ '+expCodigoRecuperaSenha', '+codigoRecuperaSenha'])
         return documento
     }
 }
