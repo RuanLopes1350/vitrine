@@ -2,6 +2,7 @@ import "./globals.css";
 import ClientLayout from "@/components/ClientLayout.tsx";
 import { Metadata } from "next";
 import Head from "next/head";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: 'Vitrine',
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className="h-screen flex flex-col">
         <ClientLayout>{children}</ClientLayout>
+        <Analytics />
       </body>
     </html>
   );
