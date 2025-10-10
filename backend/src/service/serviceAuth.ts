@@ -55,7 +55,6 @@ class ServicoAuth {
   }
 
   async recuperaSenha(req: Request, res: Response) {
-    console.log(req.body)
     type usuarioMongo = typeUsuario & {
       _id: string;
       tokenUnico: string;
@@ -131,7 +130,7 @@ class ServicoAuth {
     const {senha} = req.body
     const novaSenha = await PasswordHelper.hash(senha)
     const data = await this.repositorioUsuario.trocaSenha(codigo, novaSenha)
-    console.log(data)
+    // console.log(data)
     if(!data) {
       const response = CommonResponse.error("Nenhum codigo encontrado", ["Codigo"], 500)
       response.send(res)

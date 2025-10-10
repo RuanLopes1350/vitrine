@@ -1,3 +1,7 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 export interface MailDataBemVindo {
     nomeSistema?: string;
     nome?: string;
@@ -63,9 +67,12 @@ import axios from 'axios';
 import 'dotenv/config'
 
 export async function enviarEmail(email: SendMailParams) {
+    const linkEmail = process.env.MAIL_LOCAL || 'https://mailsender-one.vercel.app/api/emails/send';
+    
+    // console.log(`EMAIL: ${linkEmail}`)
     try {
         const resposta = await axios.post(
-            'http://localhost:5013/api/emails/send',
+            linkEmail,
             email,
             {
                 headers: {
@@ -74,7 +81,7 @@ export async function enviarEmail(email: SendMailParams) {
                 }
             }
         )
-        console.log(resposta.data)
+        // console.log(resposta.data)
     } catch (error:any) {
         console.error('Erro:', error.response?.data || error.message);
     }

@@ -174,7 +174,6 @@ class ControllerUsuario {
     }
     async obterCodigo(req: Request, res: Response) {
         const { code } = req.params
-        console.log(req.params)
         const dados =  await this.service.obterCodigo(code as string)
         if (!dados) {
             const response = CommonResponse.notFound("Nenhum código encontrado.")
@@ -183,15 +182,15 @@ class ControllerUsuario {
         }
         
         // DEBUG: Logs para verificar as datas
-        console.log("=== DEBUG EXPIRAÇÃO ===");
-        console.log("Data de expiração (string do banco):", dados.expCodigoRecuperaSenha);
+        // console.log("=== DEBUG EXPIRAÇÃO ===");
+        // console.log("Data de expiração (string do banco):", dados.expCodigoRecuperaSenha);
         const expiraEmMs = new Date(dados.expCodigoRecuperaSenha!).getTime();
-        console.log("Data de expiração (timestamp):", expiraEmMs);
-        console.log("Data de expiração (legível):", new Date(expiraEmMs));
-        console.log("Data atual (timestamp):", Date.now());
-        console.log("Data atual (legível):", new Date());
-        console.log("Está expirado?", expiraEmMs < Date.now());
-        console.log("======================");
+        // console.log("Data de expiração (timestamp):", expiraEmMs);
+        // console.log("Data de expiração (legível):", new Date(expiraEmMs));
+        // console.log("Data atual (timestamp):", Date.now());
+        // console.log("Data atual (legível):", new Date());
+        // console.log("Está expirado?", expiraEmMs < Date.now());
+        // console.log("======================");
         
         // Verifica se o código expirou
         if(expiraEmMs < Date.now()) {
