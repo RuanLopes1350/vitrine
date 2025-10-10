@@ -3,6 +3,7 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
 import DbConnect from '../config/DbConnect.js';
+import routesDocs from '../routes/routesDocs.js';
 import routesUsuario from '../routes/routesUsuario.js';
 import routesProduto from '../routes/routesProduto.js';
 import routesAuth from '../routes/routesAuth.js';
@@ -28,6 +29,7 @@ app.use(cors({
 const apiRouter = express.Router();
 app.use('/api', apiRouter);
 
+apiRouter.use('/docs', routesDocs);
 apiRouter.use('/usuarios', routesUsuario);
 apiRouter.use('/produtos', routesProduto);
 apiRouter.use('/', routesAuth);
