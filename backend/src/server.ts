@@ -1,6 +1,7 @@
 import express from 'express';
 import * as dotenv from 'dotenv';
 import DbConnect from './config/DbConnect.js';
+import routesDocs from './routes/routesDocs.js';
 import routesUsuario from './routes/routesUsuario.js';
 import routesProduto from './routes/routesProduto.js';
 import routesAuth from './routes/routesAuth.js';
@@ -45,6 +46,7 @@ apiRouter.use('/produtos', routesProduto);
 apiRouter.use('/', routesAuth);
 
 app.use('/api', apiRouter);
+app.use('/docs', routesDocs);
 
 // Rota para tratar requisições para rotas não definidas
 app.use((req, res) => {

@@ -5,7 +5,7 @@ import { typeUsuario } from "../types/typeUsuario.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
 import { PasswordHelper } from "../utils/helpers/passwordHelper.js";
 import { v2 as cloudinary } from 'cloudinary';
-
+import { enviarEmail, SendMailParams, MailDataBemVindo, MailDataGenerico } from "../utils/mailService.js";
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

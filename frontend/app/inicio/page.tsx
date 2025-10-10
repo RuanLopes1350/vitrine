@@ -16,55 +16,56 @@ export default function InicioPage() {
 
   const { user, isAuthenticated, isLoading } = useAuth();
   const { adicionarProduto, editarProduto } = useProdutos();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [produtoParaEditar, setProdutoParaEditar] = useState<Produto | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0); // Estado para controlar refresh
+  const [refreshKey, setRefreshKey] = useState(0);
   const { toasts, showSuccess, showError, removeToast } = useToast();
-
-  // Estados para paginação
-  const [itemsPerPage] = useState<number>(5);
-  const [currentPage, setCurrentPage] = useState<number>(0);
-
-  // Estados para upload de arquivo
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [selectedEditFile, setSelectedEditFile] = useState<File | null>(null);
-  const [previewEditUrl, setPreviewEditUrl] = useState<string | null>(null);
   const { uploadImage, uploading, error } = useCloudinaryUpload();
   const { validarProduto, validating } = useProdutoValidation();
 
-  // Estado para controle do loading geral (validação + upload)
+  // Estados para controle do loading geral (validação + upload)
   const [processing, setProcessing] = useState(false);
 
-  // Função para fazer refresh da lista de produtos
+  // ===== ESTADOS PARA MODAL DE CADASTRO =====
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [novoProduto, setNovoProduto] = useState({
+    nome: '',
+    descricao: '',
+    preco: ''
+  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // ===== ESTADOS PARA MODAL DE EDIÇÃO =====
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [produtoParaEditar, setProdutoParaEditar] = useState<Produto | null>(null);
+  const [produtoEditando, setProdutoEditando] = useState({
+    nome: '',
+    descricao: '',
+    preco: ''
+  });
+  const [selectedEditFile, setSelectedEditFile] = useState<File | null>(null);
+  const [previewEditUrl, setPreviewEditUrl] = useState<string | null>(null);
+
+  // ===== FUNÇÕES AUXILIARES =====
   const triggerRefresh = () => {
     setRefreshKey(prev => prev + 1);
-    setCurrentPage(0); // Volta para a primeira página ao fazer refresh
   };
 
-  // Funções de navegação da paginação
-  const nextPage = () => {
-    setCurrentPage(prev => prev + 1);
+  // ===== HANDLERS DO MODAL DE CADASTRO =====
+  const handleNovoProdutoChange = (campo: 'nome' | 'descricao' | 'preco', valor: string) => {
+    setNovoProduto(prev => ({ ...prev, [campo]: valor }));
   };
 
-  const prevPage = () => {
-    setCurrentPage(prev => prev - 1);
-  };
-
-  const goToPage = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  // Funções para controle do arquivo selecionado
   const handleFileSelect = (file: File, preview: string) => {
     setSelectedFile(file);
     setPreviewUrl(preview);
   };
 
-  const handleEditFileSelect = (file: File, preview: string) => {
-    setSelectedEditFile(file);
-    setPreviewEditUrl(preview);
+  const handleAddProduct = () => {
+    // Limpar formulário ao abrir
+    setNovoProduto({ nome: '', descricao: '', preco: '' });
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
@@ -74,6 +75,29 @@ export default function InicioPage() {
     setSelectedFile(null);
     setPreviewUrl(null);
     setIsModalOpen(false);
+  };
+
+  // ===== HANDLERS DO MODAL DE EDIÇÃO =====
+  const handleProdutoEditandoChange = (campo: 'nome' | 'descricao' | 'preco', valor: string) => {
+    setProdutoEditando(prev => ({ ...prev, [campo]: valor }));
+  };
+
+  const handleEditFileSelect = (file: File, preview: string) => {
+    setSelectedEditFile(file);
+    setPreviewEditUrl(preview);
+  };
+
+  const handleEditProduct = (produto: Produto) => {
+    setProdutoParaEditar(produto);
+    // Preencher formulário de edição
+    setProdutoEditando({
+      nome: produto.titulo,
+      descricao: produto.descricao,
+      preco: produto.preco.toString()
+    });
+    setSelectedEditFile(null);
+    setPreviewEditUrl(null);
+    setIsEditModalOpen(true);
   };
 
   const handleEditModalClose = () => {
@@ -86,40 +110,27 @@ export default function InicioPage() {
     setProdutoParaEditar(null);
   };
 
-  const handleAddProduct = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleEditProduct = (produto: Produto) => {
-    setProdutoParaEditar(produto);
-    setIsEditModalOpen(true);
-  };
-
+  // ===== FUNÇÃO DE SALVAR NOVO PRODUTO (REFATORADA) =====
   const handleSaveProduct = async () => {
-    // Obter valores dos campos do modal de cadastro
-    const nome = (document.getElementById('input1') as HTMLInputElement)?.value?.trim();
-    const descricao = (document.getElementById('input2') as HTMLTextAreaElement)?.value?.trim();
-    const precoStr = (document.getElementById('input3') as HTMLInputElement)?.value?.trim();
-
-    // Validações básicas de campos obrigatórios
-    if (!nome) {
+    // Validações usando estados controlados
+    if (!novoProduto.nome.trim()) {
       showError('Nome do produto é obrigatório');
       return;
     }
 
-    if (!descricao) {
+    if (!novoProduto.descricao.trim()) {
       showError('Descrição é obrigatória');
       return;
     }
 
-    if (!precoStr) {
+    if (!novoProduto.preco.trim()) {
       showError('Preço é obrigatório');
       return;
     }
 
-    const preco = parseFloat(precoStr);
-    if (isNaN(preco)) {
-      showError('Preço deve ser um número válido');
+    const preco = parseFloat(novoProduto.preco);
+    if (isNaN(preco) || preco <= 0) {
+      showError('Preço deve ser um número válido e maior que zero');
       return;
     }
 
@@ -131,14 +142,12 @@ export default function InicioPage() {
     try {
       setProcessing(true);
 
-      console.log('Etapa 1: Validando dados no backend...');
-
       // ETAPA 1: Validar dados no backend
       const validationResult = await validarProduto({
-        nome_produto: nome,
-        descricao,
+        nome_produto: novoProduto.nome.trim(),
+        descricao: novoProduto.descricao.trim(),
         preco,
-        mensagem: `Produto: ${nome}`,
+        mensagem: `Produto: ${novoProduto.nome}`,
         ativo: true
       });
 
@@ -147,34 +156,23 @@ export default function InicioPage() {
         return;
       }
 
-      console.log('Etapa 2: Dados válidos, fazendo upload da imagem...');
-
       // ETAPA 2: Upload da imagem para Cloudinary
       const uploadResult = await uploadImage(selectedFile);
 
       if (!uploadResult) {
         showError('Falha no upload da imagem');
-        console.error('Falha no upload:', error);
         return;
       }
 
-      console.log('Etapa 3: Upload concluído, salvando produto no banco...');
-      console.log('URL da imagem:', uploadResult.secure_url);
-
-      // ETAPA 3: Salvar produto no banco com a URL da imagem
+      // ETAPA 3: Salvar produto no banco
       const result = await adicionarProduto({
-        titulo: nome,
-        descricao,
+        titulo: novoProduto.nome.trim(),
+        descricao: novoProduto.descricao.trim(),
         preco,
         foto: uploadResult.secure_url
       }, triggerRefresh, showError);
 
       if (result.success) {
-        // Limpa os campos
-        (document.getElementById('input1') as HTMLInputElement).value = '';
-        (document.getElementById('input2') as HTMLTextAreaElement).value = '';
-        (document.getElementById('input3') as HTMLInputElement).value = '';
-
         showSuccess('Produto cadastrado com sucesso!');
         handleModalClose();
       }
@@ -184,47 +182,41 @@ export default function InicioPage() {
     } finally {
       setProcessing(false);
     }
-  }; const handleSaveEditProduct = async () => {
+  };  // ===== FUNÇÃO DE EDITAR PRODUTO (REFATORADA) =====
+  const handleSaveEditProduct = async () => {
     if (!produtoParaEditar) return;
 
-    // Obter valores dos campos do modal de edição
-    const nome = (document.getElementById('edit-input1') as HTMLInputElement)?.value?.trim();
-    const descricao = (document.getElementById('edit-input2') as HTMLTextAreaElement)?.value?.trim();
-    const precoStr = (document.getElementById('edit-input3') as HTMLInputElement)?.value?.trim();
-
-    // Validações básicas de campos obrigatórios
-    if (!nome) {
+    // Validações usando estados controlados
+    if (!produtoEditando.nome.trim()) {
       showError('Nome do produto é obrigatório');
       return;
     }
 
-    if (!descricao) {
+    if (!produtoEditando.descricao.trim()) {
       showError('Descrição é obrigatória');
       return;
     }
 
-    if (!precoStr) {
+    if (!produtoEditando.preco.trim()) {
       showError('Preço é obrigatório');
       return;
     }
 
-    const preco = parseFloat(precoStr);
-    if (isNaN(preco)) {
-      showError('Preço deve ser um número válido');
+    const preco = parseFloat(produtoEditando.preco);
+    if (isNaN(preco) || preco <= 0) {
+      showError('Preço deve ser um número válido e maior que zero');
       return;
     }
 
     try {
       setProcessing(true);
 
-      console.log('Etapa 1: Validando dados de edição no backend...');
-
-      // ETAPA 1: Validar dados no backend
+      // ETAPA 1: Validar dados
       const validationResult = await validarProduto({
-        nome_produto: nome,
-        descricao,
+        nome_produto: produtoEditando.nome.trim(),
+        descricao: produtoEditando.descricao.trim(),
         preco,
-        mensagem: `Produto: ${nome}`,
+        mensagem: `Produto: ${produtoEditando.nome}`,
         ativo: true
       });
 
@@ -233,30 +225,24 @@ export default function InicioPage() {
         return;
       }
 
-      let fotoUrl = produtoParaEditar.foto; // Mantém a foto atual por padrão
+      let fotoUrl = produtoParaEditar.foto;
 
-      // ETAPA 2: Se uma nova imagem foi selecionada, faz o upload
+      // ETAPA 2: Upload de nova imagem (se houver)
       if (selectedEditFile) {
-        console.log('Etapa 2: Fazendo upload da nova imagem...');
-
         const uploadResult = await uploadImage(selectedEditFile);
 
         if (!uploadResult) {
           showError('Falha no upload da nova imagem');
-          console.error('Falha no upload:', error);
           return;
         }
 
-        console.log('Upload da nova imagem concluído!', uploadResult);
         fotoUrl = uploadResult.secure_url;
       }
 
-      console.log('Etapa 3: Salvando produto editado no banco...');
-
-      // ETAPA 3: Salva o produto editado no banco
+      // ETAPA 3: Salvar edição
       const result = await editarProduto(produtoParaEditar._id, {
-        titulo: nome,
-        descricao,
+        titulo: produtoEditando.nome.trim(),
+        descricao: produtoEditando.descricao.trim(),
         preco,
         foto: fotoUrl
       }, triggerRefresh, showError);
@@ -295,8 +281,9 @@ export default function InicioPage() {
                 modo="logado"
                 nomeUsuario={user.nome}
                 nomeLoja={user.nomeLoja}
-                id={user.id}
                 fotoUsuario={user.fotoPerfil}
+                id={user.id}
+                mensagem={user.mensagem}
               />
               <Produtos
                 modo="gerenciar"
@@ -304,11 +291,6 @@ export default function InicioPage() {
                 onEditProduct={handleEditProduct}
                 refreshKey={refreshKey}
                 onRefresh={triggerRefresh}
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                onPageChange={goToPage}
-                onNextPage={nextPage}
-                onPrevPage={prevPage}
               />
             </>
           ) : (
@@ -318,11 +300,6 @@ export default function InicioPage() {
                 modo="visualizar" 
                 refreshKey={refreshKey} 
                 onRefresh={triggerRefresh}
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                onPageChange={goToPage}
-                onNextPage={nextPage}
-                onPrevPage={prevPage}
               />
             </>
           )}
@@ -343,6 +320,8 @@ export default function InicioPage() {
         }}
         isOpen={isModalOpen}
         onClose={handleModalClose}
+        formValues={novoProduto}
+        onFormChange={handleNovoProdutoChange}
         selectedFile={selectedFile}
         previewUrl={previewUrl}
         onFileSelect={handleFileSelect}
@@ -362,16 +341,8 @@ export default function InicioPage() {
         }}
         isOpen={isEditModalOpen}
         onClose={handleEditModalClose}
-        defaultValues={{
-          input1: produtoParaEditar?.titulo || '',
-          input2: produtoParaEditar?.descricao || '',
-          input3: produtoParaEditar?.preco?.toString() || ''
-        }}
-        inputIds={{
-          input1: 'edit-input1',
-          input2: 'edit-input2',
-          input3: 'edit-input3'
-        }}
+        formValues={produtoEditando}
+        onFormChange={handleProdutoEditandoChange}
         selectedFile={selectedEditFile}
         previewUrl={previewEditUrl || produtoParaEditar?.foto || null}
         onFileSelect={handleEditFileSelect}

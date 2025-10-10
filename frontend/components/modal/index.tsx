@@ -14,18 +14,13 @@ interface ModalProps {
     };
     isOpen: boolean;
     onClose: () => void;
-    defaultValues?: {
-        input1?: string;
-        input2?: string;
-        input3?: string;
-        input4?: string;
+    // Valores controlados (controlled components)
+    formValues: {
+        nome: string;
+        descricao: string;
+        preco: string;
     };
-    inputIds?: {
-        input1?: string;
-        input2?: string;
-        input3?: string;
-        input4?: string;
-    };
+    onFormChange: (campo: 'nome' | 'descricao' | 'preco', valor: string) => void;
     selectedFile?: File | null;
     previewUrl?: string | null;
     onFileSelect?: (file: File, previewUrl: string) => void;
@@ -37,26 +32,13 @@ export default function Modal({
     button2,
     isOpen,
     onClose,
-    defaultValues,
-    inputIds,
+    formValues,
+    onFormChange,
     selectedFile,
     previewUrl,
     onFileSelect
 }: ModalProps) {
     const dialogRef = useRef<HTMLDialogElement>(null);
-
-    // Estados para controlar cada campo do formulário
-    const [nome, setNome] = useState('');
-    const [descricao, setDescricao] = useState('');
-    const [preco, setPreco] = useState('');
-    const [imageUrl, setImageUrl] = useState('');
-
-    const ids = {
-        input1: inputIds?.input1 || 'input1',
-        input2: inputIds?.input2 || 'input2',
-        input3: inputIds?.input3 || 'input3',
-        input4: inputIds?.input4 || 'input4'
-    };
 
     useEffect(() => {
         const modalElement = dialogRef.current;
@@ -65,16 +47,11 @@ export default function Modal({
         }
 
         if (isOpen) {
-            // Define os valores iniciais dos estados quando o modal abre
-            setNome(defaultValues?.input1 || '');
-            setDescricao(defaultValues?.input2 || '');
-            setPreco(defaultValues?.input3 || '');
-            setImageUrl(defaultValues?.input4 || '');
             modalElement.showModal();
         } else {
             modalElement.close();
         }
-    }, [isOpen, defaultValues]);
+    }, [isOpen]);
 
     const handlePrimaryAction = () => {
         button1.action();
@@ -104,12 +81,23 @@ export default function Modal({
                         <img src="/title.png" draggable={false} />
                         <h4 data-testid="modal-label-nome" className="text-[#374151] font-medium text-[11.9px]">Nome do Produto</h4>
                     </div>
-                    <input data-testid="modal-input-nome" type="text" id={ids.input1} value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Insira o nome do produto" className="ml-[24px] w-[400px] h-[50px] rounded-[8px] border border-gray-300 pl-1.5 translate-x-7.5" />
+                    <input 
+                        data-testid="modal-input-nome" 
+                        type="text" 
+                        value={formValues.nome} 
+                        onChange={(e) => onFormChange('nome', e.target.value)} 
+                        placeholder="Insira o nome do produto" 
+                        className="ml-[24px] w-[400px] h-[50px] rounded-[8px] border border-gray-300 pl-1.5 translate-x-7.5" 
+                    />
                     <div className="flex flex-row ml-[24px] gap-0.5 translate-x-7.5">
                         <img src="/description.png" draggable={false} />
                         <h4 data-testid="modal-label-descricao" className="text-[#374151] font-medium text-[11.9px]">Descrição</h4>
                     </div>
-                    <textarea data-testid="modal-input-descricao" id={ids.input2} value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Insira a descrição do produto"
+                    <textarea 
+                        data-testid="modal-input-descricao" 
+                        value={formValues.descricao} 
+                        onChange={(e) => onFormChange('descricao', e.target.value)} 
+                        placeholder="Insira a descrição do produto"
                         className="ml-[24px] w-[400px] h-[122px] rounded-[8px] border border-gray-300 resize-none pl-1.5 translate-x-7.5"
                     ></textarea>
                     <div className="flex flex-row ml-[24px] gap-0.5 translate-x-7.5">
@@ -119,9 +107,8 @@ export default function Modal({
                     <input
                         data-testid="modal-input-preco"
                         type="number"
-                        id={ids.input3}
-                        value={preco}
-                        onChange={(e) => setPreco(e.target.value)}
+                        value={formValues.preco}
+                        onChange={(e) => onFormChange('preco', e.target.value)}
                         placeholder="R$ 50.00"
                         className="ml-[24px] w-[400px] h-[50px] rounded-[8px] border border-gray-300 pl-1.5 translate-x-7.5
                         [-moz-appearance:textfield] /* Para Firefox */ 

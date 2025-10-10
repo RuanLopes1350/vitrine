@@ -1,11 +1,11 @@
 'use client';
 
-import { ShoppingBag, Plus, Loader2 } from "lucide-react";
+import { ShoppingBag, Plus, Loader2, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProdutoCard from "../produto-card";
 import { useProdutos, Produto } from "@/hooks/useProdutos";
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ProdutosProps {
   modo?: 'visualizar' | 'gerenciar';
@@ -37,12 +37,32 @@ export default function Produtos({
 }: ProdutosProps) {
   const { produtos, loading, error, buscarProdutos, buscarProdutosPorUsuario, deletarProduto } = useProdutos();
   const { user, isAuthenticated } = useAuth();
-
-  // Calcular produtos da página atual
-  const startIndex = itemsPerPage ? currentPage * itemsPerPage : 0;
-  const endIndex = itemsPerPage ? startIndex + itemsPerPage : produtos.length;
-  const currentItems = itemsPerPage ? produtos.slice(startIndex, endIndex) : produtos;
-  const totalPages = itemsPerPage ? Math.ceil(produtos.length / itemsPerPage) : 1;
+  
+  // Paginação
+  const [internalItemsPerPage] = useState<number>(20);
+  const [internalCurrentPage, setInternalCurrentPage] = useState<number>(0);
+  
+  // Calcular valores derivados
+  const startIndex = internalCurrentPage * internalItemsPerPage;
+  const endIndex = startIndex + internalItemsPerPage;
+  const currentItems = produtos.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(produtos.length / internalItemsPerPage);
+  // Funções de navegação
+  const nextPage = () => {
+    if (internalCurrentPage < totalPages - 1) {
+      setInternalCurrentPage(prev => prev + 1);
+    }
+  };
+  
+  const prevPage = () => {
+    if (internalCurrentPage > 0) {
+      setInternalCurrentPage(prev => prev - 1);
+    }
+  };
+  
+  const goToPage = (page: number) => {
+    setInternalCurrentPage(page);
+  };
 
   useEffect(() => {
     if (modo === 'gerenciar' && isAuthenticated && user) {
@@ -52,7 +72,10 @@ export default function Produtos({
       // Se for modo visualizar, sempre busca todos os produtos
       buscarProdutos();
     }
+    // Reset para primeira página quando mudar os produtos
+    setInternalCurrentPage(0);
   }, [modo, isAuthenticated, user, refreshKey]); // Inclui refreshKey como dependência
+  
   const handleEditProduct = (produto: Produto) => {
     if (onEditProduct) {
       onEditProduct(produto);
@@ -161,11 +184,11 @@ export default function Produtos({
           </div>
 
           {/* Paginação */}
-          {itemsPerPage && totalPages > 1 && (
+          {totalPages > 1 && (
             <div className="flex items-center justify-center space-x-2 mt-8">
               {/* Botão Anterior */}
               <button 
-                onClick={onPrevPage} 
+                onClick={prevPage} 
                 disabled={currentPage === 0}
                 className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
@@ -180,7 +203,7 @@ export default function Produtos({
                 {Array.from({ length: totalPages }, (_, index) => (
                   <button
                     key={index}
-                    onClick={() => onPageChange?.(index)}
+                    onClick={() => goToPage(index)}
                     className={`px-3 py-2 text-sm font-medium rounded-md ${
                       currentPage === index
                         ? 'text-white bg-[#9333EA]'
@@ -194,7 +217,7 @@ export default function Produtos({
 
               {/* Botão Próximo */}
               <button 
-                onClick={onNextPage} 
+                onClick={nextPage} 
                 disabled={currentPage === totalPages - 1}
                 className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
@@ -207,17 +230,19 @@ export default function Produtos({
           )}
         </>
       ) : (
-        isGerenciar && (
-          <div className="text-center py-8 sm:py-12 px-4">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-100 rounded-xl mx-auto mb-3 sm:mb-4 flex items-center justify-center">
-              <ShoppingBag className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
-            </div>
-            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
-              Nenhum produto encontrado
-            </h3>
-            <p className="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">
-              Comece adicionando seu primeiro produto à vitrine.
-            </p>
+        <div className="text-center py-12 sm:py-16 px-4">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 dark:bg-gray-700 rounded-xl mx-auto mb-4 sm:mb-6 flex items-center justify-center">
+            <ShoppingBag className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
+          </div>
+          <h3 className="text-lg sm:text-xl font-medium text-gray-900 dark:text-gray-100 mb-2 sm:mb-3">
+            Nenhum produto encontrado
+          </h3>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-4 sm:mb-6 max-w-md mx-auto leading-relaxed">
+            {isGerenciar 
+              ? "Comece adicionando seu primeiro produto à vitrine." 
+              : "Esta loja ainda não possui produtos cadastrados."}
+          </p>
+          {isGerenciar && (
             <Button 
               onClick={handleAddProduct}
               className="bg-[#9333EA] hover:bg-[#7C3AED] text-white w-full sm:w-auto text-sm sm:text-base"
@@ -225,8 +250,28 @@ export default function Produtos({
               <Plus className="w-4 h-4 mr-2" />
               Adicionar Primeiro Produto
             </Button>
+          )}
+        </div>
+      )}
+
+      {/* Footer informativo - apenas no modo visualizar e quando há produtos */}
+      {!isGerenciar && produtos.length > 0 && (
+        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+          <div className="bg-gradient-to-r from-[#F3E8FF] to-[#EDE9FE] dark:from-purple-900/30 dark:to-purple-800/30 rounded-lg p-6">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="bg-[#9333EA] p-2 rounded-lg">
+                <MessageCircle className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Entre em contato
+              </h3>
+            </div>
+            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+              Clique no botão "WhatsApp" em qualquer produto para entrar
+              em contato direto com o vendedor e tirar suas dúvidas.
+            </p>
           </div>
-        )
+        </div>
       )}
     </section>
   );
