@@ -1,56 +1,59 @@
 "use client"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useToast, ToastContainer } from "@/components/ui/toast";
 import { Codigo } from "@/hooks/useSenha";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 export default function CodigoPage() {
-    const { data, status, getCodigo } = Codigo();
+    const { data, status, loading, errorMessage, getCodigo, resetState } = Codigo();
     const inputRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
-    const [erro, setErro] = useState<string>("");
-    const [carregando, setCarregando] = useState<boolean>(false);
+    const { toasts, showSuccess, showError, removeToast } = useToast();
+
+    // Limpa o estado e localStorage ao montar a página
+    useEffect(() => {
+        resetState();
+        localStorage.removeItem("codigo");
+    }, []);
 
     // Efeito para redirecionar quando o código for validado com sucesso
     useEffect(() => {
         if (status === 200 && data) {
             console.log("Código validado com sucesso:", data);
+            showSuccess("Código validado com sucesso!");
+            localStorage.setItem("codigo", data)
             router.push("/esqueci-minha-senha-c");
         }
     }, [status, data, router]);
 
-    // Efeito para exibir mensagem de erro
+    // Efeito para mostrar erro quando houver mensagem de erro
     useEffect(() => {
-        if (status === 404) {
-            setErro("Código de recuperação não encontrado ou inválido!");
-            setCarregando(false);
-        } else if (status === 200) {
-            setErro("");
+        if (errorMessage) {
+            showError(errorMessage);
+            
+            // Se o código expirou (410), sugerir voltar para solicitar novo código
+            if (status === 410) {
+                setTimeout(() => {
+                    const voltar = confirm("O código expirou. Deseja voltar para solicitar um novo código?");
+                    if (voltar) {
+                        router.push("/esqueci-minha-senha-a");
+                    }
+                }, 2000);
+            }
         }
-    }, [status]);
+    }, [errorMessage, status, router]);
 
     const handleVerificarCodigo = async () => {
         const codigo = inputRef.current?.value?.trim();
         
-        // Validação do input
         if (!codigo) {
-            setErro("Por favor, digite o código de recuperação.");
             return;
         }
-
-        setErro("");
-        setCarregando(true);
         
-        try {
-            await getCodigo(codigo);
-        } catch (error) {
-            console.error("Erro ao verificar código:", error);
-            setErro("Erro ao verificar código. Tente novamente.");
-        } finally {
-            setCarregando(false);
-        }
+        await getCodigo(codigo);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -62,6 +65,8 @@ export default function CodigoPage() {
 
     return (
         <div className="bg-[#F9FAFB] h-full flex flex-col justify-center items-center px-4">
+            <ToastContainer toasts={toasts} onRemove={removeToast} />
+            
             <div className="w-full max-w-[448px] text-[#111827]">
                 <h1 className="text-[25.5px] sm:pl-8 mb-2">Código de Recuperação</h1>
                 <p className="text-[#4B5563] sm:pl-14 pb-8 sm:pb-14">Digite o código recebido no seu email!</p>
@@ -75,21 +80,18 @@ export default function CodigoPage() {
                                 placeholder="Código de Recuperação" 
                                 className="w-full h-[38px] border-[#D1D5DB] rounded-none focus-visible:ring-0 focus-visible:ring-offset-0"
                                 onKeyDown={handleKeyDown}
-                                disabled={carregando}
+                                disabled={loading}
                             />
                         </div>
-                        {erro && (
-                            <p className="text-red-500 text-sm mt-2">{erro}</p>
-                        )}
                     </div>
                     
                     <Button 
                         type="button" 
                         onClick={handleVerificarCodigo} 
                         className="w-full h-[38px] bg-[#2563EB] text-white cursor-pointer hover:bg-[#1d4ed8] disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={carregando}
+                        disabled={loading}
                     >
-                        {carregando ? "Verificando..." : "Verificar Código"}
+                        {loading ? "Verificando..." : "Verificar Código"}
                     </Button>
                     
                     <Link href="/login" className="text-[#2563EB] text-center hover:underline">
