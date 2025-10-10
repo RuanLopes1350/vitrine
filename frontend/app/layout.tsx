@@ -21,8 +21,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className="h-screen flex flex-col">
-        <ClientLayout>{children}</ClientLayout>
         <Analytics />
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

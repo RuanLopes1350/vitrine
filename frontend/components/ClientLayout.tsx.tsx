@@ -17,8 +17,8 @@ export default function ClientLayout({
       <AuthProvider>
         <Header />
         <main className="flex-grow">
-          {children}
         <Analytics />
+          {children}
         </main>
       </AuthProvider>
     </ThemeProvider>
