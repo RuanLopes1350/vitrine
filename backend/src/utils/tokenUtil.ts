@@ -27,6 +27,19 @@ class GeradorToken {
     
     return jwt.verify(token, segredo) as PayloadToken;
   }
+  
+  // Gera um token para recuperação de senha
+  generatePasswordRecoveryToken(id: string): string {
+    const segredo = process.env.JWT_SECRET_PASSWORD_RECOVERY;
+    if (!segredo) {
+      throw new Error('Segredo JWT para recuperação de senha não configurado');
+    }
+    
+    return jwt.sign({ id }, segredo, { 
+      expiresIn: '30m' 
+    });
+  }
+
 }
 
 export default new GeradorToken();

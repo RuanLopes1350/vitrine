@@ -10,6 +10,7 @@ interface CardSessaoProps {
   nomeLoja?: string;
   fotoUsuario?: string;
   id?:string;
+  mensagem?:string;
 }
 
 export default function CardSessao({ 
@@ -17,7 +18,8 @@ export default function CardSessao({
   nomeUsuario = '',
   nomeLoja = '',
   fotoUsuario,
-  id 
+  id,
+  mensagem, 
 }: CardSessaoProps) {
   const [copiado, setCopiado] = useState(false);
   
@@ -76,7 +78,7 @@ export default function CardSessao({
 
           <div className="flex-1 min-w-0">
             <h2 className="text-lg sm:text-xl font-bold truncate">{nomeLoja}</h2>
-            <p className="text-purple-100 text-xs sm:text-sm">Sua loja digital está pronta para brilhar!</p>
+            <p className="text-purple-100 text-xs sm:text-sm">{mensagem}</p>
           </div>
         </div>
         <div className="flex flex-col w-full sm:w-auto">
