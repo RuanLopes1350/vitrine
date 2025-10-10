@@ -9,15 +9,15 @@ import produtoSchemas from "../schemas/produtoSchema.js";
 
 // Função para obter as opções do OpenAPI
 const getServersInCorrectOrder = (): OpenAPIV3.ServerObject[] => {
-    const devUrl: OpenAPIV3.ServerObject = {
+    const prodUrl: OpenAPIV3.ServerObject = {
         url: process.env.SCALAR_PROD_URL || `https://vitrine-fawn.vercel.app/api`
     };
-    const prodUrl1: OpenAPIV3.ServerObject = {
+    const devUrl: OpenAPIV3.ServerObject = {
         url: process.env.SCALAR_DEV_URL || "http://localhost:1350"
     };
 
-    if (process.env.NODE_ENV === "production") return [prodUrl1, devUrl];
-    else return [devUrl, prodUrl1];
+    if (process.env.NODE_ENV === "development") return [devUrl, prodUrl];
+    else return [prodUrl, devUrl];
 };
 
 
