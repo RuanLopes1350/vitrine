@@ -30,7 +30,7 @@ const getOpenAPIOptions = async (): Promise<OpenAPIV3.Document> => {
             description: "Documentação da API para gerenciamento de usuários e produtos.",
             contact: {
                 name: "Vitrine",
-                email: "vitrine.support@gmail.com",
+                email: "contatoruanlopes1350@gmail.com",
             },
         },
         servers: getServersInCorrectOrder(),
