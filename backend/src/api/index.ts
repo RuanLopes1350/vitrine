@@ -25,23 +25,21 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
-// Rota de documentação
-app.use('/docs', routesDocs);
+// Rotas da API
+const apiRouter = express.Router();
+
+apiRouter.use('/docs', routesDocs);
+apiRouter.use('/usuarios', routesUsuario);
+apiRouter.use('/produtos', routesProduto);
+apiRouter.use('/', routesAuth);
+
+app.use('/api', apiRouter);
 
 // Rota raiz
 app.get('/', (req, res) => {
   console.log('Requisição para rota raiz');
   res.json({ message: 'Hello, World!' });
 });
-
-// Rotas da API
-const apiRouter = express.Router();
-
-apiRouter.use('/usuarios', routesUsuario);
-apiRouter.use('/produtos', routesProduto);
-apiRouter.use('/', routesAuth);
-
-app.use('/api', apiRouter);
 
 app.use((req, res) => {
   return res.status(404).json({ message: 'Rota não encontrada!' })
