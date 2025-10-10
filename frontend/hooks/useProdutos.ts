@@ -43,13 +43,13 @@ interface UseProdutosReturn {
     buscarProdutos: () => Promise<void>;
     buscarProdutosPorUsuario: () => Promise<void>;
     adicionarProduto: (
-        produto: Omit<Produto, '_id' | 'usuarioId'>, 
+        produto: Omit<Produto, '_id' | 'usuarioId'>,
         refreshCallback?: () => void,
         showError?: (message: string) => void
     ) => Promise<{ success: boolean; message: string }>;
     editarProduto: (
-        id: string, 
-        produto: Omit<Produto, '_id' | 'usuarioId'>, 
+        id: string,
+        produto: Omit<Produto, '_id' | 'usuarioId'>,
         refreshCallback?: () => void,
         showError?: (message: string) => void
     ) => Promise<{ success: boolean; message: string }>;
@@ -66,9 +66,9 @@ export function useProdutos(): UseProdutosReturn {
         try {
             setLoading(true);
             setError(null);
-            
+
             const response = await apiClient.get<ProdutoResponse>('/produtos');
-            
+
             if (response.data.code === 200 && Array.isArray(response.data.data)) {
                 const produtosMapeados = response.data.data
                     .filter(item => item.ativo && item._id)
@@ -84,7 +84,7 @@ export function useProdutos(): UseProdutosReturn {
                             whatsapp: criadorObj?.whatsapp
                         };
                     });
-                
+
                 setProdutos(produtosMapeados);
             } else {
                 console.warn('Resposta inesperada da API:', response.data);
@@ -103,22 +103,41 @@ export function useProdutos(): UseProdutosReturn {
         try {
             setLoading(true);
             setError(null);
-            
+
             if (!user?.id) {
                 setError('Usuário não autenticado');
                 setProdutos([]);
                 return;
             }
-            
-            const response = await apiClient.get<ProdutoResponse>('/produtos');
-            
-            if (response.data.code === 200 && Array.isArray(response.data.data)) {
-                const produtosMapeados = response.data.data
-                    .filter(item => {
-                        const criadorId = typeof item.criador === 'string' ? item.criador : item.criador?._id;
-                        return item.ativo && criadorId === user.id && item._id;
-                    })
-                    .map(item => {
+
+            // Usar a rota específica para buscar produtos do usuário com paginação
+            // Usando limit=1000 para pegar todos os produtos (ajustar conforme necessidade)
+            const response = await apiClient.get<any>(`/produtos/usuario/${user.id}?page=1&limit=1000`);
+
+            console.log('Resposta completa da API:', {
+                totalDocs: response.data.data?.totalDocs,
+                docsRetornados: response.data.data?.docs?.length,
+                limit: response.data.data?.limit,
+                page: response.data.data?.page,
+                totalPages: response.data.data?.totalPages
+            });
+
+            if (response.data.code === 200 && response.data.data?.docs) {
+                // Contar produtos ativos e inativos
+                const todosOsProdutos = response.data.data.docs;
+                const produtosAtivos = todosOsProdutos.filter((item: any) => item.ativo);
+                const produtosInativos = todosOsProdutos.filter((item: any) => !item.ativo);
+
+                console.log(`📊 Estatísticas dos produtos:`);
+                console.log(`   Total no banco: ${response.data.data.totalDocs}`);
+                console.log(`   Retornados pela API: ${todosOsProdutos.length}`);
+                console.log(`   ✅ Ativos: ${produtosAtivos.length}`);
+                console.log(`   ❌ Inativos: ${produtosInativos.length}`);
+
+                // Mapear APENAS produtos ativos
+                const produtosMapeados = todosOsProdutos
+                    .filter((item: any) => item.ativo && item._id)
+                    .map((item: any) => {
                         const criadorObj = typeof item.criador === 'object' ? item.criador : null;
                         return {
                             _id: item._id!,
@@ -130,7 +149,8 @@ export function useProdutos(): UseProdutosReturn {
                             whatsapp: criadorObj?.whatsapp
                         };
                     });
-                
+
+                console.log(`✨ Produtos carregados para exibição: ${produtosMapeados.length}`);
                 setProdutos(produtosMapeados);
             } else {
                 console.warn('Resposta inesperada da API:', response.data);
@@ -146,7 +166,7 @@ export function useProdutos(): UseProdutosReturn {
     }, [user?.id]);
 
     const adicionarProduto = async (
-        produto: Omit<Produto, '_id' | 'usuarioId'>, 
+        produto: Omit<Produto, '_id' | 'usuarioId'>,
         refreshCallback?: () => void,
         showError?: (message: string) => void
     ) => {
@@ -167,7 +187,7 @@ export function useProdutos(): UseProdutosReturn {
             }
 
             const response = await apiClient.post<ProdutoResponse>('/produtos', produtoBackend);
-            
+
             if (response.data.code === 201) {
                 // Chama o callback para refresh se fornecido
                 if (refreshCallback) {
@@ -191,8 +211,8 @@ export function useProdutos(): UseProdutosReturn {
     };
 
     const editarProduto = async (
-        id: string, 
-        produto: Omit<Produto, '_id' | 'usuarioId'>, 
+        id: string,
+        produto: Omit<Produto, '_id' | 'usuarioId'>,
         refreshCallback?: () => void,
         showError?: (message: string) => void
     ) => {
@@ -213,7 +233,7 @@ export function useProdutos(): UseProdutosReturn {
             }
 
             const response = await apiClient.patch<ProdutoResponse>(`/produtos/${id}`, produtoBackend);
-            
+
             if (response.data.code === 200) {
                 // Chama o callback para refresh se fornecido
                 if (refreshCallback) {
@@ -243,7 +263,7 @@ export function useProdutos(): UseProdutosReturn {
             setError(null);
 
             const response = await apiClient.delete<ProdutoResponse>(`/produtos/${id}`);
-            
+
             if (response.data.code === 200) {
                 setProdutos(prevProdutos => prevProdutos.filter(p => p._id !== id));
                 return { success: true, message: 'Produto excluído com sucesso!' };
