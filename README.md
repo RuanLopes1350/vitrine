@@ -2,6 +2,8 @@
 
 **Aplicação em Produção:** [https://vitrine-fawn.vercel.app/](https://vitrine-fawn.vercel.app/)
 
+**Documentação em Produção:** [https://vitrine-fawn.vercel.app/api/docs](https://vitrine-fawn.vercel.app/api/docs)
+
 ## Visão Geral
 
 Vitrine é uma plataforma completa de e-commerce desenvolvida como um monorepo, com um frontend moderno em Next.js e um backend robusto em Node.js. A aplicação permite que usuários criem contas, gerenciem produtos (CRUD completo) em uma vitrine pessoal e compartilhem um link público para sua loja.
@@ -42,4 +44,5 @@ Este projeto foi estruturado para simular um ambiente de produção profissional
     * Navegue até a pasta `frontend/`.
     * Crie um arquivo `.env` baseado nas variáveis necessárias descritas no `.env.example`.
     * Execute `npm install`.
+
     * Execute `npm run dev`.
