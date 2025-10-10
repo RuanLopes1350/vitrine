@@ -7,23 +7,29 @@ const apiClient = axios.create({
     },
 });
 
-// Lista de rotas públicas que não precisam de autenticação
-const rotasPublicas = [
-    '/login',
-    '/usuarios/senha/', // Rotas de recuperação de senha
-    '/usuarios' // Rota de cadastro (POST)
-];
-
-// Função para verificar se a URL é pública
-const isRotaPublica = (url: string): boolean => {
-    return rotasPublicas.some(rota => url.includes(rota));
+// Função para verificar se a rota é pública (não precisa de token)
+const isRotaPublica = (url: string, method: string = 'GET'): boolean => {
+    const urlUpper = url.toUpperCase();
+    const methodUpper = method.toUpperCase();
+    
+    // Rotas de autenticação
+    if (url.includes('/login')) return true;
+    
+    // Rotas de recuperação de senha
+    if (url.includes('/usuarios/senha/')) return true;
+    
+    // IMPORTANTE: Apenas POST para /usuarios é público (cadastro)
+    // PATCH, GET, DELETE para /usuarios/:id são protegidos
+    if (url === '/usuarios' && methodUpper === 'POST') return true;
+    
+    return false;
 };
 
 // Interceptor para adicionar token automaticamente nas requisições
 apiClient.interceptors.request.use(
     (config) => {
         // Só adiciona o token se NÃO for uma rota pública
-        if (!isRotaPublica(config.url || '')) {
+        if (!isRotaPublica(config.url || '', config.method || 'GET')) {
             const token = localStorage.getItem('token');
             if (token) {
                 if (!config.headers) {
@@ -46,7 +52,7 @@ apiClient.interceptors.response.use(
     },
     (error) => {
         // Só redireciona para login se NÃO for uma rota pública
-        if (error.response?.status === 401 && !isRotaPublica(error.config?.url || '')) {
+        if (error.response?.status === 401 && !isRotaPublica(error.config?.url || '', error.config?.method || 'GET')) {
             console.log('Token inválido ou expirado. Redirecionando para login...');
             localStorage.removeItem('token');
             localStorage.removeItem('user');

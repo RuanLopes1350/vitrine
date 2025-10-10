@@ -85,6 +85,7 @@ class ServiceUsuario {
 
             const usuario = await this.repository.cadastrar(dadosUsuario);
 
+            let urlLogin = process.env.URL_LOGIN_LOCAL || 'https://vitrine-fawn.vercel.app/login'
             let emailData: MailDataBemVindo = {
                 nomeSistema: "Vitrine",
                 nome: usuario.nome,
@@ -97,7 +98,7 @@ class ServiceUsuario {
                 ],
                 mostrarBotao: true,
                 textoBotao: "Acessar Minha Conta",
-                urlBotao: "https://vitrine-fawn.vercel.app/login",
+                urlBotao: urlLogin,
                 corPrimaria: "#9333EA",
                 corBotao: "#7C3AED",
                 infoAdicional: "<strong>Dica:</strong> Mantenha seus produtos sempre atualizados com fotos de alta qualidade para atrair mais clientes!",

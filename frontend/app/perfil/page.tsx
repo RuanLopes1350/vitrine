@@ -153,7 +153,7 @@ export default function PerfilPage() {
         try {
             const dados = {
                 nomeLoja: nomeLoja,
-                whatsapp: "55" + unformatWhatsApp(whatsapp),
+                whatsapp: unformatWhatsApp(whatsapp),
                 mensagem: descricao,
                 ...(fotoPerfil && { fotoPerfil })
 
@@ -171,7 +171,7 @@ export default function PerfilPage() {
                 // Atualizar o user no contexto corretamente
                 updateUser({
                     nomeLoja: nomeLoja,
-                    whatsapp: "55" + unformatWhatsApp(whatsapp),
+                    whatsapp: unformatWhatsApp(whatsapp),
                     mensagem: descricao,
                     ...(fotoPerfil && { fotoPerfil })
                 });
@@ -213,8 +213,9 @@ export default function PerfilPage() {
                 }
 
                 // O apiClient já trata 401/403 automaticamente fazendo logout
+                // Não precisa fazer logout manualmente aqui
                 if (statusCode === 403 || statusCode === 401) {
-                    logout();
+                    // O interceptor do apiClient já redirecionou para login
                     return;
                 }
 
