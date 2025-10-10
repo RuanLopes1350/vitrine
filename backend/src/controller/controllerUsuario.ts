@@ -181,7 +181,7 @@ class ControllerUsuario {
             response.send(res)
             return
         }
-        const response = CommonResponse.success("Usuario encontrado", dados)
+        const response = CommonResponse.success("Usuario encontrado", dados.codigoRecuperaSenha)
         response.send(res)
         return
     }

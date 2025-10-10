@@ -239,9 +239,8 @@ class ServiceUsuario {
             _id: string;
             tokenUnico: string;
         }
-        const data = await this.repository.buscarPorCodigoRecuperacao(codigo) as usuarioMongo
-        const codigoSenha = data.codigoRecuperaSenha
-        return codigoSenha
+        const data:usuarioMongo = await this.repository.buscarPorCodigoRecuperacao(codigo)
+        return data
     }
 }
 
