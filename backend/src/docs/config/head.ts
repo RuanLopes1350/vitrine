@@ -18,17 +18,17 @@ const getServersInCorrectOrder = (): OpenAPIV3.ServerObject[] => {
 const getOpenAPIOptions = async (): Promise<OpenAPIV3.Document> => {
     const t = process.env.NODE_ENV === 'development' ? `?t=${Date.now()}` : '';
 
-    const usuarioPaths = (await import(new URL("../paths/usuario.ts",
+    const usuarioPaths = (await import(new URL("../paths/usuario.js",
         import.meta.url).href + t)).default;
-    const usuarioSchemas = (await import(new URL("../schemas/usuarioSchema.ts",
+    const usuarioSchemas = (await import(new URL("../schemas/usuarioSchema.js",
         import.meta.url).href + t)).default;
-    const authPaths = (await import(new URL("../paths/auth.ts",
+    const authPaths = (await import(new URL("../paths/auth.js",
         import.meta.url).href + t)).default;
-    const authSchemas = (await import(new URL("../schemas/authSchema.ts",
+    const authSchemas = (await import(new URL("../schemas/authSchema.js",
         import.meta.url).href + t)).default;
-    const produtoPaths = (await import(new URL("../paths/produto.ts",
+    const produtoPaths = (await import(new URL("../paths/produto.js",
         import.meta.url).href + t)).default;
-    const produtoSchemas = (await import(new URL("../schemas/produtoSchema.ts",
+    const produtoSchemas = (await import(new URL("../schemas/produtoSchema.js",
         import.meta.url).href + t)).default;
 
     const scalarOpptions: OpenAPIV3.Document = {
