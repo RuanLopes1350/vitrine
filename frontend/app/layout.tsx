@@ -2,7 +2,7 @@ import "./globals.css";
 import ClientLayout from "@/components/ClientLayout.tsx";
 import { Metadata } from "next";
 import Head from "next/head";
-import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: 'Vitrine',
