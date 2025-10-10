@@ -1,10 +1,11 @@
-import { email, z } from "zod";
+import { z } from "zod";
 import RepositoryUsuario from "../repository/repositoryUsuario.js";
 import { UsuarioSchema, UsuarioUpdateSchema } from "../utils/validations/usuarioSchema.js";
 import { typeUsuario } from "../types/typeUsuario.js";
 import { CommonResponse } from "../utils/helpers/commonResponse.js";
 import { PasswordHelper } from "../utils/helpers/passwordHelper.js";
 import { v2 as cloudinary } from 'cloudinary';
+import { enviarEmail, SendMailParams, MailDataBemVindo, MailDataGenerico } from "../utils/mailService.js";
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -13,17 +14,13 @@ cloudinary.config({
     secure: true,
 });
 
-import { enviarEmail, SendMailParams, MailDataBemVindo, MailDataGenerico } from "../utils/mailService.js";
-
-
 class ServiceUsuario {
-    private repository: RepositoryUsuario;
-
+    private repository: RepositoryUsuario
     constructor() {
-        this.repository = new RepositoryUsuario();
+        this.repository = new RepositoryUsuario
     }
 
-        private extractPublicIdFromUrl(imageUrl: string): string | null {
+    private extractPublicIdFromUrl(imageUrl: string): string | null {
         try {
             if (!imageUrl || !imageUrl.includes('cloudinary.com')) {
                 return null; // Não é uma URL do Cloudinary
@@ -51,32 +48,32 @@ class ServiceUsuario {
             return null;
         }
     }
-        private async deleteImageFromCloudinary(imageUrl: string): Promise<boolean> {
-            try {
-                console.log("deletando imagem")
-                const publicId = this.extractPublicIdFromUrl(imageUrl);
-                console.log(publicId)
-                if (!publicId) {
-                    console.log('URL não é do Cloudinary ou public_id não encontrado:', imageUrl);
-                    return true; // Não é erro, apenas não precisa deletar
-                }
-    
-                console.log('Deletando imagem do Cloudinary com public_id:', publicId);
-    
-                const result = await cloudinary.uploader.destroy(publicId);
-    
-                if (result.result === 'ok' || result.result === 'not found') {
-                    console.log('Imagem deletada com sucesso ou não encontrada:', result);
-                    return true;
-                } else {
-                    console.error('Falha ao deletar imagem do Cloudinary:', result);
-                    return false;
-                }
-            } catch (error) {
-                console.error('Erro ao deletar imagem do Cloudinary:', error);
-                return false; // Não bloqueia a operação, apenas loga o erro
+    private async deleteImageFromCloudinary(imageUrl: string): Promise<boolean> {
+        try {
+            console.log("deletando imagem")
+            const publicId = this.extractPublicIdFromUrl(imageUrl);
+            console.log(publicId)
+            if (!publicId) {
+                console.log('URL não é do Cloudinary ou public_id não encontrado:', imageUrl);
+                return true; // Não é erro, apenas não precisa deletar
             }
+
+            console.log('Deletando imagem do Cloudinary com public_id:', publicId);
+
+            const result = await cloudinary.uploader.destroy(publicId);
+
+            if (result.result === 'ok' || result.result === 'not found') {
+                console.log('Imagem deletada com sucesso ou não encontrada:', result);
+                return true;
+            } else {
+                console.error('Falha ao deletar imagem do Cloudinary:', result);
+                return false;
+            }
+        } catch (error) {
+            console.error('Erro ao deletar imagem do Cloudinary:', error);
+            return false; // Não bloqueia a operação, apenas loga o erro
         }
+    }
 
     async cadastrar(dadosUsuario: typeUsuario): Promise<CommonResponse> {
         try {
@@ -86,39 +83,7 @@ class ServiceUsuario {
             const senhaCriptografada = await PasswordHelper.hash(dadosUsuario.senha);
             dadosUsuario.senha = senhaCriptografada;
 
-            const usuario:Partial<typeUsuario> = await this.repository.cadastrar(dadosUsuario);
-
-            const emailBoasVinda: SendMailParams = {
-                to: usuario.email!,
-                subject: 'Bem-vindo à Nossa Plataforma!',
-                template: 'bemvindo',
-                data: {
-                    nomeSistema: 'Vitrine',
-                    nome: usuario.nome,
-                    mensagem: 'Bem-vindo à nossa plataforma! Estamos muito felizes em tê-lo conosco. Este é um email de boas-vindas com algumas informações úteis para você começar.',
-                    mensagemSecundaria: 'O que você pode fazer em nossa plataforma:',
-                    itens: [
-                        'Cadastrar seus produtos e serviços com uma foto atraente.',
-                        'Definir preços competitivos para atrair mais clientes.',
-                        'Definir sua foto de perfil para mostrar a marca do seu negócio.',
-                        'Definir uma descrição envolvente para destacar o que torna seu negócio único.',
-                    ],
-                    mostrarBotao: true,
-                    textoBotao: 'Acessar Plataforma',
-                    urlBotao: process.env.URL_LOGIN || 'http://localhost:3000/login',
-                    corPrimaria: '#8a36eb',
-                    corBotao: '#9810fa'
-                } as MailDataBemVindo
-            }
-
-            // Enviar email de boas-vindas (não bloqueia o cadastro se falhar)
-            try {
-                const respostaEmail = await enviarEmail(emailBoasVinda);
-                console.log('Email de boas-vindas enviado com sucesso:', respostaEmail);
-            } catch (error) {
-                console.error('Erro ao enviar email de boas-vindas, mas cadastro foi realizado:', error);
-            }
-
+            const usuario = await this.repository.cadastrar(dadosUsuario);
             return CommonResponse.created('Usuário cadastrado com sucesso!', usuario);
         } catch (erro: any) {
             if (erro instanceof z.ZodError) {
@@ -154,18 +119,23 @@ class ServiceUsuario {
     }
 
     async buscarPorId(id: string): Promise<CommonResponse> {
-        const dados = await this.repository.buscarPorId(id);
+        try {
+            const dados = await this.repository.buscarPorId(id);
 
-        if (!dados) {
-            return CommonResponse.notFound('Usuário não encontrado');
+            if (!dados) {
+                return CommonResponse.notFound('Usuário não encontrado');
+            }
+
+            return CommonResponse.success('Usuário encontrado', dados);
+        } catch (erro) {
+            console.error('[Service] Erro ao buscar usuário por id:', erro);
+            return CommonResponse.error('Falha ao buscar usuário por id');
         }
-
-        return CommonResponse.success('Usuário encontrado', dados);
     }
 
     async atualizar(id: string, dadosUsuario: typeUsuario): Promise<CommonResponse> {
         try {
-            const usuarioExiste:typeUsuario = await this.repository.buscarPorId(id);
+            const usuarioExiste: typeUsuario = await this.repository.buscarPorId(id);
 
             if (!usuarioExiste) {
                 return CommonResponse.notFound('Usuário não encontrado');
@@ -183,11 +153,10 @@ class ServiceUsuario {
             UsuarioUpdateSchema.parse(dadosUsuario);
             // console.log("FotoPerfil:",dadosUsuario.fotoPerfil)
             // console.log("Banco:", dadosUsuario.fotoPerfil)
-            if(dadosUsuario.fotoPerfil === null && usuarioExiste.fotoPerfil){
+            if (dadosUsuario.fotoPerfil === null && usuarioExiste.fotoPerfil) {
                 // console.log("Aqui")
                 await this.deleteImageFromCloudinary(usuarioExiste.fotoPerfil)
             }
-            
 
             const usuarioAtualizado = await this.repository.atualizar(id, dadosUsuario);
             if (!usuarioAtualizado) {
@@ -209,7 +178,8 @@ class ServiceUsuario {
                 return CommonResponse.validationError('Dados inválidos para atualização', mensagensErro);
             }
 
-            throw erro;
+            console.error('[Service] Erro ao atualizar usuário:', erro);
+            return CommonResponse.error('Falha ao atualizar usuário');
         }
     }
 
@@ -231,17 +201,27 @@ class ServiceUsuario {
 
             return CommonResponse.success('Usuário deletado com sucesso', { id, nome: usuarioExiste.nome });
         } catch (erro) {
-            throw erro;
+            console.error('[Service] Erro ao deletar usuário:', erro);
+            return CommonResponse.error('Falha ao deletar usuário');
         }
     }
-    async obterCodigo(codigo:string) {
-        type usuarioMongo = typeUsuario & {
-            _id: string;
-            tokenUnico: string;
+
+    async obterCodigo(codigo: string): Promise<typeUsuario | null> {
+        try {
+            console.log(`[Service] Buscando código de recuperação: ${codigo}`);
+            const usuario = await this.repository.buscarPorCodigoRecuperacao(codigo);
+
+            if (!usuario) {
+                console.log('[Service] Nenhum usuário encontrado com este código');
+                return null;
+            }
+
+            console.log('[Service] Código encontrado para usuário:', usuario.email);
+            return usuario;
+        } catch (erro) {
+            console.error('[Service] Erro ao buscar código de recuperação:', erro);
+            throw erro;
         }
-        const data:usuarioMongo = await this.repository.buscarPorCodigoRecuperacao(codigo)
-       
-        return data
     }
 }
 

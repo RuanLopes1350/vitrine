@@ -296,7 +296,11 @@ export default function InicioPage() {
           ) : (
             <>
               <CardSessao modo="visitante" />
-              <Produtos modo="visualizar" refreshKey={refreshKey} onRefresh={triggerRefresh} />
+              <Produtos 
+                modo="visualizar" 
+                refreshKey={refreshKey} 
+                onRefresh={triggerRefresh}
+              />
             </>
           )}
         </div>

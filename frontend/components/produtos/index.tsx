@@ -14,6 +14,12 @@ interface ProdutosProps {
   onDeleteProduct?: (produtoId: string) => void;
   refreshKey?: number; // Nova prop para forçar refresh
   onRefresh?: () => void; // Callback para notificar refresh
+  // Props para paginação
+  currentPage?: number;
+  itemsPerPage?: number;
+  onPageChange?: (page: number) => void;
+  onNextPage?: () => void;
+  onPrevPage?: () => void;
 }
 
 export default function Produtos({ 
@@ -22,20 +28,41 @@ export default function Produtos({
   onEditProduct,
   onDeleteProduct,
   refreshKey,
-  onRefresh 
+  onRefresh,
+  currentPage = 0,
+  itemsPerPage,
+  onPageChange,
+  onNextPage,
+  onPrevPage
 }: ProdutosProps) {
   const { produtos, loading, error, buscarProdutos, buscarProdutosPorUsuario, deletarProduto } = useProdutos();
   const { user, isAuthenticated } = useAuth();
   
   // Paginação
-  const [itemsPerPage] = useState<number>(20);
-  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [internalItemsPerPage] = useState<number>(20);
+  const [internalCurrentPage, setInternalCurrentPage] = useState<number>(0);
   
   // Calcular valores derivados
-  const startIndex = currentPage * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const startIndex = internalCurrentPage * internalItemsPerPage;
+  const endIndex = startIndex + internalItemsPerPage;
   const currentItems = produtos.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(produtos.length / itemsPerPage);
+  const totalPages = Math.ceil(produtos.length / internalItemsPerPage);
+  // Funções de navegação
+  const nextPage = () => {
+    if (internalCurrentPage < totalPages - 1) {
+      setInternalCurrentPage(prev => prev + 1);
+    }
+  };
+  
+  const prevPage = () => {
+    if (internalCurrentPage > 0) {
+      setInternalCurrentPage(prev => prev - 1);
+    }
+  };
+  
+  const goToPage = (page: number) => {
+    setInternalCurrentPage(page);
+  };
 
   useEffect(() => {
     if (modo === 'gerenciar' && isAuthenticated && user) {
@@ -46,24 +73,8 @@ export default function Produtos({
       buscarProdutos();
     }
     // Reset para primeira página quando mudar os produtos
-    setCurrentPage(0);
+    setInternalCurrentPage(0);
   }, [modo, isAuthenticated, user, refreshKey]); // Inclui refreshKey como dependência
-  
-  const nextPage = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage(prev => prev + 1);
-    }
-  };
-  
-  const prevPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(prev => prev - 1);
-    }
-  };
-  
-  const goToPage = (page: number) => {
-    setCurrentPage(page);
-  };
   
   const handleEditProduct = (produto: Produto) => {
     if (onEditProduct) {
@@ -137,7 +148,15 @@ export default function Produtos({
           <div className="bg-[#F3E8FF] dark:bg-purple-900/30 p-1.5 sm:p-2 rounded-lg border border-[#E9D5FF] dark:border-purple-700">
             <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5 text-[#9333EA] dark:text-purple-400" />
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-gray-100">{titulo}</h2>
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-[#111827] dark:text-gray-100">{titulo}</h2>
+            <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm">
+              {produtos.length > 0
+                ? `${produtos.length} produto${produtos.length !== 1 ? 's' : ''} disponíve${produtos.length !== 1 ? 'is' : 'l'}`
+                : "Nenhum produto encontrado"
+              }
+            </p>
+          </div>
         </div>
         {isGerenciar && (
           <Button 
