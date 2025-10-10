@@ -25,7 +25,7 @@ async function seedProdutos(usuarios: typeUsuario[]) {
             preco: Number(mapping.preco()),
             imagem: mapping.imagem(),
             ativo: true,
-        };
+        }; 
         await modelProduto.collection.insertOne(produtoAleatorio);
     }
 
