@@ -25,7 +25,7 @@ const authPaths: OpenAPIV3.PathsObject = {
   '/logout': {
     post: {
       tags: ['Auth'],
-      summary: 'Realiza logout (invalidação no frontend)',
+      summary: 'Realiza logout do sistema',
       security: [{ bearerAuth: [] }],
       responses: {
         200: commonResponses[200](),
