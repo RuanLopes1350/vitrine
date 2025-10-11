@@ -59,8 +59,8 @@ export default function CardSessao({
   console.log(fotoUsuario)
   if (modo === 'logado') {
     return (
-      <div className="bg-gradient-to-r from-[#9333EA] to-[#7C3AED] rounded-xl p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 md:mb-8 text-white shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center space-x-3 sm:space-x-6 w-full sm:w-auto">
+      <div className="bg-gradient-to-r from-[#9333EA] to-[#7C3AED] rounded-xl p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 md:mb-8 text-white shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 overflow-hidden">
+        <div className="flex items-center space-x-3 sm:space-x-6 w-full sm:w-auto min-w-0">
           <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden bg-white bg-opacity-20 flex items-center justify-center ring-2 sm:ring-4 ring-white ring-opacity-20 flex-shrink-0">
             {fotoUsuario ? (
               <Image
@@ -77,12 +77,12 @@ export default function CardSessao({
             )}
           </div>
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-2 min-w-0 overflow-hidden">
             <h2 className="text-lg sm:text-xl font-bold truncate">{nomeLoja}</h2>
-            <p className="text-purple-100 text-xs sm:text-sm">{mensagem}</p>
+            <p className="text-purple-100 text-xs sm:text-sm break-words overflow-wrap-anywhere w-[900px]">{mensagem}</p>
           </div>
         </div>
-        <div className="flex flex-col w-full sm:w-auto">
+        <div className="flex flex-col w-full sm:w-auto min-w-0">
           <span className="p-[2px] font-bold text-sm sm:text-base">Link da Loja:</span>
           <span
             title={copiado ? "Link Copiado!" : "Copiar link da loja"} 

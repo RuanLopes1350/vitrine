@@ -149,92 +149,116 @@ export default function PerfilPage() {
     const whatsappRef = useRef<HTMLInputElement>(null)
     const descRef = useRef<HTMLTextAreaElement>(null)
 
-    async function postDados(nomeLoja: string, whatsapp: string, descricao: string, fotoPerfil?: string) {
+    async function salvarPerfil() {
+        // Validações de entrada
+        const nomeLoja = nomeRefLoja.current?.value.trim() || '';
+        const whatsappFormatado = whatsappRef.current?.value.trim() || '';
+        const whatsapp = unformatWhatsApp(whatsappFormatado);
+        const desc = descRef.current?.value.trim() || '';
+
+        // Validar WhatsApp
+        if (whatsapp.length < 10 || whatsapp.length > 11) {
+            showError("O WhatsApp deve ter entre 10 e 11 dígitos!");
+            return;
+        }
+
+        if (!/^\d+$/.test(whatsapp)) {
+            showError("O WhatsApp deve conter apenas números!");
+            return;
+        }
+
+        // Validar nome da loja
+        if (!/^(?=.*[a-zA-Z])[a-zA-Z0-9 ]+$/.test(nomeLoja)) {
+            showError("O nome deve conter apenas letras e números!");
+            return;
+        }
+
+        // Validar descrição
+        if (desc.length > 500) {
+            showError("A descrição não pode passar de 500 caracteres!");
+            return;
+        }
+
         try {
-            const dados = {
-                nomeLoja: nomeLoja,
-                whatsapp: "55" + unformatWhatsApp(whatsapp),
-                mensagem: descricao,
-                ...(fotoPerfil && { fotoPerfil })
-
-            }
-
-            // Usar o apiClient que já tem o token configurado automaticamente
-            const resposta = await apiClient.patch(`/usuarios/${user?.id}`, dados);
-
-            if (resposta.status === 200) {
-                if (nomeRefLoja.current?.value && whatsappRef.current?.value) {
-                    nomeRefLoja.current.value = nomeLoja
-                    whatsappRef.current.value = whatsapp
+            // Upload da foto se houver
+            let fotoPerfilUrl = user?.fotoPerfil;
+            
+            if (selectedProfileFile) {
+                setUploadingProfile(true);
+                showSuccess('Fazendo upload da foto...');
+                
+                const uploadResult = await uploadImage(selectedProfileFile);
+                setUploadingProfile(false);
+                
+                if (!uploadResult) {
+                    showError('Falha no upload da foto');
+                    return;
                 }
-
-                // Atualizar o user no contexto corretamente
-                updateUser({
-                    nomeLoja: nomeLoja,
-                    whatsapp: "55" + unformatWhatsApp(whatsapp),
-                    mensagem: descricao,
-                    ...(fotoPerfil && { fotoPerfil })
-                });
-
-                // Atualizar estados locais
-                setNomeLoja(nomeLoja)
-                setWhatsapp(whatsapp) // sem prefixo para display
-                setDesc(descricao)
-                setVisible(true)
-                setInterable("pointer-events-none select-none")
-
-                // Toast de sucesso
-                showSuccess("Dados salvos com sucesso!");
-                return
+                
+                fotoPerfilUrl = uploadResult.secure_url;
             }
 
-            // Toast de erro para falha na resposta
-            showError(`Erro ao salvar alterações: ${resposta.status}`);
-
-        } catch (erro: unknown) {
-            // Type guard para verificar se é um erro do Axios
-            const isAxiosError = (error: unknown): error is ErrorResponse => {
-                return typeof error === 'object' &&
-                    error !== null &&
-                    'response' in error;
+            // Salvar dados no backend
+            const dados = {
+                nomeLoja,
+                whatsapp: whatsapp,
+                mensagem: desc,
+                ...(fotoPerfilUrl && { fotoPerfil: fotoPerfilUrl })
             };
 
-            if (isAxiosError(erro)) {
-                const data = erro.response?.data;
-                const statusCode = data?.code || erro.response?.status;
+            const resposta = await apiClient.patch(`usuarios/${user?.id}`, dados);
 
-                // Erro de validação (422)
-                if (statusCode === 422) {
-                    restaurarDados();
-                    setInterable("pointer-events-none select-none");
-                    // Usar função utilitária para mostrar erro personalizado
-                    showApiError(erro, "Erro de validação nos dados enviados");
-                    return;
-                }
+            if (resposta.status === 200) {
+                // Atualizar contexto de autenticação
+                updateUser(dados);
 
-                // O apiClient já trata 401/403 automaticamente fazendo logout
-                if (statusCode === 403 || statusCode === 401) {
-                    logout();
-                    return;
-                }
-
-                restaurarDados();
+                // Atualizar estados locais
+                setNomeLoja(nomeLoja);
+                setWhatsapp(whatsappFormatado);
+                setDesc(desc);
+                setVisible(true);
                 setInterable("pointer-events-none select-none");
-                // Usar função utilitária para mostrar erro personalizado
-                showApiError(erro, `Erro ao salvar alterações (${statusCode})`);
 
+                // Limpar preview da foto
+                if (previewProfileUrl) {
+                    URL.revokeObjectURL(previewProfileUrl);
+                    setPreviewProfileUrl(null);
+                    setSelectedProfileFile(null);
+                }
+
+                showSuccess("Perfil atualizado com sucesso!");
             } else {
-                // Erro genérico (rede, etc.)
+                showError(`Erro ao salvar: ${resposta.status}`);
+            }
+
+        } catch (erro: any) {
+            const statusCode = erro.response?.data?.code || erro.response?.status;
+
+            if (statusCode === 422) {
                 restaurarDados();
                 setInterable("pointer-events-none select-none");
-                // Toast para erro de conexão
-                showError("Erro de conexão. Verifique sua internet e tente novamente.");
+                showApiError(erro, "Erro de validação");
+                return;
             }
+
+            // Para erros 401/403, deixe o interceptor do apiClient cuidar
+            // Ele já faz logout e redireciona automaticamente
+            // Apenas restaure os dados e saia
+            if (statusCode === 401 || statusCode === 403) {
+                restaurarDados();
+                setInterable("pointer-events-none select-none");
+                return;
+            }
+
+            restaurarDados();
+            setInterable("pointer-events-none select-none");
+            showApiError(erro, "Erro ao salvar perfil");
         }
     }
+
     function restaurarDados() {
         if (nomeRefLoja.current && user?.nomeLoja) {
-            nomeRefLoja.current.value = user.nomeLoja
+            nomeRefLoja.current.value = user.nomeLoja;
         }
         if (whatsappRef.current && user?.whatsapp) {
             const whatsappSemPrefixo = user.whatsapp.startsWith('55')
@@ -243,70 +267,12 @@ export default function PerfilPage() {
             whatsappRef.current.value = formatWhatsApp(whatsappSemPrefixo);
         }
         if (descRef.current && user?.mensagem) {
-            descRef.current.value = user.mensagem
+            descRef.current.value = user.mensagem;
         } else if (descRef.current) {
-            descRef.current.value = ""
+            descRef.current.value = "";
         }
-        autoResize()
-        setVisible(true)
-    }
-    async function validarDados() {
-
-        const whatsappRegex = /^\d+$/
-        const nomeRegex = /^(?=.*[a-zA-Z])[a-zA-Z0-9 ]+$/
-        const nomeLoja = nomeRefLoja.current?.value.trim() as string
-        const whatsapp = unformatWhatsApp(whatsappRef.current?.value.trim() as string)
-        const desc = descRef.current?.value.trim() as string
-
-        if (whatsapp?.length < 10 || whatsapp?.length > 11) {
-            // Toast para erro de WhatsApp
-            showError("O número de WhatsApp deve ter entre 10 e 11 dígitos! Exemplo: 99 9999-9999 ou 99 99999-9999");
-            return
-        }
-
-        let fotoPerfilUrl = user?.fotoPerfil;
-
-        if (selectedProfileFile) {
-            setUploadingProfile(true);
-            showSuccess('Fazendo upload da foto...');
-
-            const uploadResult = await uploadImage(selectedProfileFile);
-
-            setUploadingProfile(false);
-
-            if (!uploadResult) {
-                showError('Falha no upload da foto de perfil');
-                return;
-            }
-
-            fotoPerfilUrl = uploadResult.secure_url;
-            console.log('Foto enviada com sucesso:', fotoPerfilUrl);
-        }
-
-        if (!whatsappRegex.test(whatsapp)) {
-            // Toast para erro de formato do WhatsApp
-            showError("O WhatsApp deve conter somente números, sem espaços!");
-            return
-        }
-
-        if (!nomeRegex.test(nomeLoja)) {
-            // Toast para erro do nome da loja
-            showError("O nome deve conter somente números e letras, sem caracteres especiais!");
-            return
-        }
-        if (desc?.length > 500) {
-            showError("A descrição não pode passar de 500 caracteres!")
-            return
-        }
-
-        await postDados(nomeLoja, formatWhatsApp(whatsapp), desc, fotoPerfilUrl);
-
-        // Limpar preview após salvar
-        if (previewProfileUrl) {
-            URL.revokeObjectURL(previewProfileUrl);
-            setPreviewProfileUrl(null);
-            setSelectedProfileFile(null);
-        }
+        autoResize();
+        setVisible(true);
     }
 
     function autoResize() {
@@ -460,7 +426,7 @@ export default function PerfilPage() {
                     <button onClick={() => { setVisible(false); setInterable("bg-[#fff]") }} className={"bg-[#9333EA] dark:bg-purple-600 font-medium hover:bg-[#7E22CE] dark:hover:bg-purple-700 w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-[#fff] text-sm sm:text-base " + (isVisible ? "" : "hidden")}>Editar</button>
                     <div className={"flex mx-auto gap-[16px] sm:gap-[20px] " + (!isVisible ? "" : "hidden")}>
                         <button onClick={() => { setInterable("pointer-events-none select-none"); restaurarDados() }} className={"bg-[#CD5C5C] dark:bg-red-600 text-[#fff] font-medium hover:bg-[#B22222] dark:hover:bg-red-700 w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer text-sm sm:text-base "}>Cancelar</button>
-                        <button onClick={() => { validarDados(); }} id="salvar" className="font-medium bg-green-600 dark:bg-green-700 text-[#fff] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer hover:bg-green-700 dark:hover:bg-green-800 text-sm sm:text-base ">Salvar</button>
+                        <button onClick={() => { salvarPerfil(); }} id="salvar" className="font-medium bg-green-600 dark:bg-green-700 text-[#fff] w-[100px] mx-auto rounded-lg p-[10px] cursor-pointer hover:bg-green-700 dark:hover:bg-green-800 text-sm sm:text-base ">Salvar</button>
                     </div>
                 </div>
             </div>
