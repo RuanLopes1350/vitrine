@@ -4,6 +4,10 @@ import getOpenAPIOptions from "../docs/config/head.js";
 
 const router = express.Router();
 
+// Detecta se está na Vercel ou local
+const isVercel = process.env.VERCEL === '1';
+const baseUrl = isVercel ? '/api' : '';
+
 // Endpoint para servir o JSON do OpenAPI
 router.get("/openapi.json", async (req, res) => {
     try {
@@ -19,7 +23,7 @@ router.get("/openapi.json", async (req, res) => {
 router.use(
     "/",
     apiReference({
-        url: "/api/docs/openapi.json",
+        url: `${baseUrl}/docs/openapi.json`,
     })
 );
 

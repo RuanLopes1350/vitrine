@@ -13,7 +13,7 @@ const getServersInCorrectOrder = (): OpenAPIV3.ServerObject[] => {
         url: process.env.SCALAR_PROD_URL || `https://vitrine-fawn.vercel.app/api`
     };
     const devUrl: OpenAPIV3.ServerObject = {
-        url: process.env.SCALAR_DEV_URL || "http://localhost:1350"
+        url: process.env.SCALAR_DEV_URL || "http://localhost:1350/api"
     };
 
     if (process.env.NODE_ENV === "development") return [devUrl, prodUrl];

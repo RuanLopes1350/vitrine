@@ -23,9 +23,27 @@ const authSchemas: SchemaRecord = {
         type: "string",
         format: "email",
         description: "Endereço de email do usuário para recuperação de senha",
+        example: "usuario@exemplo.com"
       }
     },
-    required: ["email"]
+    required: ["email"],
+    example: {
+      email: "usuario@exemplo.com"
+    }
+  },
+  RequisicaoTrocaSenha: {
+    type: "object",
+    properties: {
+      senha: {
+        type: "string",
+        description: "Nova senha do usuário (mínimo 8 caracteres)",
+        example: "NovaSenha@123"
+      }
+    },
+    required: ["senha"],
+    example: {
+      senha: "NovaSenha@123"
+    }
   },
   loginPost: {
     type: "object",
