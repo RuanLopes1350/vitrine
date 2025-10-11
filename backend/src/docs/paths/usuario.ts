@@ -98,6 +98,28 @@ const usuarioPaths: OpenAPIV3.PathsObject = {
         500: commonResponses[500]()
       }
     }
+  },
+  '/usuarios/senha/{code}': {
+    get: {
+      tags: ['Usuários'],
+      summary: 'Valida código de recuperação de senha',
+      parameters: [
+        {
+          name: 'code',
+          in: 'path',
+          required: true,
+          schema: { type: 'string' },
+          description: 'Código de recuperação de senha'
+        }
+      ],
+      responses: {
+        200: commonResponses[200]("#/components/schemas/RespostaValidacaoCodigo"),
+        400: commonResponses[400](),
+        404: commonResponses[404](),
+        410: commonResponses[410](),
+        500: commonResponses[500]()
+      }
+    }
   }
 };
 
