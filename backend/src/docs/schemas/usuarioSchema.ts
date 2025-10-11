@@ -88,16 +88,31 @@ const usuarioSchemas: Record<string, JSONSchema> = {
       accessToken: "jwt_token_aqui",
     },
   },
+  RespostaValidacaoCodigo: {
+    type: "object",
+    properties: {
+      codigoRecuperaSenha: {
+        type: "string",
+        description: "Código de recuperação de senha válido",
+        example: "ABC123DEF"
+      }
+    },
+    description: "Schema para resposta da validação de código de recuperação",
+    example: {
+      codigoRecuperaSenha: "ABC123DEF"
+    }
+  }
 };
 
 // Campos a remover em cada schema
 const removalMapping: Record<string, string[]> = {
-  UsuarioListagem: ["__v", "senha", "accessToken"],
-  UsuarioDetalhes: ["__v", "senha", "accessToken"],
-  UsuarioPost: ["__v", "_id", "accessToken"],
-  UsuarioPatch: ["__v", "_id", "accessToken"],
-  UsuarioLogin: ["__v", "_id", "accessToken"],
+  UsuarioListagem: ["__v", "senha", "accessToken", "codigoRecuperaSenha", "expCodigoRecuperaSenha"],
+  UsuarioDetalhes: ["__v", "senha", "accessToken", "codigoRecuperaSenha", "expCodigoRecuperaSenha"],
+  UsuarioPost: ["__v", "_id", "accessToken", "codigoRecuperaSenha", "expCodigoRecuperaSenha"],
+  UsuarioPatch: ["__v", "_id", "accessToken", "codigoRecuperaSenha", "expCodigoRecuperaSenha"],
+  UsuarioLogin: ["__v", "_id", "accessToken", "codigoRecuperaSenha", "expCodigoRecuperaSenha"],
   UsuarioRespostaLogin: ["__v", "senha"],
+  RespostaValidacaoCodigo: ["__v", "senha", "accessToken", "expCodigoRecuperaSenha"],
 };
 
 // Aplica remoção de campos

@@ -102,7 +102,7 @@ const produtoSchemas: Record<string, JSONSchema> = {
   },
   ProdutoPost: {
     ...deepCopy(produtoJsonSchema),
-    required: ["nome_produto", "descricao", "preco", "mensagem"],
+    required: ["nome_produto", "descricao", "preco"],
     description: "Schema para criação de um produto",
     example: {
       criador: "687466f04c27d5dd5911bedb",
@@ -110,8 +110,7 @@ const produtoSchemas: Record<string, JSONSchema> = {
       descricao: "Notebook potente para jogos e trabalho",
       preco: 5999.99,
       imagem: "http://exemplo.com/imagem.jpg",
-      ativo: true,
-      mensagem: "Produto disponível!"
+      ativo: true
     },
   },
   ProdutoPatch: {
