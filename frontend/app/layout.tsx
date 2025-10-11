@@ -3,6 +3,7 @@ import ClientLayout from "@/components/ClientLayout.tsx";
 import { Metadata } from "next";
 import Head from "next/head";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata: Metadata = {
   title: 'Vitrine',
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body className="h-screen flex flex-col">
         <Analytics />
         <ClientLayout>{children}</ClientLayout>
+        <SpeedInsights />
       </body>
     </html>
   );

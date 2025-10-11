@@ -261,7 +261,7 @@ export default function PerfilPage() {
 
         if (whatsapp?.length < 10 || whatsapp?.length > 11) {
             // Toast para erro de WhatsApp
-            showError("O número de WhatsApp deve ter entre 10 e 11 dígitos! Exemplo: 99 9999-9999 ou 99 99999-9999");
+            showError("O número de WhatsApp deve ter entre 10 e 11 dígitos! Exemplo: ou 99 99999-9999");
             return
         }
 

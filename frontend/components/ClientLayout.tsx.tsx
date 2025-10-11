@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import Header from "@/components/header";
 import React from "react";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 
 export default function ClientLayout({
@@ -19,6 +20,7 @@ export default function ClientLayout({
         <main className="flex-grow">
         <Analytics />
           {children}
+          <SpeedInsights />
         </main>
       </AuthProvider>
     </ThemeProvider>
